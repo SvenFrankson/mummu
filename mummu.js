@@ -1,3 +1,68 @@
+var Mummu;
+(function (Mummu) {
+    class AnimationFactory {
+        static CreateWait(owner, onUpdateCallback) {
+            let scene;
+            return (duration) => {
+                return new Promise(resolve => {
+                    let t = 0;
+                    let animationCB = () => {
+                        t += 1 / 60;
+                        let f = t / duration;
+                        if (f < 1) {
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                        }
+                        else {
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                            owner.getScene().onBeforeRenderObservable.removeCallback(animationCB);
+                            resolve();
+                        }
+                    };
+                    owner.getScene().onBeforeRenderObservable.add(animationCB);
+                });
+            };
+        }
+        static CreateNumber(owner, obj, property, onUpdateCallback) {
+            return (target, duration) => {
+                return new Promise(resolve => {
+                    let origin = obj[property];
+                    let t = 0;
+                    if (owner[property + "_animation"]) {
+                        owner.getScene().onBeforeRenderObservable.removeCallback(owner[property + "_animation"]);
+                    }
+                    let animationCB = () => {
+                        t += 1 / 60;
+                        let f = t / duration;
+                        if (f < 1) {
+                            obj[property] = origin * (1 - f) + target * f;
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                        }
+                        else {
+                            obj[property] = target;
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                            owner.getScene().onBeforeRenderObservable.removeCallback(animationCB);
+                            owner[property + "_animation"] = undefined;
+                            resolve();
+                        }
+                    };
+                    owner.getScene().onBeforeRenderObservable.add(animationCB);
+                    owner[property + "_animation"] = animationCB;
+                });
+            };
+        }
+    }
+    AnimationFactory.EmptyVoidCallback = async (duration) => { };
+    AnimationFactory.EmptyNumberCallback = async (target, duration) => { };
+    Mummu.AnimationFactory = AnimationFactory;
+})(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
 (function (Mummu) {
