@@ -60,6 +60,21 @@ namespace Mummu {
         return cross.length();
     }
 
+    export function DistancePointSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): number {
+        let AP = TmpVec3[0];
+        let dir = TmpVec3[1];
+        let projP = TmpVec3[2];
+        AP.copyFrom(point).subtractInPlace(segA);
+        dir.copyFrom(segB).subtractInPlace(segA);
+        let l = dir.length();
+        dir.scaleInPlace(1 / l);
+        let dist = BABYLON.Vector3.Dot(AP, dir);
+        dist = Math.max(Math.min(dist, l), 0);
+        projP.copyFrom(dir).scaleInPlace(dist).addInPlace(segA);
+        let PprojP = projP.subtractInPlace(point);
+        return PprojP.length();
+    }
+
     export function StepToRef(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number, ref: BABYLON.Vector3): BABYLON.Vector3 {
         from = TmpVec3[0].copyFrom(from);
         let sqrStep = step * step;
