@@ -1,6 +1,6 @@
 /// <reference path="../lib/babylon.d.ts"/>
 
-namespace Nabu {
+namespace Mummu {
     
     var TmpVec3 = [
         BABYLON.Vector3.Zero(),
@@ -48,6 +48,16 @@ namespace Nabu {
             }
         }
         return angle;
+    }
+
+    export function DistancePointLine(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3): number {
+        let PA = TmpVec3[0];
+        let dir = TmpVec3[1];
+        let cross = TmpVec3[2];
+        PA.copyFrom(lineA).subtractInPlace(point);
+        dir.copyFrom(lineB).subtractInPlace(lineA).normalize();
+        BABYLON.Vector3.CrossToRef(PA, dir, cross);
+        return cross.length();
     }
 
     export function StepToRef(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number, ref: BABYLON.Vector3): BABYLON.Vector3 {
