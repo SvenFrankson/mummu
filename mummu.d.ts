@@ -20,6 +20,8 @@ declare namespace Mummu {
     function DistancePointSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): number;
     function StepToRef(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number, ref: BABYLON.Vector3): BABYLON.Vector3;
     function Step(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number): BABYLON.Vector3;
+    function CatmullRomPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[];
+    function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[];
 }
 declare namespace Mummu {
     function CloneVertexData(data: BABYLON.VertexData): BABYLON.VertexData;
