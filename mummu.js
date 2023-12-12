@@ -71,6 +71,9 @@ var Mummu;
         BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero()
     ];
+    var TmpQuat = [
+        BABYLON.Quaternion.Identity()
+    ];
     function IsFinite(v) {
         return isFinite(v.x) && isFinite(v.y) && isFinite(v.z);
     }
@@ -89,6 +92,20 @@ var Mummu;
         return p;
     }
     Mummu.ProjectPerpendicularAt = ProjectPerpendicularAt;
+    function Rotate(v, axis, angle) {
+        let rotatedV = BABYLON.Vector3.Zero();
+        return RotateToRef(v, axis, angle, rotatedV);
+    }
+    Mummu.Rotate = Rotate;
+    function RotateToRef(v, axis, angle, ref) {
+        BABYLON.Quaternion.RotationAxisToRef(axis, angle, TmpQuat[0]);
+        return v.rotateByQuaternionToRef(TmpQuat[0], ref);
+    }
+    Mummu.RotateToRef = RotateToRef;
+    function RotateInPlace(v, axis, angle) {
+        return RotateToRef(v, axis, angle, v);
+    }
+    Mummu.RotateInPlace = RotateInPlace;
     function Angle(from, to) {
         let pFrom = TmpVec3[0].copyFrom(from).normalize();
         let pTo = TmpVec3[1].copyFrom(from).normalize();
@@ -156,6 +173,52 @@ var Mummu;
         return v;
     }
     Mummu.Step = Step;
+    function ForceDistanceFromOriginInPlace(point, origin, distance) {
+        TmpVec3[0].copyFrom(point).subtractInPlace(origin).normalize().scaleInPlace(distance);
+        point.copyFrom(origin).addInPlace(TmpVec3[0]);
+        return point;
+    }
+    Mummu.ForceDistanceFromOriginInPlace = ForceDistanceFromOriginInPlace;
+    function QuaternionFromXYAxisToRef(x, y, ref) {
+        let xAxis = TmpVec3[0].copyFrom(x);
+        let yAxis = TmpVec3[1].copyFrom(y);
+        let zAxis = TmpVec3[2];
+        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
+        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromXYAxisToRef = QuaternionFromXYAxisToRef;
+    function QuaternionFromYZAxisToRef(y, z, ref) {
+        let xAxis = TmpVec3[0];
+        let yAxis = TmpVec3[1].copyFrom(y);
+        let zAxis = TmpVec3[2].copyFrom(z);
+        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
+        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromYZAxisToRef = QuaternionFromYZAxisToRef;
+    function QuaternionFromZXAxisToRef(z, x, ref) {
+        let xAxis = TmpVec3[0].copyFrom(x);
+        let yAxis = TmpVec3[1];
+        let zAxis = TmpVec3[2].copyFrom(z);
+        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
+        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromZXAxisToRef = QuaternionFromZXAxisToRef;
+    function QuaternionFromZYAxisToRef(z, y, ref) {
+        let xAxis = TmpVec3[0];
+        let yAxis = TmpVec3[1].copyFrom(y);
+        let zAxis = TmpVec3[2].copyFrom(z);
+        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
+        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromZYAxisToRef = QuaternionFromZYAxisToRef;
     function CatmullRomPathInPlace(path) {
         let pFirst = TmpVec3[0];
         pFirst.copyFrom(path[0]).subtractInPlace(path[1]);
