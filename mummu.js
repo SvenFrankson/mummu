@@ -189,6 +189,16 @@ var Mummu;
         return ref;
     }
     Mummu.QuaternionFromXYAxisToRef = QuaternionFromXYAxisToRef;
+    function QuaternionFromXZAxisToRef(x, z, ref) {
+        let xAxis = TmpVec3[0].copyFrom(x);
+        let yAxis = TmpVec3[1];
+        let zAxis = TmpVec3[2].copyFrom(z);
+        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
+        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromXZAxisToRef = QuaternionFromXZAxisToRef;
     function QuaternionFromYZAxisToRef(y, z, ref) {
         let xAxis = TmpVec3[0];
         let yAxis = TmpVec3[1].copyFrom(y);
