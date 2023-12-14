@@ -33,12 +33,18 @@ declare namespace Mummu {
     function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[];
 }
 declare namespace Mummu {
-    function CloneVertexData(data: BABYLON.VertexData): BABYLON.VertexData;
-    function GetVertexData(path: string): Promise<BABYLON.VertexData[]>;
-    function GetColorizedVertexData(path: string, baseColorHex?: string, frameColorHex?: string, color1Hex?: string, // Replace red
-    color2Hex?: string, // Replace green
-    color3Hex?: string): Promise<BABYLON.VertexData>;
-    function GetColorizedMultipleVertexData(path: string, baseColorHex?: string, frameColorHex?: string, color1Hex?: string, // Replace red
-    color2Hex?: string, // Replace green
-    color3Hex?: string): Promise<BABYLON.VertexData[]>;
+    class VertexDataLoader {
+        static instance: VertexDataLoader;
+        scene: BABYLON.Scene;
+        private _vertexDatas;
+        constructor(scene: BABYLON.Scene);
+        static clone(data: BABYLON.VertexData): BABYLON.VertexData;
+        get(url: string, scene?: BABYLON.Scene): Promise<BABYLON.VertexData[]>;
+        getColorized(url: string, baseColorHex?: string, frameColorHex?: string, color1Hex?: string, // Replace red
+        color2Hex?: string, // Replace green
+        color3Hex?: string): Promise<BABYLON.VertexData>;
+        getColorizedMultiple(url: string, baseColorHex?: string, frameColorHex?: string, color1Hex?: string, // Replace red
+        color2Hex?: string, // Replace green
+        color3Hex?: string): Promise<BABYLON.VertexData[]>;
+    }
 }

@@ -2,9 +2,20 @@
 
 namespace Mummu {
     
-        let CachedData: Map<string, BABYLON.VertexData[]> = new Map<string, BABYLON.VertexData[]>();
-        
-        export function CloneVertexData(data: BABYLON.VertexData): BABYLON.VertexData {
+    export class VertexDataLoader {
+
+        public static instance: VertexDataLoader;
+    
+        public scene: BABYLON.Scene;
+        private _vertexDatas: Map<string, BABYLON.VertexData[]>;
+    
+        constructor(scene: BABYLON.Scene) {
+            this.scene = scene;
+            this._vertexDatas = new Map<string, BABYLON.VertexData[]>();
+            VertexDataLoader.instance = this;
+        }
+    
+        public static clone(data: BABYLON.VertexData): BABYLON.VertexData {
             let clonedData = new BABYLON.VertexData();
             clonedData.positions = [...data.positions];
             clonedData.indices = [...data.indices];
@@ -24,12 +35,12 @@ namespace Mummu {
             return clonedData;
         }
     
-        export async function GetVertexData(path: string): Promise<BABYLON.VertexData[]> {
-            if (CachedData.get(path)) {
-                return CachedData.get(path);
+        public async get(url: string, scene?: BABYLON.Scene): Promise<BABYLON.VertexData[]> {
+            if (this._vertexDatas.get(url)) {
+                return this._vertexDatas.get(url);
             }
             let vertexData: BABYLON.VertexData = undefined;
-            let loadedFile = await BABYLON.SceneLoader.ImportMeshAsync("", path, "");
+            let loadedFile = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene);
             let vertexDatas: BABYLON.VertexData[] = [];
             let loadedFileMeshes = loadedFile.meshes.sort(
                 (m1, m2) => {
@@ -84,26 +95,26 @@ namespace Mummu {
                     vertexDatas.push(vertexData);
                 }
             }
-            CachedData.set(path, vertexDatas);
+            this._vertexDatas.set(url, vertexDatas);
             loadedFileMeshes.forEach(m => { m.dispose(); });
             loadedFile.skeletons.forEach(s => { s.dispose(); });
             return vertexDatas;
         }
     
-        export async function GetColorizedVertexData(
-            path: string, 
+        public async getColorized(
+            url: string, 
             baseColorHex: string = "#FFFFFF",
             frameColorHex: string = "",
             color1Hex: string = "", // Replace red
             color2Hex: string = "", // Replace green
             color3Hex: string = "" // Replace blue
         ): Promise<BABYLON.VertexData> {
-            let vertexDatas = await GetColorizedMultipleVertexData(path, baseColorHex, frameColorHex, color1Hex, color2Hex, color3Hex);
+            let vertexDatas = await this.getColorizedMultiple(url, baseColorHex, frameColorHex, color1Hex, color2Hex, color3Hex);
             return vertexDatas[0];
         }
     
-        export async function GetColorizedMultipleVertexData(
-            path: string, 
+        public async getColorizedMultiple(
+            url: string, 
             baseColorHex: string = "#FFFFFF",
             frameColorHex: string = "",
             color1Hex: string = "", // Replace red
@@ -130,11 +141,11 @@ namespace Mummu {
             if (color3Hex !== "") {
                 color3 = BABYLON.Color3.FromHexString(color3Hex);
             }
-            let vertexDatas = await GetVertexData(path);
+            let vertexDatas = await VertexDataLoader.instance.get(url);
             let colorizedVertexDatas: BABYLON.VertexData[] = [];
             for (let d = 0; d < vertexDatas.length; d++) {
                 let vertexData = vertexDatas[d];
-                let colorizedVertexData = CloneVertexData(vertexData);
+                let colorizedVertexData = VertexDataLoader.clone(vertexData);
                 if (colorizedVertexData.colors) {
                     for (let i = 0; i < colorizedVertexData.colors.length / 4; i++) {
                         let r = colorizedVertexData.colors[4 * i];
@@ -196,4 +207,5 @@ namespace Mummu {
             }
             return colorizedVertexDatas;
         }
+    }
 }
