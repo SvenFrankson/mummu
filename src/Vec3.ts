@@ -7,6 +7,7 @@ namespace Mummu {
         BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero()
     ];
+
     var TmpQuat = [
         BABYLON.Quaternion.Identity()
     ];
@@ -75,6 +76,20 @@ namespace Mummu {
         dir.copyFrom(lineB).subtractInPlace(lineA).normalize();
         BABYLON.Vector3.CrossToRef(PA, dir, cross);
         return cross.length();
+    }
+
+    export function ProjectPointOnSegmentToRef(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3 {
+        let AP = TmpVec3[0];
+        let dir = TmpVec3[1];
+        AP.copyFrom(point).subtractInPlace(segA);
+        dir.copyFrom(segB).subtractInPlace(segA);
+        let l = dir.length();
+        dir.scaleInPlace(1 / l);
+        let dist = BABYLON.Vector3.Dot(AP, dir);
+        dist = Math.max(Math.min(dist, l), 0);
+        ref.copyFrom(dir).scaleInPlace(dist).addInPlace(segA);
+
+        return ref;
     }
 
     export function DistancePointSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): number {

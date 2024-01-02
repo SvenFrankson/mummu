@@ -63,6 +63,32 @@ var Mummu;
     AnimationFactory.EmptyNumberCallback = async (target, duration) => { };
     Mummu.AnimationFactory = AnimationFactory;
 })(Mummu || (Mummu = {}));
+var Mummu;
+(function (Mummu) {
+    class Intersection {
+        constructor() {
+            this.hit = false;
+            this.depth = 0;
+        }
+    }
+    function SphereCapsuleIntersection(cSphere, rSphere, c1Capsule, c2Capsule, rCapsule) {
+        let intersection = new Intersection();
+        let dist = Mummu.DistancePointSegment(cSphere, c1Capsule, c2Capsule);
+        let depth = (rSphere + rCapsule) - dist;
+        if (depth > 0) {
+            intersection.hit = true;
+            intersection.depth = depth;
+            let proj = BABYLON.Vector3.Zero();
+            Mummu.ProjectPointOnSegmentToRef(cSphere, c1Capsule, c2Capsule, proj);
+            let dir = cSphere.subtract(proj).normalize();
+            intersection.point = dir.scale(rCapsule);
+            intersection.point.addInPlace(proj);
+            intersection.normal = dir;
+        }
+        return intersection;
+    }
+    Mummu.SphereCapsuleIntersection = SphereCapsuleIntersection;
+})(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
 (function (Mummu) {
@@ -140,6 +166,19 @@ var Mummu;
         return cross.length();
     }
     Mummu.DistancePointLine = DistancePointLine;
+    function ProjectPointOnSegmentToRef(point, segA, segB, ref) {
+        let AP = TmpVec3[0];
+        let dir = TmpVec3[1];
+        AP.copyFrom(point).subtractInPlace(segA);
+        dir.copyFrom(segB).subtractInPlace(segA);
+        let l = dir.length();
+        dir.scaleInPlace(1 / l);
+        let dist = BABYLON.Vector3.Dot(AP, dir);
+        dist = Math.max(Math.min(dist, l), 0);
+        ref.copyFrom(dir).scaleInPlace(dist).addInPlace(segA);
+        return ref;
+    }
+    Mummu.ProjectPointOnSegmentToRef = ProjectPointOnSegmentToRef;
     function DistancePointSegment(point, segA, segB) {
         let AP = TmpVec3[0];
         let dir = TmpVec3[1];
