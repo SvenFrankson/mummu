@@ -88,11 +88,29 @@ var Mummu;
         return intersection;
     }
     Mummu.SphereCapsuleIntersection = SphereCapsuleIntersection;
+    function SphereWireIntersection(cSphere, rSphere, path, rWire) {
+        let intersection = new Intersection();
+        let proj = BABYLON.Vector3.Zero();
+        Mummu.ProjectPointOnPathToRef(cSphere, path, proj);
+        let dist = BABYLON.Vector3.Distance(cSphere, proj);
+        let depth = (rSphere + rWire) - dist;
+        if (depth > 0) {
+            intersection.hit = true;
+            intersection.depth = depth;
+            let dir = cSphere.subtract(proj).normalize();
+            intersection.point = dir.scale(rWire);
+            intersection.point.addInPlace(proj);
+            intersection.normal = dir;
+        }
+        return intersection;
+    }
+    Mummu.SphereWireIntersection = SphereWireIntersection;
 })(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
 (function (Mummu) {
     var TmpVec3 = [
+        BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero()
@@ -194,6 +212,20 @@ var Mummu;
         return PprojP.length();
     }
     Mummu.DistancePointSegment = DistancePointSegment;
+    function ProjectPointOnPathToRef(point, path, ref) {
+        let proj = TmpVec3[3];
+        let bestSqrDist = Infinity;
+        for (let i = 0; i < path.length - 1; i++) {
+            ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
+            let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
+            if (sqrDist < bestSqrDist) {
+                ref.copyFrom(proj);
+                bestSqrDist = sqrDist;
+            }
+        }
+        return ref;
+    }
+    Mummu.ProjectPointOnPathToRef = ProjectPointOnPathToRef;
     function StepToRef(from, to, step, ref) {
         from = TmpVec3[0].copyFrom(from);
         let sqrStep = step * step;

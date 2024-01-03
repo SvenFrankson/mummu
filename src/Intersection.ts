@@ -39,4 +39,25 @@ namespace Mummu {
 
         return intersection;
     }
+
+    export function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number): IIntersection {
+        let intersection = new Intersection();
+
+        let proj = BABYLON.Vector3.Zero();
+        Mummu.ProjectPointOnPathToRef(cSphere, path, proj);
+        let dist = BABYLON.Vector3.Distance(cSphere, proj);
+
+        let depth = (rSphere + rWire) - dist;
+
+        if (depth > 0) {
+            intersection.hit = true;
+            intersection.depth = depth;
+            let dir = cSphere.subtract(proj).normalize();
+            intersection.point = dir.scale(rWire);
+            intersection.point.addInPlace(proj);
+            intersection.normal = dir;
+        }
+
+        return intersection;
+    }
 }

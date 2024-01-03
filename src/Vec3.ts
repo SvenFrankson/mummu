@@ -5,6 +5,7 @@ namespace Mummu {
     var TmpVec3 = [
         BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero(),
+        BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero()
     ];
 
@@ -105,6 +106,22 @@ namespace Mummu {
         projP.copyFrom(dir).scaleInPlace(dist).addInPlace(segA);
         let PprojP = projP.subtractInPlace(point);
         return PprojP.length();
+    }
+
+    export function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: BABYLON.Vector3): BABYLON.Vector3 {
+        let proj = TmpVec3[3];
+
+        let bestSqrDist = Infinity;
+        for (let i = 0; i < path.length - 1; i++) {
+            ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
+            let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
+            if (sqrDist < bestSqrDist) {
+                ref.copyFrom(proj);
+                bestSqrDist = sqrDist;
+            }
+        }
+
+        return ref;
     }
 
     export function StepToRef(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number, ref: BABYLON.Vector3): BABYLON.Vector3 {
