@@ -209,26 +209,40 @@ namespace Mummu {
         return ref;
     }
 
-    export function CatmullRomPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[] {
-        let pFirst = TmpVec3[0];
-        pFirst.copyFrom(path[0]).subtractInPlace(path[1]);
-        pFirst.addInPlace(path[0]);
-        let pLast = TmpVec3[1];
-        pLast.copyFrom(path[path.length - 1]).subtractInPlace(path[path.length - 2]);
-        pLast.addInPlace(path[path.length - 1]);
+    export function CatmullRomPathInPlace(path: BABYLON.Vector3[], inDir?: BABYLON.Vector3, outDir?: BABYLON.Vector3): BABYLON.Vector3[] {
+        if (path.length >= 2) {
 
-        let interpolatedPoints: BABYLON.Vector3[] = [];
-        for (let i: number = 0; i < path.length - 1; i++) {
-            let p0 = i > 0 ? path[i - 1] : pFirst;
-            let p1 = path[i];
-            let p2 = path[i + 1];
-            let p3 = i < path.length - 2 ? path[i + 2] : pLast;
-            interpolatedPoints.push(BABYLON.Vector3.CatmullRom(p0, p1, p2, p3, 0.5));
+            let pFirst = TmpVec3[0];
+            if (inDir) {
+                pFirst.copyFrom(inDir).scaleInPlace(BABYLON.Vector3.Distance(path[0], path[1])).scaleInPlace(-1).addInPlace(path[0]);
+            }
+            else {
+                pFirst.copyFrom(path[0]).subtractInPlace(path[1]);
+                pFirst.addInPlace(path[0]);
+            }
+
+            let pLast = TmpVec3[1];
+            if (outDir) {
+                pLast.copyFrom(outDir).scaleInPlace(BABYLON.Vector3.Distance(path[path.length - 2], path[path.length - 1])).addInPlace(path[path.length - 1]);
+            }
+            else {
+                pLast.copyFrom(path[path.length - 1]).subtractInPlace(path[path.length - 2]);
+                pLast.addInPlace(path[path.length - 1]);
+            }
+    
+            let interpolatedPoints: BABYLON.Vector3[] = [];
+            for (let i: number = 0; i < path.length - 1; i++) {
+                let p0 = i > 0 ? path[i - 1] : pFirst;
+                let p1 = path[i];
+                let p2 = path[i + 1];
+                let p3 = i < path.length - 2 ? path[i + 2] : pLast;
+                interpolatedPoints.push(BABYLON.Vector3.CatmullRom(p0, p1, p2, p3, 0.5));
+            }
+            for (let i: number = 0; i < interpolatedPoints.length; i++) {
+                path.splice(2 * i + 1, 0, interpolatedPoints[i]);
+            }
+            return path;
         }
-        for (let i: number = 0; i < interpolatedPoints.length; i++) {
-            path.splice(2 * i + 1, 0, interpolatedPoints[i]);
-        }
-        return path;
     }
 
     export function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[] {
