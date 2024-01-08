@@ -47,7 +47,7 @@ namespace Mummu {
 
     export function Angle(from: BABYLON.Vector3, to: BABYLON.Vector3): number {
         let pFrom = TmpVec3[0].copyFrom(from).normalize();
-        let pTo = TmpVec3[1].copyFrom(from).normalize();
+        let pTo = TmpVec3[1].copyFrom(to).normalize();
         let angle: number = Math.acos(BABYLON.Vector3.Dot(pFrom, pTo));
         return angle;
     }

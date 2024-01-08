@@ -203,7 +203,7 @@ var Mummu;
     Mummu.RotateInPlace = RotateInPlace;
     function Angle(from, to) {
         let pFrom = TmpVec3[0].copyFrom(from).normalize();
-        let pTo = TmpVec3[1].copyFrom(from).normalize();
+        let pTo = TmpVec3[1].copyFrom(to).normalize();
         let angle = Math.acos(BABYLON.Vector3.Dot(pFrom, pTo));
         return angle;
     }
