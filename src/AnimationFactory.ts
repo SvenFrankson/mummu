@@ -1,3 +1,5 @@
+/// <reference path="../../nabu/nabu.d.ts"/>
+
 interface ISceneObject {
     getScene: () => BABYLON.Scene;
 }
@@ -14,7 +16,6 @@ namespace Mummu {
             owner: ISceneObject,
             onUpdateCallback?: () => void
         ): (duration: number) => Promise<void> {
-            let scene: BABYLON.Scene;
             return (duration: number) => {
                 return new Promise<void>(resolve => {
                     let t = 0;
@@ -43,7 +44,8 @@ namespace Mummu {
             owner: ISceneObject,
             obj: any,
             property: string,
-            onUpdateCallback?: () => void
+            onUpdateCallback?: () => void,
+            isAngle?: boolean
         ): (target: number, duration: number) => Promise<void> {
             return (target: number, duration: number) => {
                 return new Promise<void>(resolve => {
@@ -56,7 +58,12 @@ namespace Mummu {
                         t += 1 / 60;
                         let f = t / duration;
                         if (f < 1) {
-                            obj[property] = origin * (1 - f) + target * f;
+                            if (isAngle) {
+                                obj[property] = Nabu.LerpAngle(origin, target, f);
+                            }
+                            else {
+                                obj[property] = origin * (1 - f) + target * f;
+                            }
                             if (onUpdateCallback) {
                                 onUpdateCallback();
                             }
@@ -81,7 +88,8 @@ namespace Mummu {
             owner: ISceneObject,
             obj: any,
             properties: string[],
-            onUpdateCallback?: () => void
+            onUpdateCallback?: () => void,
+            isAngle?: boolean[],
         ): (targets: number[], duration: number) => Promise<void> {
             return (targets: number[], duration: number) => {
                 return new Promise<void>(resolve => {
@@ -99,7 +107,12 @@ namespace Mummu {
                         let f = t / duration;
                         if (f < 1) {
                             for (let i = 0; i < n; i++) {
-                                obj[properties[i]] = origins[i] * (1 - f) + targets[i] * f;
+                                if (isAngle && isAngle[i]) {
+                                    obj[properties[i]] = Nabu.LerpAngle(origins[i], targets[i], f);
+                                }
+                                else {
+                                    obj[properties[i]] = origins[i] * (1 - f) + targets[i] * f;
+                                }
                             }
                             if (onUpdateCallback) {
                                 onUpdateCallback();

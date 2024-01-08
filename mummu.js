@@ -1,8 +1,8 @@
+/// <reference path="../../nabu/nabu.d.ts"/>
 var Mummu;
 (function (Mummu) {
     class AnimationFactory {
         static CreateWait(owner, onUpdateCallback) {
-            let scene;
             return (duration) => {
                 return new Promise(resolve => {
                     let t = 0;
@@ -26,7 +26,7 @@ var Mummu;
                 });
             };
         }
-        static CreateNumber(owner, obj, property, onUpdateCallback) {
+        static CreateNumber(owner, obj, property, onUpdateCallback, isAngle) {
             return (target, duration) => {
                 return new Promise(resolve => {
                     let origin = obj[property];
@@ -38,7 +38,12 @@ var Mummu;
                         t += 1 / 60;
                         let f = t / duration;
                         if (f < 1) {
-                            obj[property] = origin * (1 - f) + target * f;
+                            if (isAngle) {
+                                obj[property] = Nabu.LerpAngle(origin, target, f);
+                            }
+                            else {
+                                obj[property] = origin * (1 - f) + target * f;
+                            }
                             if (onUpdateCallback) {
                                 onUpdateCallback();
                             }
@@ -58,7 +63,7 @@ var Mummu;
                 });
             };
         }
-        static CreateNumbers(owner, obj, properties, onUpdateCallback) {
+        static CreateNumbers(owner, obj, properties, onUpdateCallback, isAngle) {
             return (targets, duration) => {
                 return new Promise(resolve => {
                     let n = properties.length;
@@ -75,7 +80,12 @@ var Mummu;
                         let f = t / duration;
                         if (f < 1) {
                             for (let i = 0; i < n; i++) {
-                                obj[properties[i]] = origins[i] * (1 - f) + targets[i] * f;
+                                if (isAngle && isAngle[i]) {
+                                    obj[properties[i]] = Nabu.LerpAngle(origins[i], targets[i], f);
+                                }
+                                else {
+                                    obj[properties[i]] = origins[i] * (1 - f) + targets[i] * f;
+                                }
                             }
                             if (onUpdateCallback) {
                                 onUpdateCallback();
