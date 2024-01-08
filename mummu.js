@@ -58,9 +58,50 @@ var Mummu;
                 });
             };
         }
+        static CreateNumbers(owner, obj, properties, onUpdateCallback) {
+            return (targets, duration) => {
+                return new Promise(resolve => {
+                    let n = properties.length;
+                    let origins = [];
+                    for (let i = 0; i < n; i++) {
+                        origins[i] = obj[properties[i]];
+                    }
+                    let t = 0;
+                    if (owner[properties[0] + "_animation"]) {
+                        owner.getScene().onBeforeRenderObservable.removeCallback(owner[properties[0] + "_animation"]);
+                    }
+                    let animationCB = () => {
+                        t += 1 / 60;
+                        let f = t / duration;
+                        if (f < 1) {
+                            for (let i = 0; i < n; i++) {
+                                obj[properties[i]] = origins[i] * (1 - f) + targets[i] * f;
+                            }
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                        }
+                        else {
+                            for (let i = 0; i < n; i++) {
+                                obj[properties[i]] = targets[i];
+                            }
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                            owner.getScene().onBeforeRenderObservable.removeCallback(animationCB);
+                            owner[properties[0] + "_animation"] = undefined;
+                            resolve();
+                        }
+                    };
+                    owner.getScene().onBeforeRenderObservable.add(animationCB);
+                    owner[properties[0] + "_animation"] = animationCB;
+                });
+            };
+        }
     }
     AnimationFactory.EmptyVoidCallback = async (duration) => { };
     AnimationFactory.EmptyNumberCallback = async (target, duration) => { };
+    AnimationFactory.EmptyNumbersCallback = async (targets, duration) => { };
     Mummu.AnimationFactory = AnimationFactory;
 })(Mummu || (Mummu = {}));
 var Mummu;

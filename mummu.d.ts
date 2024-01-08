@@ -6,8 +6,10 @@ declare namespace Mummu {
     class AnimationFactory {
         static EmptyVoidCallback: (duration: number) => Promise<void>;
         static EmptyNumberCallback: (target: number, duration: number) => Promise<void>;
+        static EmptyNumbersCallback: (targets: number[], duration: number) => Promise<void>;
         static CreateWait(owner: ISceneObject, onUpdateCallback?: () => void): (duration: number) => Promise<void>;
         static CreateNumber(owner: ISceneObject, obj: any, property: string, onUpdateCallback?: () => void): (target: number, duration: number) => Promise<void>;
+        static CreateNumbers(owner: ISceneObject, obj: any, properties: string[], onUpdateCallback?: () => void): (targets: number[], duration: number) => Promise<void>;
     }
 }
 declare namespace Mummu {
