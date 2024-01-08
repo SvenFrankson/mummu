@@ -8,9 +8,11 @@ declare namespace Mummu {
         static EmptyVoidCallback: (duration: number) => Promise<void>;
         static EmptyNumberCallback: (target: number, duration: number) => Promise<void>;
         static EmptyNumbersCallback: (targets: number[], duration: number) => Promise<void>;
+        static EmptyVector3Callback: (target: BABYLON.Vector3, duration: number) => Promise<void>;
         static CreateWait(owner: ISceneObject, onUpdateCallback?: () => void): (duration: number) => Promise<void>;
         static CreateNumber(owner: ISceneObject, obj: any, property: string, onUpdateCallback?: () => void, isAngle?: boolean): (target: number, duration: number) => Promise<void>;
         static CreateNumbers(owner: ISceneObject, obj: any, properties: string[], onUpdateCallback?: () => void, isAngle?: boolean[]): (targets: number[], duration: number) => Promise<void>;
+        static CreateVector3(owner: ISceneObject, obj: any, property: string, onUpdateCallback?: () => void): (target: BABYLON.Vector3, duration: number) => Promise<void>;
     }
 }
 declare namespace Mummu {

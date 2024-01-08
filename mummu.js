@@ -108,10 +108,45 @@ var Mummu;
                 });
             };
         }
+        static CreateVector3(owner, obj, property, onUpdateCallback) {
+            return (target, duration) => {
+                return new Promise(resolve => {
+                    let origin = obj[property].clone();
+                    let tmpVector3 = BABYLON.Vector3.Zero();
+                    let t = 0;
+                    if (owner[property + "_animation"]) {
+                        owner.getScene().onBeforeRenderObservable.removeCallback(owner[property + "_animation"]);
+                    }
+                    let animationCB = () => {
+                        t += 1 / 60;
+                        let f = t / duration;
+                        if (f < 1) {
+                            tmpVector3.copyFrom(target).scaleInPlace(f);
+                            obj[property].copyFrom(origin).scaleInPlace(1 - f).addInPlace(tmpVector3);
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                        }
+                        else {
+                            obj[property].copyFrom(target);
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                            owner.getScene().onBeforeRenderObservable.removeCallback(animationCB);
+                            owner[property + "_animation"] = undefined;
+                            resolve();
+                        }
+                    };
+                    owner.getScene().onBeforeRenderObservable.add(animationCB);
+                    owner[property + "_animation"] = animationCB;
+                });
+            };
+        }
     }
     AnimationFactory.EmptyVoidCallback = async (duration) => { };
     AnimationFactory.EmptyNumberCallback = async (target, duration) => { };
     AnimationFactory.EmptyNumbersCallback = async (targets, duration) => { };
+    AnimationFactory.EmptyVector3Callback = async (target, duration) => { };
     Mummu.AnimationFactory = AnimationFactory;
 })(Mummu || (Mummu = {}));
 var Mummu;
