@@ -65,3 +65,6 @@ declare namespace Mummu {
         color3Hex?: string): Promise<BABYLON.VertexData[]>;
     }
 }
+declare namespace Mummu {
+    function MergeVertexDatas(...datas: BABYLON.VertexData[]): BABYLON.VertexData;
+}
