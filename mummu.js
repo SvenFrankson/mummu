@@ -659,4 +659,43 @@ var Mummu;
         return mergedData;
     }
     Mummu.MergeVertexDatas = MergeVertexDatas;
+    function TranslateVertexDataInPlace(data, t) {
+        let positions = [...data.positions];
+        for (let i = 0; i < positions.length / 3; i++) {
+            positions[3 * i] += t.x;
+            positions[3 * i + 1] += t.y;
+            positions[3 * i + 2] += t.z;
+        }
+        data.positions = positions;
+        return data;
+    }
+    Mummu.TranslateVertexDataInPlace = TranslateVertexDataInPlace;
+    function RotateVertexDataInPlace(data, q) {
+        let pos = BABYLON.Vector3.Zero();
+        let normal = BABYLON.Vector3.Up();
+        let positions = [...data.positions];
+        let normals = [...data.normals];
+        let L = positions.length;
+        for (let i = 0; i < L / 3; i++) {
+            pos.copyFromFloats(positions[3 * i], positions[3 * i + 1], positions[3 * i + 2]);
+            normal.copyFromFloats(normals[3 * i], normals[3 * i + 1], normals[3 * i + 2]);
+            pos.rotateByQuaternionToRef(q, pos);
+            normal.rotateByQuaternionToRef(q, normal);
+            positions[3 * i] = pos.x;
+            positions[3 * i + 1] = pos.y;
+            positions[3 * i + 2] = pos.z;
+            normals[3 * i] = normal.x;
+            normals[3 * i + 1] = normal.y;
+            normals[3 * i + 2] = normal.z;
+        }
+        data.positions = positions;
+        data.normals = normals;
+        return data;
+    }
+    Mummu.RotateVertexDataInPlace = RotateVertexDataInPlace;
+    function ScaleVertexDataInPlace(data, s) {
+        data.positions = data.positions.map((n) => { return n * s; });
+        return data;
+    }
+    Mummu.ScaleVertexDataInPlace = ScaleVertexDataInPlace;
 })(Mummu || (Mummu = {}));
