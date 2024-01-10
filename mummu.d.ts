@@ -49,6 +49,7 @@ declare namespace Mummu {
     function QuaternionFromZYAxisToRef(z: BABYLON.Vector3, y: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
     function CatmullRomPathInPlace(path: BABYLON.Vector3[], inDir?: BABYLON.Vector3, outDir?: BABYLON.Vector3): BABYLON.Vector3[];
     function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[];
+    function DecimatePathInPlace(path: BABYLON.Vector3[], minAngle?: number): BABYLON.Vector3[];
 }
 declare namespace Mummu {
     class VertexDataLoader {
