@@ -19,22 +19,58 @@ namespace Mummu {
         }
     }
 
+    export function AABBAABBIntersect(
+        x1Min: number, x1Max: number, y1Min: number, y1Max: number, z1Min: number, z1Max: number,
+        x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number
+    ): boolean {
+        if (x1Min > x2Max) {
+            return false;
+        }
+        if (x1Max < x1Min) {
+            return false;
+        }
+        if (y1Min > y2Max) {
+            return false;
+        }
+        if (y1Max < y1Min) {
+            return false;
+        }
+        if (z1Min > z2Max) {
+            return false;
+        }
+        if (z1Max < z1Min) {
+            return false;
+        }
+        return true;
+    }
+
     export function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection {
         let intersection = new Intersection();
 
-        let dist = Mummu.DistancePointSegment(cSphere, c1Capsule, c2Capsule);
+        if (AABBAABBIntersect(
+            cSphere.x - rSphere, cSphere.x + rSphere, cSphere.y - rSphere, cSphere.y + rSphere, cSphere.z - rSphere, cSphere.z + rSphere, 
+            Math.min(c1Capsule.x, c2Capsule.x) - rCapsule,
+            Math.max(c1Capsule.x, c2Capsule.x) + rCapsule,
+            Math.min(c1Capsule.y, c2Capsule.y) - rCapsule,
+            Math.max(c1Capsule.y, c2Capsule.y) + rCapsule,
+            Math.min(c1Capsule.z, c2Capsule.z) - rCapsule,
+            Math.max(c1Capsule.z, c2Capsule.z) + rCapsule
+        )) {
 
-        let depth = (rSphere + rCapsule) - dist;
-
-        if (depth > 0) {
-            intersection.hit = true;
-            intersection.depth = depth;
-            let proj = BABYLON.Vector3.Zero();
-            Mummu.ProjectPointOnSegmentToRef(cSphere, c1Capsule, c2Capsule, proj);
-            let dir = cSphere.subtract(proj).normalize();
-            intersection.point = dir.scale(rCapsule);
-            intersection.point.addInPlace(proj);
-            intersection.normal = dir;
+            let dist = Mummu.DistancePointSegment(cSphere, c1Capsule, c2Capsule);
+    
+            let depth = (rSphere + rCapsule) - dist;
+    
+            if (depth > 0) {
+                intersection.hit = true;
+                intersection.depth = depth;
+                let proj = BABYLON.Vector3.Zero();
+                Mummu.ProjectPointOnSegmentToRef(cSphere, c1Capsule, c2Capsule, proj);
+                let dir = cSphere.subtract(proj).normalize();
+                intersection.point = dir.scale(rCapsule);
+                intersection.point.addInPlace(proj);
+                intersection.normal = dir;
+            }
         }
 
         return intersection;

@@ -22,6 +22,7 @@ declare namespace Mummu {
         normal: BABYLON.Vector3;
         depth: number;
     }
+    function AABBAABBIntersect(x1Min: number, x1Max: number, y1Min: number, y1Max: number, z1Min: number, z1Max: number, x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number): boolean;
     function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection;
     function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number): IIntersection;
 }
