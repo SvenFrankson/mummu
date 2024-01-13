@@ -678,6 +678,20 @@ var Mummu;
 })(Mummu || (Mummu = {}));
 var Mummu;
 (function (Mummu) {
+    function CloneVertexData(data) {
+        let clonedData = new BABYLON.VertexData();
+        clonedData.positions = [...data.positions];
+        clonedData.indices = [...data.indices];
+        clonedData.normals = [...data.normals];
+        if (data.uvs) {
+            clonedData.uvs = [...data.uvs];
+        }
+        if (data.colors) {
+            clonedData.colors = [...data.colors];
+        }
+        return clonedData;
+    }
+    Mummu.CloneVertexData = CloneVertexData;
     function MergeVertexDatas(...datas) {
         let mergedData = new BABYLON.VertexData();
         let positions = [];

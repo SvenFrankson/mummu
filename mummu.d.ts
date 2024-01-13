@@ -68,6 +68,7 @@ declare namespace Mummu {
     }
 }
 declare namespace Mummu {
+    function CloneVertexData(data: BABYLON.VertexData): BABYLON.VertexData;
     function MergeVertexDatas(...datas: BABYLON.VertexData[]): BABYLON.VertexData;
     function TranslateVertexDataInPlace(data: BABYLON.VertexData, t: BABYLON.Vector3): BABYLON.VertexData;
     function RotateVertexDataInPlace(data: BABYLON.VertexData, q: BABYLON.Quaternion): BABYLON.VertexData;

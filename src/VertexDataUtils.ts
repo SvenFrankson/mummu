@@ -1,5 +1,21 @@
 namespace Mummu {
 
+    export function CloneVertexData(data: BABYLON.VertexData): BABYLON.VertexData {
+        let clonedData = new BABYLON.VertexData();
+        
+        clonedData.positions = [...data.positions];
+        clonedData.indices = [...data.indices];
+        clonedData.normals = [...data.normals];
+        if (data.uvs) {
+            clonedData.uvs = [...data.uvs];
+        }
+        if (data.colors) {
+            clonedData.colors = [...data.colors];
+        }
+
+        return clonedData;
+    }
+
     export function MergeVertexDatas(...datas: BABYLON.VertexData[]): BABYLON.VertexData {
         let mergedData = new BABYLON.VertexData();
         
