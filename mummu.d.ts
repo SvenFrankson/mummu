@@ -27,6 +27,18 @@ declare namespace Mummu {
     function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number): IIntersection;
 }
 declare namespace Mummu {
+    interface IMakeScreenshotProp {
+        miniatureName?: string;
+        size?: number;
+        desaturation?: number;
+        engine?: BABYLON.Engine;
+        canvas?: HTMLCanvasElement;
+        camera?: BABYLON.Camera;
+    }
+    export function MakeScreenshot(prop?: IMakeScreenshotProp): Promise<void>;
+    export {};
+}
+declare namespace Mummu {
     function IsFinite(v: BABYLON.Vector3): boolean;
     function ProjectPerpendicularAtToRef(v: BABYLON.Vector3, at: BABYLON.Vector3, out: BABYLON.Vector3): BABYLON.Vector3;
     function ProjectPerpendicularAt(v: BABYLON.Vector3, at: BABYLON.Vector3): BABYLON.Vector3;
