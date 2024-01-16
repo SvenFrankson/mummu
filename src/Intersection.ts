@@ -76,11 +76,11 @@ namespace Mummu {
         return intersection;
     }
 
-    export function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number): IIntersection {
+    export function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean): IIntersection {
         let intersection = new Intersection();
 
         let proj = BABYLON.Vector3.Zero();
-        Mummu.ProjectPointOnPathToRef(cSphere, path, proj);
+        Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed);
         let dist = BABYLON.Vector3.Distance(cSphere, proj);
 
         let depth = (rSphere + rWire) - dist;

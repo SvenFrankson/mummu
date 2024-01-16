@@ -198,10 +198,10 @@ var Mummu;
         return intersection;
     }
     Mummu.SphereCapsuleIntersection = SphereCapsuleIntersection;
-    function SphereWireIntersection(cSphere, rSphere, path, rWire) {
+    function SphereWireIntersection(cSphere, rSphere, path, rWire, pathIsEvenlyDistributed) {
         let intersection = new Intersection();
         let proj = BABYLON.Vector3.Zero();
-        Mummu.ProjectPointOnPathToRef(cSphere, path, proj);
+        Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed);
         let dist = BABYLON.Vector3.Distance(cSphere, proj);
         let depth = (rSphere + rWire) - dist;
         if (depth > 0) {
@@ -286,6 +286,7 @@ var Mummu;
 var Mummu;
 (function (Mummu) {
     var TmpVec3 = [
+        BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero(),
@@ -388,15 +389,39 @@ var Mummu;
         return PprojP.length();
     }
     Mummu.DistancePointSegment = DistancePointSegment;
-    function ProjectPointOnPathToRef(point, path, ref) {
+    function ProjectPointOnPathToRef(point, path, ref, pathIsEvenlyDistributed) {
         let proj = TmpVec3[3];
-        let bestSqrDist = Infinity;
-        for (let i = 0; i < path.length - 1; i++) {
-            ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
-            let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
-            if (sqrDist < bestSqrDist) {
-                ref.copyFrom(proj);
-                bestSqrDist = sqrDist;
+        if (pathIsEvenlyDistributed && path.length >= 4) {
+            let bestIndex = -1;
+            let bestSqrDist = Infinity;
+            for (let i = 0; i < path.length; i++) {
+                let sqrDist = BABYLON.Vector3.DistanceSquared(point, path[i]);
+                if (sqrDist < bestSqrDist) {
+                    bestIndex = i;
+                    bestSqrDist = sqrDist;
+                }
+            }
+            let iFirst = Math.max(0, bestIndex - 1);
+            let iLast = Math.min(path.length - 1, bestIndex + 1);
+            bestSqrDist = Infinity;
+            for (let i = iFirst; i < iLast; i++) {
+                ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
+                let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
+                if (sqrDist < bestSqrDist) {
+                    ref.copyFrom(proj);
+                    bestSqrDist = sqrDist;
+                }
+            }
+        }
+        else {
+            let bestSqrDist = Infinity;
+            for (let i = 0; i < path.length - 1; i++) {
+                ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
+                let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
+                if (sqrDist < bestSqrDist) {
+                    ref.copyFrom(proj);
+                    bestSqrDist = sqrDist;
+                }
             }
         }
         return ref;

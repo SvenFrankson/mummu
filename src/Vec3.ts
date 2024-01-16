@@ -6,6 +6,7 @@ namespace Mummu {
         BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero(),
+        BABYLON.Vector3.Zero(),
         BABYLON.Vector3.Zero()
     ];
 
@@ -108,16 +109,41 @@ namespace Mummu {
         return PprojP.length();
     }
 
-    export function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: BABYLON.Vector3): BABYLON.Vector3 {
+    export function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: BABYLON.Vector3, pathIsEvenlyDistributed?: boolean): BABYLON.Vector3 {
         let proj = TmpVec3[3];
 
-        let bestSqrDist = Infinity;
-        for (let i = 0; i < path.length - 1; i++) {
-            ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
-            let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
-            if (sqrDist < bestSqrDist) {
-                ref.copyFrom(proj);
-                bestSqrDist = sqrDist;
+        if (pathIsEvenlyDistributed && path.length >= 4) {
+            let bestIndex = - 1;
+            let bestSqrDist = Infinity;
+            for (let i = 0; i < path.length; i++) {
+                let sqrDist = BABYLON.Vector3.DistanceSquared(point, path[i]);
+                if (sqrDist < bestSqrDist) {
+                    bestIndex = i;
+                    bestSqrDist = sqrDist;
+                }
+            }
+            
+            let iFirst = Math.max(0, bestIndex - 1);
+            let iLast = Math.min(path.length - 1, bestIndex + 1);
+            bestSqrDist = Infinity;
+            for (let i = iFirst; i < iLast; i++) {
+                ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
+                let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
+                if (sqrDist < bestSqrDist) {
+                    ref.copyFrom(proj);
+                    bestSqrDist = sqrDist;
+                }
+            }
+        }
+        else {
+            let bestSqrDist = Infinity;
+            for (let i = 0; i < path.length - 1; i++) {
+                ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
+                let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
+                if (sqrDist < bestSqrDist) {
+                    ref.copyFrom(proj);
+                    bestSqrDist = sqrDist;
+                }
             }
         }
 
