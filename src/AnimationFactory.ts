@@ -46,7 +46,8 @@ namespace Mummu {
             obj: any,
             property: string,
             onUpdateCallback?: () => void,
-            isAngle?: boolean
+            isAngle?: boolean,
+            easing?: (v: number) => number
         ): (target: number, duration: number) => Promise<void> {
             return (target: number, duration: number) => {
                 return new Promise<void>(resolve => {
@@ -63,6 +64,9 @@ namespace Mummu {
                                 obj[property] = Nabu.LerpAngle(origin, target, f);
                             }
                             else {
+                                if (easing) {
+                                    f = easing(f);
+                                }
                                 obj[property] = origin * (1 - f) + target * f;
                             }
                             if (onUpdateCallback) {
