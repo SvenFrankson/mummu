@@ -70,6 +70,20 @@ namespace Mummu {
         return angle;
     }
 
+    export function ProjectPointOnPlaneToRef(point: BABYLON.Vector3, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3 {
+        ref.copyFrom(point).subtractInPlace(pPlane);
+        let dot = BABYLON.Vector3.Dot(ref, nPlane);
+        ref.copyFrom(nPlane).scaleInPlace(- dot);
+        ref.addInPlace(point);
+        return ref;
+    }
+
+    export function ProjectPointOnPlane(point: BABYLON.Vector3, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): BABYLON.Vector3 {
+        let proj = BABYLON.Vector3.Zero();
+        ProjectPointOnPlaneToRef(point, pPlane, nPlane, proj);
+        return proj;
+    }
+
     export function DistancePointLine(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3): number {
         let PA = TmpVec3[0];
         let dir = TmpVec3[1];

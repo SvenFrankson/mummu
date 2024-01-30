@@ -102,14 +102,18 @@ namespace Mummu {
                                             let Y = Math.floor(i / prop.size);
                                             let a = data.data[4 * i + 3];
                                             if (a > 127) {
-                                                for (let x = X - w; x <= X + w; x++) {
-                                                    for (let y = Y - w; y <= Y + w; y++) {
-                                                        if (x >= 0 && x < prop.size && y >= 0 && y < prop.size) {
-                                                            let index = x + y * prop.size;
-                                                            outlineData[4 * index] = 0;
-                                                            outlineData[4 * index + 1] = 0;
-                                                            outlineData[4 * index + 2] = 0;
-                                                            outlineData[4 * index + 3] = 255;
+                                                for (let xx = - w; xx <= w; xx++) {
+                                                    for (let yy = - w; yy <= w; yy++) {
+                                                        if (xx * xx + yy * yy <= w * w) {
+                                                            let x = X + xx;
+                                                            let y = Y + yy;
+                                                            if (x >= 0 && x < prop.size && y >= 0 && y < prop.size) {
+                                                                let index = x + y * prop.size;
+                                                                outlineData[4 * index] = 0;
+                                                                outlineData[4 * index + 1] = 0;
+                                                                outlineData[4 * index + 2] = 0;
+                                                                outlineData[4 * index + 3] = 255;
+                                                            }
                                                         }
                                                     }
                                                 }

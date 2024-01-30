@@ -44,6 +44,23 @@ namespace Mummu {
         return true;
     }
 
+    export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection {
+        let intersection = new Intersection();
+
+        let proj = ProjectPointOnPlane(cSphere, pPlane, nPlane);
+    
+        let sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);
+        if (sqrDist <= rSphere * rSphere) {
+            let dist = Math.sqrt(sqrDist);
+            intersection.hit = true;
+            intersection.depth = rSphere - dist;
+            intersection.point = proj;
+            intersection.normal = pPlane;
+        }
+
+        return intersection;
+    }
+
     export function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection {
         let intersection = new Intersection();
 
