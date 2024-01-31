@@ -23,6 +23,7 @@ declare namespace Mummu {
         depth: number;
     }
     function AABBAABBIntersect(x1Min: number, x1Max: number, y1Min: number, y1Max: number, z1Min: number, z1Max: number, x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number): boolean;
+    function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
     function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection;
     function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean): IIntersection;
 }
@@ -49,6 +50,8 @@ declare namespace Mummu {
     function RotateInPlace(v: BABYLON.Vector3, axis: BABYLON.Vector3, angle: number): BABYLON.Vector3;
     function Angle(from: BABYLON.Vector3, to: BABYLON.Vector3): number;
     function AngleFromToAround(from: BABYLON.Vector3, to: BABYLON.Vector3, around: BABYLON.Vector3): number;
+    function ProjectPointOnPlaneToRef(point: BABYLON.Vector3, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3;
+    function ProjectPointOnPlane(point: BABYLON.Vector3, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): BABYLON.Vector3;
     function DistancePointLine(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3): number;
     function ProjectPointOnSegmentToRef(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3;
     function DistancePointSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): number;

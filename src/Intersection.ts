@@ -55,7 +55,7 @@ namespace Mummu {
             intersection.hit = true;
             intersection.depth = rSphere - dist;
             intersection.point = proj;
-            intersection.normal = pPlane;
+            intersection.normal = nPlane.clone();
         }
 
         return intersection;

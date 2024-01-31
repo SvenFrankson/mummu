@@ -182,6 +182,20 @@ var Mummu;
         return true;
     }
     Mummu.AABBAABBIntersect = AABBAABBIntersect;
+    function SpherePlaneIntersection(cSphere, rSphere, pPlane, nPlane) {
+        let intersection = new Intersection();
+        let proj = Mummu.ProjectPointOnPlane(cSphere, pPlane, nPlane);
+        let sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);
+        if (sqrDist <= rSphere * rSphere) {
+            let dist = Math.sqrt(sqrDist);
+            intersection.hit = true;
+            intersection.depth = rSphere - dist;
+            intersection.point = proj;
+            intersection.normal = nPlane.clone();
+        }
+        return intersection;
+    }
+    Mummu.SpherePlaneIntersection = SpherePlaneIntersection;
     function SphereCapsuleIntersection(cSphere, rSphere, c1Capsule, c2Capsule, rCapsule) {
         let intersection = new Intersection();
         if (AABBAABBIntersect(cSphere.x - rSphere, cSphere.x + rSphere, cSphere.y - rSphere, cSphere.y + rSphere, cSphere.z - rSphere, cSphere.z + rSphere, Math.min(c1Capsule.x, c2Capsule.x) - rCapsule, Math.max(c1Capsule.x, c2Capsule.x) + rCapsule, Math.min(c1Capsule.y, c2Capsule.y) - rCapsule, Math.max(c1Capsule.y, c2Capsule.y) + rCapsule, Math.min(c1Capsule.z, c2Capsule.z) - rCapsule, Math.max(c1Capsule.z, c2Capsule.z) + rCapsule)) {
@@ -303,14 +317,18 @@ var Mummu;
                                 let Y = Math.floor(i / prop.size);
                                 let a = data.data[4 * i + 3];
                                 if (a > 127) {
-                                    for (let x = X - w; x <= X + w; x++) {
-                                        for (let y = Y - w; y <= Y + w; y++) {
-                                            if (x >= 0 && x < prop.size && y >= 0 && y < prop.size) {
-                                                let index = x + y * prop.size;
-                                                outlineData[4 * index] = 0;
-                                                outlineData[4 * index + 1] = 0;
-                                                outlineData[4 * index + 2] = 0;
-                                                outlineData[4 * index + 3] = 255;
+                                    for (let xx = -w; xx <= w; xx++) {
+                                        for (let yy = -w; yy <= w; yy++) {
+                                            if (xx * xx + yy * yy <= w * w) {
+                                                let x = X + xx;
+                                                let y = Y + yy;
+                                                if (x >= 0 && x < prop.size && y >= 0 && y < prop.size) {
+                                                    let index = x + y * prop.size;
+                                                    outlineData[4 * index] = 0;
+                                                    outlineData[4 * index + 1] = 0;
+                                                    outlineData[4 * index + 2] = 0;
+                                                    outlineData[4 * index + 3] = 255;
+                                                }
                                             }
                                         }
                                     }
@@ -408,6 +426,20 @@ var Mummu;
         return angle;
     }
     Mummu.AngleFromToAround = AngleFromToAround;
+    function ProjectPointOnPlaneToRef(point, pPlane, nPlane, ref) {
+        ref.copyFrom(point).subtractInPlace(pPlane);
+        let dot = BABYLON.Vector3.Dot(ref, nPlane);
+        ref.copyFrom(nPlane).scaleInPlace(-dot);
+        ref.addInPlace(point);
+        return ref;
+    }
+    Mummu.ProjectPointOnPlaneToRef = ProjectPointOnPlaneToRef;
+    function ProjectPointOnPlane(point, pPlane, nPlane) {
+        let proj = BABYLON.Vector3.Zero();
+        ProjectPointOnPlaneToRef(point, pPlane, nPlane, proj);
+        return proj;
+    }
+    Mummu.ProjectPointOnPlane = ProjectPointOnPlane;
     function DistancePointLine(point, lineA, lineB) {
         let PA = TmpVec3[0];
         let dir = TmpVec3[1];
@@ -698,7 +730,6 @@ var Mummu;
                                 let subMaterial = loadedMesh.material.subMaterials[j];
                                 if (subMaterial instanceof BABYLON.PBRMaterial) {
                                     let color = subMaterial.albedoColor;
-                                    console.log(color);
                                     let subMesh = loadedMesh.subMeshes.find(sm => { return sm.materialIndex === j; });
                                     for (let k = 0; k < subMesh.verticesCount; k++) {
                                         let index = subMesh.verticesStart + k;
