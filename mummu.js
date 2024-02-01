@@ -152,6 +152,40 @@ var Mummu;
     AnimationFactory.EmptyVector3Callback = async (target, duration) => { };
     Mummu.AnimationFactory = AnimationFactory;
 })(Mummu || (Mummu = {}));
+/// <reference path="../lib/babylon.d.ts"/>
+var Mummu;
+(function (Mummu) {
+    function DrawDebugLine(from, to, frames, color, scene) {
+        if (!scene) {
+            scene = BABYLON.Engine.Instances[0]?.scenes[0];
+        }
+        if (scene) {
+            let colors;
+            if (color) {
+                colors = [
+                    color.toColor4(),
+                    color.toColor4()
+                ];
+            }
+            let line = BABYLON.MeshBuilder.CreateLines("debug-line", {
+                points: [from, to],
+                colors: colors
+            });
+            let frameCount = frames;
+            let disposeTimer = () => {
+                frameCount--;
+                if (frameCount <= 0) {
+                    line.dispose();
+                }
+                else {
+                    requestAnimationFrame(disposeTimer);
+                }
+            };
+            requestAnimationFrame(disposeTimer);
+        }
+    }
+    Mummu.DrawDebugLine = DrawDebugLine;
+})(Mummu || (Mummu = {}));
 var Mummu;
 (function (Mummu) {
     class Intersection {
@@ -232,6 +266,100 @@ var Mummu;
         return intersection;
     }
     Mummu.SphereWireIntersection = SphereWireIntersection;
+})(Mummu || (Mummu = {}));
+/// <reference path="../lib/babylon.d.ts"/>
+var Mummu;
+(function (Mummu) {
+    var TmpVec3 = [
+        BABYLON.Vector3.Zero(),
+        BABYLON.Vector3.Zero(),
+        BABYLON.Vector3.Zero(),
+        BABYLON.Vector3.Zero(),
+        BABYLON.Vector3.Zero()
+    ];
+    var TmpQuat = [
+        BABYLON.Quaternion.Identity()
+    ];
+    function QuaternionFromXYAxis(x, y) {
+        let q = BABYLON.Quaternion.Identity();
+        QuaternionFromXYAxisToRef(x, y, q);
+        return q;
+    }
+    Mummu.QuaternionFromXYAxis = QuaternionFromXYAxis;
+    function QuaternionFromXYAxisToRef(x, y, ref) {
+        let xAxis = TmpVec3[0].copyFrom(x);
+        let yAxis = TmpVec3[1].copyFrom(y);
+        let zAxis = TmpVec3[2];
+        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
+        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromXYAxisToRef = QuaternionFromXYAxisToRef;
+    function QuaternionFromXZAxis(x, z) {
+        let q = BABYLON.Quaternion.Identity();
+        QuaternionFromXZAxisToRef(x, z, q);
+        return q;
+    }
+    Mummu.QuaternionFromXZAxis = QuaternionFromXZAxis;
+    function QuaternionFromXZAxisToRef(x, z, ref) {
+        let xAxis = TmpVec3[0].copyFrom(x);
+        let yAxis = TmpVec3[1];
+        let zAxis = TmpVec3[2].copyFrom(z);
+        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
+        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromXZAxisToRef = QuaternionFromXZAxisToRef;
+    function QuaternionFromYZAxis(y, z) {
+        let q = BABYLON.Quaternion.Identity();
+        QuaternionFromYZAxisToRef(y, z, q);
+        return q;
+    }
+    Mummu.QuaternionFromYZAxis = QuaternionFromYZAxis;
+    function QuaternionFromYZAxisToRef(y, z, ref) {
+        let xAxis = TmpVec3[0];
+        let yAxis = TmpVec3[1].copyFrom(y);
+        let zAxis = TmpVec3[2].copyFrom(z);
+        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
+        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromYZAxisToRef = QuaternionFromYZAxisToRef;
+    function QuaternionFromZXAxis(z, x) {
+        let q = BABYLON.Quaternion.Identity();
+        QuaternionFromZXAxisToRef(z, x, q);
+        return q;
+    }
+    Mummu.QuaternionFromZXAxis = QuaternionFromZXAxis;
+    function QuaternionFromZXAxisToRef(z, x, ref) {
+        let xAxis = TmpVec3[0].copyFrom(x);
+        let yAxis = TmpVec3[1];
+        let zAxis = TmpVec3[2].copyFrom(z);
+        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
+        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromZXAxisToRef = QuaternionFromZXAxisToRef;
+    function QuaternionFromZYAxis(z, y) {
+        let q = BABYLON.Quaternion.Identity();
+        QuaternionFromZYAxisToRef(z, y, q);
+        return q;
+    }
+    Mummu.QuaternionFromZYAxis = QuaternionFromZYAxis;
+    function QuaternionFromZYAxisToRef(z, y, ref) {
+        let xAxis = TmpVec3[0];
+        let yAxis = TmpVec3[1].copyFrom(y);
+        let zAxis = TmpVec3[2].copyFrom(z);
+        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
+        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
+        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
+        return ref;
+    }
+    Mummu.QuaternionFromZYAxisToRef = QuaternionFromZYAxisToRef;
 })(Mummu || (Mummu = {}));
 var Mummu;
 (function (Mummu) {
@@ -540,56 +668,6 @@ var Mummu;
         return point;
     }
     Mummu.ForceDistanceFromOriginInPlace = ForceDistanceFromOriginInPlace;
-    function QuaternionFromXYAxisToRef(x, y, ref) {
-        let xAxis = TmpVec3[0].copyFrom(x);
-        let yAxis = TmpVec3[1].copyFrom(y);
-        let zAxis = TmpVec3[2];
-        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
-        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-        return ref;
-    }
-    Mummu.QuaternionFromXYAxisToRef = QuaternionFromXYAxisToRef;
-    function QuaternionFromXZAxisToRef(x, z, ref) {
-        let xAxis = TmpVec3[0].copyFrom(x);
-        let yAxis = TmpVec3[1];
-        let zAxis = TmpVec3[2].copyFrom(z);
-        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
-        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-        return ref;
-    }
-    Mummu.QuaternionFromXZAxisToRef = QuaternionFromXZAxisToRef;
-    function QuaternionFromYZAxisToRef(y, z, ref) {
-        let xAxis = TmpVec3[0];
-        let yAxis = TmpVec3[1].copyFrom(y);
-        let zAxis = TmpVec3[2].copyFrom(z);
-        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
-        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-        return ref;
-    }
-    Mummu.QuaternionFromYZAxisToRef = QuaternionFromYZAxisToRef;
-    function QuaternionFromZXAxisToRef(z, x, ref) {
-        let xAxis = TmpVec3[0].copyFrom(x);
-        let yAxis = TmpVec3[1];
-        let zAxis = TmpVec3[2].copyFrom(z);
-        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
-        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-        return ref;
-    }
-    Mummu.QuaternionFromZXAxisToRef = QuaternionFromZXAxisToRef;
-    function QuaternionFromZYAxisToRef(z, y, ref) {
-        let xAxis = TmpVec3[0];
-        let yAxis = TmpVec3[1].copyFrom(y);
-        let zAxis = TmpVec3[2].copyFrom(z);
-        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
-        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-        return ref;
-    }
-    Mummu.QuaternionFromZYAxisToRef = QuaternionFromZYAxisToRef;
     function CatmullRomPathInPlace(path, inDir, outDir) {
         if (path.length >= 2) {
             let pFirst = TmpVec3[0];

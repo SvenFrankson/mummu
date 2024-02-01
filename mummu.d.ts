@@ -16,6 +16,9 @@ declare namespace Mummu {
     }
 }
 declare namespace Mummu {
+    function DrawDebugLine(from: BABYLON.Vector3, to: BABYLON.Vector3, frames: number, color?: BABYLON.Color3, scene?: BABYLON.Scene): void;
+}
+declare namespace Mummu {
     interface IIntersection {
         hit: boolean;
         point: BABYLON.Vector3;
@@ -26,6 +29,18 @@ declare namespace Mummu {
     function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
     function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection;
     function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean): IIntersection;
+}
+declare namespace Mummu {
+    function QuaternionFromXYAxis(x: BABYLON.Vector3, y: BABYLON.Vector3): BABYLON.Quaternion;
+    function QuaternionFromXYAxisToRef(x: BABYLON.Vector3, y: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
+    function QuaternionFromXZAxis(x: BABYLON.Vector3, z: BABYLON.Vector3): BABYLON.Quaternion;
+    function QuaternionFromXZAxisToRef(x: BABYLON.Vector3, z: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
+    function QuaternionFromYZAxis(y: BABYLON.Vector3, z: BABYLON.Vector3): BABYLON.Quaternion;
+    function QuaternionFromYZAxisToRef(y: BABYLON.Vector3, z: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
+    function QuaternionFromZXAxis(z: BABYLON.Vector3, x: BABYLON.Vector3): BABYLON.Quaternion;
+    function QuaternionFromZXAxisToRef(z: BABYLON.Vector3, x: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
+    function QuaternionFromZYAxis(z: BABYLON.Vector3, y: BABYLON.Vector3): BABYLON.Quaternion;
+    function QuaternionFromZYAxisToRef(z: BABYLON.Vector3, y: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
 }
 declare namespace Mummu {
     interface IMakeScreenshotProp {
@@ -59,11 +74,6 @@ declare namespace Mummu {
     function StepToRef(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number, ref: BABYLON.Vector3): BABYLON.Vector3;
     function Step(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number): BABYLON.Vector3;
     function ForceDistanceFromOriginInPlace(point: BABYLON.Vector3, origin: BABYLON.Vector3, distance: number): BABYLON.Vector3;
-    function QuaternionFromXYAxisToRef(x: BABYLON.Vector3, y: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
-    function QuaternionFromXZAxisToRef(x: BABYLON.Vector3, z: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
-    function QuaternionFromYZAxisToRef(y: BABYLON.Vector3, z: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
-    function QuaternionFromZXAxisToRef(z: BABYLON.Vector3, x: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
-    function QuaternionFromZYAxisToRef(z: BABYLON.Vector3, y: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
     function CatmullRomPathInPlace(path: BABYLON.Vector3[], inDir?: BABYLON.Vector3, outDir?: BABYLON.Vector3): BABYLON.Vector3[];
     function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[];
     function DecimatePathInPlace(path: BABYLON.Vector3[], minAngle?: number): BABYLON.Vector3[];
