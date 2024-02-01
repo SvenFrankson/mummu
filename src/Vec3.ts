@@ -15,7 +15,7 @@ namespace Mummu {
     ];
 
     export function IsFinite(v: BABYLON.Vector3): boolean {
-        return isFinite(v.x) && isFinite(v.y) && isFinite(v.z);
+        return v && isFinite(v.x) && isFinite(v.y) && isFinite(v.z);
     }
 
     export function ProjectPerpendicularAtToRef(v: BABYLON.Vector3, at: BABYLON.Vector3, out: BABYLON.Vector3): BABYLON.Vector3 {

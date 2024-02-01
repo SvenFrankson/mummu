@@ -371,7 +371,7 @@ var Mummu;
         BABYLON.Quaternion.Identity()
     ];
     function IsFinite(v) {
-        return isFinite(v.x) && isFinite(v.y) && isFinite(v.z);
+        return v && isFinite(v.x) && isFinite(v.y) && isFinite(v.z);
     }
     Mummu.IsFinite = IsFinite;
     function ProjectPerpendicularAtToRef(v, at, out) {
