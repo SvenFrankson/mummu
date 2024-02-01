@@ -20,6 +20,7 @@ declare namespace Mummu {
         point: BABYLON.Vector3;
         normal: BABYLON.Vector3;
         static CreateFromBJSPlane(plane: BABYLON.Mesh): PlaneCollider;
+        static CreateFromPoints(p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): PlaneCollider;
         constructor(point: BABYLON.Vector3, normal: BABYLON.Vector3);
     }
     class SphereCollider implements ISphere {
@@ -85,6 +86,7 @@ declare namespace Mummu {
 }
 declare namespace Mummu {
     function IsFinite(v: BABYLON.Vector3): boolean;
+    function Barycentric(point: BABYLON.Vector3, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): Nabu.UVW;
     function ProjectPerpendicularAtToRef(v: BABYLON.Vector3, at: BABYLON.Vector3, out: BABYLON.Vector3): BABYLON.Vector3;
     function ProjectPerpendicularAt(v: BABYLON.Vector3, at: BABYLON.Vector3): BABYLON.Vector3;
     function Rotate(v: BABYLON.Vector3, axis: BABYLON.Vector3, angle: number): BABYLON.Vector3;
@@ -96,6 +98,7 @@ declare namespace Mummu {
     function ProjectPointOnPlane(point: BABYLON.Vector3, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): BABYLON.Vector3;
     function DistancePointLine(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3): number;
     function ProjectPointOnSegmentToRef(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3;
+    function ProjectPointOnSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): BABYLON.Vector3;
     function DistancePointSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): number;
     function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: BABYLON.Vector3, pathIsEvenlyDistributed?: boolean): BABYLON.Vector3;
     function StepToRef(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number, ref: BABYLON.Vector3): BABYLON.Vector3;

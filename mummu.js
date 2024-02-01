@@ -158,10 +158,18 @@ var Mummu;
         constructor(point, normal) {
             this.point = point;
             this.normal = normal;
+            if (this.normal.lengthSquared() != 1) {
+                this.normal = this.normal.clone().normalize();
+            }
         }
         static CreateFromBJSPlane(plane) {
             plane.computeWorldMatrix(true);
             return new PlaneCollider(plane.position, plane.forward.scale(-1));
+        }
+        static CreateFromPoints(p1, p2, p3) {
+            let l1 = p2.subtract(p1);
+            let l2 = p3.subtract(p1);
+            return new PlaneCollider(p1, BABYLON.Vector3.Cross(l1, l2));
         }
     }
     Mummu.PlaneCollider = PlaneCollider;
@@ -367,6 +375,37 @@ var Mummu;
             p3 = arg4;
         }
         if (SphereTriangleCheck(cSphere, rSphere, p1, p2, p3)) {
+            let plane = Mummu.PlaneCollider.CreateFromPoints(p1, p2, p3);
+            let proj = Mummu.ProjectPointOnPlane(cSphere, plane.point, plane.normal);
+            let sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);
+            if (sqrDist <= rSphere * rSphere) {
+                let barycentric = Mummu.Barycentric(cSphere, p1, p2, p3);
+                if (barycentric.u < 0 || barycentric.u > 1 || barycentric.v < 0 || barycentric.v > 1 || barycentric.w < 0 || barycentric.w > 1) {
+                    let proj1 = Mummu.ProjectPointOnSegment(proj, p1, p2);
+                    let sqrDist1 = BABYLON.Vector3.DistanceSquared(proj, proj1);
+                    let proj2 = Mummu.ProjectPointOnSegment(proj, p2, p3);
+                    let sqrDist2 = BABYLON.Vector3.DistanceSquared(proj, proj2);
+                    let proj3 = Mummu.ProjectPointOnSegment(proj, p3, p1);
+                    let sqrDist3 = BABYLON.Vector3.DistanceSquared(proj, proj3);
+                    if (sqrDist1 <= sqrDist2 && sqrDist1 <= sqrDist3) {
+                        proj = proj1;
+                    }
+                    else if (sqrDist2 <= sqrDist1 && sqrDist2 <= sqrDist3) {
+                        proj = proj2;
+                    }
+                    else if (sqrDist3 <= sqrDist1 && sqrDist3 <= sqrDist2) {
+                        proj = proj3;
+                    }
+                }
+                sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);
+                if (sqrDist <= rSphere * rSphere) {
+                    let dist = Math.sqrt(sqrDist);
+                    intersection.hit = true;
+                    intersection.point = proj;
+                    intersection.normal = cSphere.subtract(proj).normalize();
+                    intersection.depth = rSphere - dist;
+                }
+            }
         }
         return intersection;
     }
@@ -607,6 +646,26 @@ var Mummu;
         return v && isFinite(v.x) && isFinite(v.y) && isFinite(v.z);
     }
     Mummu.IsFinite = IsFinite;
+    function Barycentric(point, p1, p2, p3) {
+        let v0 = p2.subtract(p1);
+        let v1 = p3.subtract(p1);
+        let v2 = point.subtract(p1);
+        let d00 = BABYLON.Vector3.Dot(v0, v0);
+        let d01 = BABYLON.Vector3.Dot(v0, v1);
+        let d11 = BABYLON.Vector3.Dot(v1, v1);
+        let d20 = BABYLON.Vector3.Dot(v2, v0);
+        let d21 = BABYLON.Vector3.Dot(v2, v1);
+        let d = d00 * d11 - d01 * d01;
+        let v = (d11 * d20 - d01 * d21) / d;
+        let w = (d00 * d21 - d01 * d20) / d;
+        let u = 1 - v - w;
+        return {
+            u: u,
+            v: v,
+            w: w
+        };
+    }
+    Mummu.Barycentric = Barycentric;
     function ProjectPerpendicularAtToRef(v, at, out) {
         let k = (v.x * at.x + v.y * at.y + v.z * at.z);
         k = k / (at.x * at.x + at.y * at.y + at.z * at.z);
@@ -696,6 +755,12 @@ var Mummu;
         return ref;
     }
     Mummu.ProjectPointOnSegmentToRef = ProjectPointOnSegmentToRef;
+    function ProjectPointOnSegment(point, segA, segB) {
+        let proj = BABYLON.Vector3.Zero();
+        ProjectPointOnSegmentToRef(point, segA, segB, proj);
+        return proj;
+    }
+    Mummu.ProjectPointOnSegment = ProjectPointOnSegment;
     function DistancePointSegment(point, segA, segB) {
         let AP = TmpVec3[0];
         let dir = TmpVec3[1];

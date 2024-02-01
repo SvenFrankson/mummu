@@ -191,7 +191,39 @@ namespace Mummu {
         }
 
         if (SphereTriangleCheck(cSphere, rSphere, p1, p2, p3)) {
-            
+            let plane = PlaneCollider.CreateFromPoints(p1, p2, p3);
+            let proj = ProjectPointOnPlane(cSphere, plane.point, plane.normal);
+            let sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);
+            if (sqrDist <= rSphere * rSphere) {                
+                let barycentric = Barycentric(cSphere, p1, p2, p3);
+                if (barycentric.u < 0 || barycentric.u > 1 || barycentric.v < 0 || barycentric.v > 1 || barycentric.w < 0 || barycentric.w > 1) {
+                    let proj1 = ProjectPointOnSegment(proj, p1, p2);
+                    let sqrDist1 = BABYLON.Vector3.DistanceSquared(proj, proj1);
+                    let proj2 = ProjectPointOnSegment(proj, p2, p3);
+                    let sqrDist2 = BABYLON.Vector3.DistanceSquared(proj, proj2);
+                    let proj3 = ProjectPointOnSegment(proj, p3, p1);
+                    let sqrDist3 = BABYLON.Vector3.DistanceSquared(proj, proj3);
+
+                    if (sqrDist1 <= sqrDist2 && sqrDist1 <= sqrDist3) {
+                        proj = proj1;
+                    }
+                    else if (sqrDist2 <= sqrDist1 && sqrDist2 <= sqrDist3) {
+                        proj = proj2;
+                    }
+                    else if (sqrDist3 <= sqrDist1 && sqrDist3 <= sqrDist2) {
+                        proj = proj3;
+                    }
+                }
+
+                sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);
+                if (sqrDist <= rSphere * rSphere) {
+                    let dist = Math.sqrt(sqrDist);
+                    intersection.hit = true;
+                    intersection.point = proj;
+                    intersection.normal = cSphere.subtract(proj).normalize();
+                    intersection.depth = rSphere - dist;
+                }
+            }
         }
 
         return intersection;

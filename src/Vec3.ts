@@ -18,6 +18,29 @@ namespace Mummu {
         return v && isFinite(v.x) && isFinite(v.y) && isFinite(v.z);
     }
 
+    export function Barycentric(point: BABYLON.Vector3, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): Nabu.UVW {
+        let v0 = p2.subtract(p1);
+        let v1 = p3.subtract(p1);
+        let v2 = point.subtract(p1);
+
+        let d00 = BABYLON.Vector3.Dot(v0, v0);
+        let d01 = BABYLON.Vector3.Dot(v0, v1);
+        let d11 = BABYLON.Vector3.Dot(v1, v1);
+        let d20 = BABYLON.Vector3.Dot(v2, v0);
+        let d21 = BABYLON.Vector3.Dot(v2, v1);
+
+        let d = d00 * d11 - d01 * d01;
+        let v = (d11 * d20 - d01 * d21) / d;
+        let w = (d00 * d21 - d01 * d20) / d;
+        let u = 1 - v - w;
+
+        return {
+            u: u,
+            v: v,
+            w: w
+        };
+    }
+
     export function ProjectPerpendicularAtToRef(v: BABYLON.Vector3, at: BABYLON.Vector3, out: BABYLON.Vector3): BABYLON.Vector3 {
         let k: number = (v.x * at.x + v.y * at.y + v.z * at.z);
         k = k / (at.x * at.x + at.y * at.y + at.z * at.z);
@@ -106,6 +129,12 @@ namespace Mummu {
         ref.copyFrom(dir).scaleInPlace(dist).addInPlace(segA);
 
         return ref;
+    }
+
+    export function ProjectPointOnSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): BABYLON.Vector3 {
+        let proj = BABYLON.Vector3.Zero();
+        ProjectPointOnSegmentToRef(point, segA, segB, proj);
+        return proj;
     }
 
     export function DistancePointSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): number {
