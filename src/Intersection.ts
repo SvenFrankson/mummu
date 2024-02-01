@@ -24,26 +24,36 @@ namespace Mummu {
         }
     }
 
-    export function AABBAABBIntersect(
+    export function SphereAABBCheck(
+        cSphere: BABYLON.Vector3, rSphere: number,
+        x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number
+    ): boolean {
+        return AABBAABBCheck(
+            cSphere.x - rSphere, cSphere.x + rSphere, cSphere.y - rSphere, cSphere.y + rSphere, cSphere.z - rSphere, cSphere.z + rSphere, 
+            x2Min, x2Max, y2Min, y2Max, z2Min, z2Max
+        );
+    }
+
+    export function AABBAABBCheck(
         x1Min: number, x1Max: number, y1Min: number, y1Max: number, z1Min: number, z1Max: number,
         x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number
     ): boolean {
         if (x1Min > x2Max) {
             return false;
         }
-        if (x1Max < x1Min) {
+        if (x1Max < x2Min) {
             return false;
         }
         if (y1Min > y2Max) {
             return false;
         }
-        if (y1Max < y1Min) {
+        if (y1Max < y2Min) {
             return false;
         }
         if (z1Min > z2Max) {
             return false;
         }
-        if (z1Max < z1Min) {
+        if (z1Max < z2Min) {
             return false;
         }
         return true;
@@ -79,8 +89,8 @@ namespace Mummu {
     export function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection {
         let intersection = new Intersection();
 
-        if (AABBAABBIntersect(
-            cSphere.x - rSphere, cSphere.x + rSphere, cSphere.y - rSphere, cSphere.y + rSphere, cSphere.z - rSphere, cSphere.z + rSphere, 
+        if (SphereAABBCheck(
+            cSphere, rSphere,
             Math.min(c1Capsule.x, c2Capsule.x) - rCapsule,
             Math.max(c1Capsule.x, c2Capsule.x) + rCapsule,
             Math.min(c1Capsule.y, c2Capsule.y) - rCapsule,

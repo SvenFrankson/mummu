@@ -208,28 +208,32 @@ var Mummu;
             this.depth = 0;
         }
     }
-    function AABBAABBIntersect(x1Min, x1Max, y1Min, y1Max, z1Min, z1Max, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max) {
+    function SphereAABBCheck(cSphere, rSphere, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max) {
+        return AABBAABBCheck(cSphere.x - rSphere, cSphere.x + rSphere, cSphere.y - rSphere, cSphere.y + rSphere, cSphere.z - rSphere, cSphere.z + rSphere, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max);
+    }
+    Mummu.SphereAABBCheck = SphereAABBCheck;
+    function AABBAABBCheck(x1Min, x1Max, y1Min, y1Max, z1Min, z1Max, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max) {
         if (x1Min > x2Max) {
             return false;
         }
-        if (x1Max < x1Min) {
+        if (x1Max < x2Min) {
             return false;
         }
         if (y1Min > y2Max) {
             return false;
         }
-        if (y1Max < y1Min) {
+        if (y1Max < y2Min) {
             return false;
         }
         if (z1Min > z2Max) {
             return false;
         }
-        if (z1Max < z1Min) {
+        if (z1Max < z2Min) {
             return false;
         }
         return true;
     }
-    Mummu.AABBAABBIntersect = AABBAABBIntersect;
+    Mummu.AABBAABBCheck = AABBAABBCheck;
     function SpherePlaneIntersection(cSphere, rSphere, arg1, nPlane) {
         let pPlane;
         if (arg1 instanceof BABYLON.Vector3) {
@@ -254,7 +258,7 @@ var Mummu;
     Mummu.SpherePlaneIntersection = SpherePlaneIntersection;
     function SphereCapsuleIntersection(cSphere, rSphere, c1Capsule, c2Capsule, rCapsule) {
         let intersection = new Intersection();
-        if (AABBAABBIntersect(cSphere.x - rSphere, cSphere.x + rSphere, cSphere.y - rSphere, cSphere.y + rSphere, cSphere.z - rSphere, cSphere.z + rSphere, Math.min(c1Capsule.x, c2Capsule.x) - rCapsule, Math.max(c1Capsule.x, c2Capsule.x) + rCapsule, Math.min(c1Capsule.y, c2Capsule.y) - rCapsule, Math.max(c1Capsule.y, c2Capsule.y) + rCapsule, Math.min(c1Capsule.z, c2Capsule.z) - rCapsule, Math.max(c1Capsule.z, c2Capsule.z) + rCapsule)) {
+        if (SphereAABBCheck(cSphere, rSphere, Math.min(c1Capsule.x, c2Capsule.x) - rCapsule, Math.max(c1Capsule.x, c2Capsule.x) + rCapsule, Math.min(c1Capsule.y, c2Capsule.y) - rCapsule, Math.max(c1Capsule.y, c2Capsule.y) + rCapsule, Math.min(c1Capsule.z, c2Capsule.z) - rCapsule, Math.max(c1Capsule.z, c2Capsule.z) + rCapsule)) {
             let dist = Mummu.DistancePointSegment(cSphere, c1Capsule, c2Capsule);
             let depth = (rSphere + rCapsule) - dist;
             if (depth > 0) {
