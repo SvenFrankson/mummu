@@ -165,11 +165,18 @@ var Mummu;
         }
     }
     Mummu.PlaneCollider = PlaneCollider;
+    class SphereCollider {
+        constructor(center, radius) {
+            this.center = center;
+            this.radius = radius;
+        }
+    }
+    Mummu.SphereCollider = SphereCollider;
 })(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
 (function (Mummu) {
-    function DrawDebugLine(from, to, frames, color, scene) {
+    function DrawDebugLine(from, to, frames = Infinity, color, scene) {
         if (!scene) {
             scene = BABYLON.Engine.Instances[0]?.scenes[0];
         }
@@ -185,20 +192,58 @@ var Mummu;
                 points: [from, to],
                 colors: colors
             });
-            let frameCount = frames;
-            let disposeTimer = () => {
-                frameCount--;
-                if (frameCount <= 0) {
-                    line.dispose();
-                }
-                else {
-                    requestAnimationFrame(disposeTimer);
-                }
-            };
-            requestAnimationFrame(disposeTimer);
+            if (isFinite(frames)) {
+                let frameCount = frames;
+                let disposeTimer = () => {
+                    frameCount--;
+                    if (frameCount <= 0) {
+                        line.dispose();
+                    }
+                    else {
+                        requestAnimationFrame(disposeTimer);
+                    }
+                };
+                requestAnimationFrame(disposeTimer);
+            }
+            return line;
         }
     }
     Mummu.DrawDebugLine = DrawDebugLine;
+    function DrawDebugTriangle(p1, p2, p3, frames = Infinity, color, scene) {
+        if (!scene) {
+            scene = BABYLON.Engine.Instances[0]?.scenes[0];
+        }
+        if (scene) {
+            let colors;
+            if (color) {
+                colors = [
+                    color.toColor4(),
+                    color.toColor4(),
+                    color.toColor4(),
+                    color.toColor4()
+                ];
+            }
+            let line = BABYLON.MeshBuilder.CreateLines("debug-triangle", {
+                points: [p1, p2, p3, p1],
+                colors: colors
+            });
+            if (isFinite(frames)) {
+                let frameCount = frames;
+                let disposeTimer = () => {
+                    frameCount--;
+                    if (frameCount <= 0) {
+                        line.dispose();
+                    }
+                    else {
+                        requestAnimationFrame(disposeTimer);
+                    }
+                };
+                requestAnimationFrame(disposeTimer);
+            }
+            return line;
+        }
+    }
+    Mummu.DrawDebugTriangle = DrawDebugTriangle;
 })(Mummu || (Mummu = {}));
 var Mummu;
 (function (Mummu) {
@@ -208,6 +253,10 @@ var Mummu;
             this.depth = 0;
         }
     }
+    function SphereTriangleCheck(cSphere, rSphere, p1, p2, p3) {
+        return SphereAABBCheck(cSphere, rSphere, Math.min(p1.x, p2.x, p3.x), Math.max(p1.x, p2.x, p3.x), Math.min(p1.y, p2.y, p3.y), Math.max(p1.y, p2.y, p3.y), Math.min(p1.z, p2.z, p3.z), Math.max(p1.z, p2.z, p3.z));
+    }
+    Mummu.SphereTriangleCheck = SphereTriangleCheck;
     function SphereAABBCheck(cSphere, rSphere, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max) {
         return AABBAABBCheck(cSphere.x - rSphere, cSphere.x + rSphere, cSphere.y - rSphere, cSphere.y + rSphere, cSphere.z - rSphere, cSphere.z + rSphere, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max);
     }
@@ -234,14 +283,18 @@ var Mummu;
         return true;
     }
     Mummu.AABBAABBCheck = AABBAABBCheck;
-    function SpherePlaneIntersection(cSphere, rSphere, arg1, nPlane) {
-        let pPlane;
+    function SpherePlaneIntersection(arg1, arg2, pPlane, nPlane) {
+        let cSphere;
+        let rSphere;
         if (arg1 instanceof BABYLON.Vector3) {
-            pPlane = arg1;
+            cSphere = arg1;
+            rSphere = arg2;
         }
-        else if (arg1 && arg1.point) {
-            pPlane = arg1.point;
-            nPlane = arg1.normal;
+        else {
+            cSphere = arg1.center;
+            rSphere = arg1.radius;
+            pPlane = arg2.point;
+            nPlane = arg2.normal;
         }
         let intersection = new Intersection();
         let proj = Mummu.ProjectPointOnPlane(cSphere, pPlane, nPlane);
@@ -292,6 +345,32 @@ var Mummu;
         return intersection;
     }
     Mummu.SphereWireIntersection = SphereWireIntersection;
+    function SphereTriangleIntersection(arg1, arg2, arg3, arg4, arg5) {
+        let intersection = new Intersection();
+        let cSphere;
+        let rSphere;
+        let p1;
+        let p2;
+        let p3;
+        if (arg1 instanceof BABYLON.Vector3) {
+            cSphere = arg1;
+            rSphere = arg2;
+            p1 = arg3;
+            p2 = arg4;
+            p3 = arg5;
+        }
+        else {
+            cSphere = arg1.center;
+            rSphere = arg1.radius;
+            p1 = arg2;
+            p2 = arg3;
+            p3 = arg4;
+        }
+        if (SphereTriangleCheck(cSphere, rSphere, p1, p2, p3)) {
+        }
+        return intersection;
+    }
+    Mummu.SphereTriangleIntersection = SphereTriangleIntersection;
 })(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;

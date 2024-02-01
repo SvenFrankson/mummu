@@ -4,6 +4,11 @@ namespace Mummu {
         point: BABYLON.Vector3;
         normal: BABYLON.Vector3;
     }
+    
+    export interface ISphere {
+        center: BABYLON.Vector3;
+        radius: number;
+    }
 
     export interface IIntersection {
         hit: boolean;
@@ -22,6 +27,21 @@ namespace Mummu {
         constructor() {
 
         }
+    }
+
+    export function SphereTriangleCheck(
+        cSphere: BABYLON.Vector3, rSphere: number,
+        p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3
+    ): boolean {
+        return SphereAABBCheck(
+            cSphere, rSphere,
+            Math.min(p1.x, p2.x, p3.x),
+            Math.max(p1.x, p2.x, p3.x),
+            Math.min(p1.y, p2.y, p3.y),
+            Math.max(p1.y, p2.y, p3.y),
+            Math.min(p1.z, p2.z, p3.z),
+            Math.max(p1.z, p2.z, p3.z)
+        );
     }
 
     export function SphereAABBCheck(
@@ -59,17 +79,22 @@ namespace Mummu {
         return true;
     }
 
-    export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, plane: IPlane): IIntersection;
+    export function SpherePlaneIntersection(sphere: ISphere, plane: IPlane): IIntersection;
     export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
-    export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, arg1: any, nPlane?: BABYLON.Vector3): IIntersection {
-        let pPlane: BABYLON.Vector3;
+    export function SpherePlaneIntersection(arg1: any, arg2: any, pPlane?: BABYLON.Vector3, nPlane?: BABYLON.Vector3): IIntersection {
+        let cSphere: BABYLON.Vector3;
+        let rSphere: number;
         if (arg1 instanceof BABYLON.Vector3) {
-            pPlane = arg1;
+            cSphere = arg1;
+            rSphere = arg2;
         }
-        else if (arg1 && (arg1 as IPlane).point) {
-            pPlane = (arg1 as IPlane).point;
-            nPlane = (arg1 as IPlane).normal;
+        else {
+            cSphere = (arg1 as ISphere).center;
+            rSphere = (arg1 as ISphere).radius;
+            pPlane = (arg2 as IPlane).point;
+            nPlane = (arg2 as IPlane).normal;
         }
+
         let intersection = new Intersection();
 
         let proj = ProjectPointOnPlane(cSphere, pPlane, nPlane);
@@ -134,6 +159,39 @@ namespace Mummu {
             intersection.point = dir.scale(rWire);
             intersection.point.addInPlace(proj);
             intersection.normal = dir;
+        }
+
+        return intersection;
+    }
+
+    export function SphereTriangleIntersection(sphere: ISphere, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
+    export function SphereTriangleIntersection(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
+    export function SphereTriangleIntersection(arg1: any, arg2: any, arg3: any, arg4: any, arg5?: any): IIntersection {
+        let intersection = new Intersection();
+        
+        let cSphere: BABYLON.Vector3;
+        let rSphere: number;
+        let p1: BABYLON.Vector3;
+        let p2: BABYLON.Vector3;
+        let p3: BABYLON.Vector3;
+
+        if (arg1 instanceof BABYLON.Vector3) {
+            cSphere = arg1;
+            rSphere = arg2;
+            p1 = arg3;
+            p2 = arg4;
+            p3 = arg5;
+        }
+        else {
+            cSphere = (arg1 as ISphere).center;
+            rSphere = (arg1 as ISphere).radius;
+            p1 = arg2;
+            p2 = arg3;
+            p3 = arg4;
+        }
+
+        if (SphereTriangleCheck(cSphere, rSphere, p1, p2, p3)) {
+            
         }
 
         return intersection;

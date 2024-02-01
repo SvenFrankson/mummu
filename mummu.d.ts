@@ -22,14 +22,24 @@ declare namespace Mummu {
         static CreateFromBJSPlane(plane: BABYLON.Mesh): PlaneCollider;
         constructor(point: BABYLON.Vector3, normal: BABYLON.Vector3);
     }
+    class SphereCollider implements ISphere {
+        center: BABYLON.Vector3;
+        radius: number;
+        constructor(center: BABYLON.Vector3, radius: number);
+    }
 }
 declare namespace Mummu {
-    function DrawDebugLine(from: BABYLON.Vector3, to: BABYLON.Vector3, frames: number, color?: BABYLON.Color3, scene?: BABYLON.Scene): void;
+    function DrawDebugLine(from: BABYLON.Vector3, to: BABYLON.Vector3, frames?: number, color?: BABYLON.Color3, scene?: BABYLON.Scene): BABYLON.Mesh;
+    function DrawDebugTriangle(p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3, frames?: number, color?: BABYLON.Color3, scene?: BABYLON.Scene): BABYLON.Mesh;
 }
 declare namespace Mummu {
     interface IPlane {
         point: BABYLON.Vector3;
         normal: BABYLON.Vector3;
+    }
+    interface ISphere {
+        center: BABYLON.Vector3;
+        radius: number;
     }
     interface IIntersection {
         hit: boolean;
@@ -37,12 +47,15 @@ declare namespace Mummu {
         normal: BABYLON.Vector3;
         depth: number;
     }
+    function SphereTriangleCheck(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): boolean;
     function SphereAABBCheck(cSphere: BABYLON.Vector3, rSphere: number, x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number): boolean;
     function AABBAABBCheck(x1Min: number, x1Max: number, y1Min: number, y1Max: number, z1Min: number, z1Max: number, x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number): boolean;
-    function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, plane: IPlane): IIntersection;
+    function SpherePlaneIntersection(sphere: ISphere, plane: IPlane): IIntersection;
     function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
     function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection;
     function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean): IIntersection;
+    function SphereTriangleIntersection(sphere: ISphere, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
+    function SphereTriangleIntersection(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
 }
 declare namespace Mummu {
     function QuaternionFromXYAxis(x: BABYLON.Vector3, y: BABYLON.Vector3): BABYLON.Quaternion;

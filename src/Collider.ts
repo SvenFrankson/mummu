@@ -14,4 +14,14 @@ namespace Mummu {
 
         }
     }
+
+    export class SphereCollider implements ISphere {
+
+        constructor(
+            public center: BABYLON.Vector3,
+            public radius: number
+        ) {
+
+        }
+    }
 }
