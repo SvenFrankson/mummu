@@ -189,66 +189,6 @@ namespace Mummu {
         return point;
     }
 
-    export function QuaternionFromXYAxisToRef(x: BABYLON.Vector3, y: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion {
-        let xAxis = TmpVec3[0].copyFrom(x);
-        let yAxis = TmpVec3[1].copyFrom(y);
-        let zAxis = TmpVec3[2];
-        
-        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
-        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-
-        return ref;
-    }
-
-    export function QuaternionFromXZAxisToRef(x: BABYLON.Vector3, z: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion {
-        let xAxis = TmpVec3[0].copyFrom(x);
-        let yAxis = TmpVec3[1];
-        let zAxis = TmpVec3[2].copyFrom(z);
-        
-        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
-        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-
-        return ref;
-    }
-
-    export function QuaternionFromYZAxisToRef(y: BABYLON.Vector3, z: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion {
-        let xAxis = TmpVec3[0];
-        let yAxis = TmpVec3[1].copyFrom(y);
-        let zAxis = TmpVec3[2].copyFrom(z);
-        
-        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
-        BABYLON.Vector3.CrossToRef(xAxis, yAxis, zAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-
-        return ref;
-    }
-
-    export function QuaternionFromZXAxisToRef(z: BABYLON.Vector3, x: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion {
-        let xAxis = TmpVec3[0].copyFrom(x);
-        let yAxis = TmpVec3[1];
-        let zAxis = TmpVec3[2].copyFrom(z);
-        
-        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
-        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-
-        return ref;
-    }
-
-    export function QuaternionFromZYAxisToRef(z: BABYLON.Vector3, y: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion {
-        let xAxis = TmpVec3[0];
-        let yAxis = TmpVec3[1].copyFrom(y);
-        let zAxis = TmpVec3[2].copyFrom(z);
-        
-        BABYLON.Vector3.CrossToRef(yAxis, zAxis, xAxis);
-        BABYLON.Vector3.CrossToRef(zAxis, xAxis, yAxis);
-        BABYLON.Quaternion.RotationQuaternionFromAxisToRef(xAxis, yAxis, zAxis, ref);
-
-        return ref;
-    }
-
     export function CatmullRomPathInPlace(path: BABYLON.Vector3[], inDir?: BABYLON.Vector3, outDir?: BABYLON.Vector3): BABYLON.Vector3[] {
         if (path.length >= 2) {
 
