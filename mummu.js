@@ -265,11 +265,49 @@ var Mummu;
         return SphereAABBCheck(cSphere, rSphere, Math.min(p1.x, p2.x, p3.x), Math.max(p1.x, p2.x, p3.x), Math.min(p1.y, p2.y, p3.y), Math.max(p1.y, p2.y, p3.y), Math.min(p1.z, p2.z, p3.z), Math.max(p1.z, p2.z, p3.z));
     }
     Mummu.SphereTriangleCheck = SphereTriangleCheck;
-    function SphereAABBCheck(cSphere, rSphere, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max) {
+    function SphereAABBCheck(cSphere, rSphere, arg1, arg2, y2Min, y2Max, z2Min, z2Max) {
+        let x2Min;
+        let x2Max;
+        if (arg1 instanceof BABYLON.Vector3) {
+            x2Min = arg1.x;
+            x2Max = arg2.x;
+            y2Min = arg1.y;
+            y2Max = arg2.y;
+            z2Min = arg1.z;
+            z2Max = arg2.z;
+        }
+        else {
+            x2Min = arg1;
+            x2Max = arg2;
+        }
         return AABBAABBCheck(cSphere.x - rSphere, cSphere.x + rSphere, cSphere.y - rSphere, cSphere.y + rSphere, cSphere.z - rSphere, cSphere.z + rSphere, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max);
     }
     Mummu.SphereAABBCheck = SphereAABBCheck;
-    function AABBAABBCheck(x1Min, x1Max, y1Min, y1Max, z1Min, z1Max, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max) {
+    function AABBAABBCheck(arg1, arg2, arg3, arg4, z1Min, z1Max, x2Min, x2Max, y2Min, y2Max, z2Min, z2Max) {
+        let x1Min;
+        let x1Max;
+        let y1Min;
+        let y1Max;
+        if (arg1 instanceof BABYLON.Vector3) {
+            x1Min = arg1.x;
+            x1Max = arg2.x;
+            y1Min = arg1.y;
+            y1Max = arg2.y;
+            z1Min = arg1.z;
+            z1Max = arg2.z;
+            x2Min = arg3.x;
+            x2Max = arg4.x;
+            y2Min = arg3.y;
+            y2Max = arg4.y;
+            z2Min = arg3.z;
+            z2Max = arg4.z;
+        }
+        else {
+            x1Min = arg1;
+            x1Max = arg2;
+            y1Min = arg3;
+            y1Max = arg4;
+        }
         if (x1Min > x2Max) {
             return false;
         }
@@ -410,6 +448,44 @@ var Mummu;
         return intersection;
     }
     Mummu.SphereTriangleIntersection = SphereTriangleIntersection;
+    function SphereMeshIntersection(cSphere, rSphere, mesh) {
+        let intersection = new Intersection();
+        let bbox = mesh.getBoundingInfo();
+        let localCSphere = BABYLON.Vector3.TransformCoordinates(cSphere, mesh.getWorldMatrix().clone().invert());
+        if (SphereAABBCheck(localCSphere, rSphere, bbox.minimum, bbox.maximum)) {
+            let positions = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+            let indices = mesh.getIndices();
+            let p1 = BABYLON.Vector3.Zero();
+            let p2 = BABYLON.Vector3.Zero();
+            let p3 = BABYLON.Vector3.Zero();
+            for (let i = 0; i < indices.length / 3; i++) {
+                let i1 = indices[3 * i];
+                let i2 = indices[3 * i + 1];
+                let i3 = indices[3 * i + 2];
+                p1.x = positions[3 * i1];
+                p1.y = positions[3 * i1 + 1];
+                p1.z = positions[3 * i1 + 2];
+                p2.x = positions[3 * i2];
+                p2.y = positions[3 * i2 + 1];
+                p2.z = positions[3 * i2 + 2];
+                p3.x = positions[3 * i3];
+                p3.y = positions[3 * i3 + 1];
+                p3.z = positions[3 * i3 + 2];
+                let triIntersection = SphereTriangleIntersection(localCSphere, rSphere, p1, p2, p3);
+                if (triIntersection.hit) {
+                    if (!intersection || triIntersection.depth > intersection.depth) {
+                        intersection = triIntersection;
+                    }
+                }
+            }
+            if (intersection.hit) {
+                BABYLON.Vector3.TransformCoordinatesToRef(intersection.point, mesh.getWorldMatrix(), intersection.point);
+                BABYLON.Vector3.TransformNormalToRef(intersection.normal, mesh.getWorldMatrix(), intersection.normal);
+            }
+        }
+        return intersection;
+    }
+    Mummu.SphereMeshIntersection = SphereMeshIntersection;
 })(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
