@@ -1,5 +1,10 @@
 namespace Mummu {
     
+    export interface IPlane {
+        point: BABYLON.Vector3;
+        normal: BABYLON.Vector3;
+    }
+
     export interface IIntersection {
         hit: boolean;
         point: BABYLON.Vector3;
@@ -44,7 +49,17 @@ namespace Mummu {
         return true;
     }
 
-    export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection {
+    export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, plane: IPlane): IIntersection;
+    export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
+    export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, arg1: any, nPlane?: BABYLON.Vector3): IIntersection {
+        let pPlane: BABYLON.Vector3;
+        if (arg1 instanceof BABYLON.Vector3) {
+            pPlane = arg1;
+        }
+        else if (arg1 && (arg1 as IPlane).point) {
+            pPlane = (arg1 as IPlane).point;
+            nPlane = (arg1 as IPlane).normal;
+        }
         let intersection = new Intersection();
 
         let proj = ProjectPointOnPlane(cSphere, pPlane, nPlane);

@@ -152,6 +152,20 @@ var Mummu;
     AnimationFactory.EmptyVector3Callback = async (target, duration) => { };
     Mummu.AnimationFactory = AnimationFactory;
 })(Mummu || (Mummu = {}));
+var Mummu;
+(function (Mummu) {
+    class PlaneCollider {
+        constructor(point, normal) {
+            this.point = point;
+            this.normal = normal;
+        }
+        static CreateFromBJSPlane(plane) {
+            plane.computeWorldMatrix(true);
+            return new PlaneCollider(plane.position, plane.forward.scale(-1));
+        }
+    }
+    Mummu.PlaneCollider = PlaneCollider;
+})(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
 (function (Mummu) {
@@ -216,7 +230,15 @@ var Mummu;
         return true;
     }
     Mummu.AABBAABBIntersect = AABBAABBIntersect;
-    function SpherePlaneIntersection(cSphere, rSphere, pPlane, nPlane) {
+    function SpherePlaneIntersection(cSphere, rSphere, arg1, nPlane) {
+        let pPlane;
+        if (arg1 instanceof BABYLON.Vector3) {
+            pPlane = arg1;
+        }
+        else if (arg1 && arg1.point) {
+            pPlane = arg1.point;
+            nPlane = arg1.normal;
+        }
         let intersection = new Intersection();
         let proj = Mummu.ProjectPointOnPlane(cSphere, pPlane, nPlane);
         let sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);

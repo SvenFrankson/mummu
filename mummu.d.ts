@@ -16,9 +16,21 @@ declare namespace Mummu {
     }
 }
 declare namespace Mummu {
+    class PlaneCollider implements IPlane {
+        point: BABYLON.Vector3;
+        normal: BABYLON.Vector3;
+        static CreateFromBJSPlane(plane: BABYLON.Mesh): PlaneCollider;
+        constructor(point: BABYLON.Vector3, normal: BABYLON.Vector3);
+    }
+}
+declare namespace Mummu {
     function DrawDebugLine(from: BABYLON.Vector3, to: BABYLON.Vector3, frames: number, color?: BABYLON.Color3, scene?: BABYLON.Scene): void;
 }
 declare namespace Mummu {
+    interface IPlane {
+        point: BABYLON.Vector3;
+        normal: BABYLON.Vector3;
+    }
     interface IIntersection {
         hit: boolean;
         point: BABYLON.Vector3;
@@ -26,6 +38,7 @@ declare namespace Mummu {
         depth: number;
     }
     function AABBAABBIntersect(x1Min: number, x1Max: number, y1Min: number, y1Max: number, z1Min: number, z1Max: number, x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number): boolean;
+    function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, plane: IPlane): IIntersection;
     function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
     function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection;
     function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean): IIntersection;
