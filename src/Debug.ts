@@ -42,6 +42,74 @@ namespace Mummu {
         }
     }
 
+    export function DrawDebugHit(point: BABYLON.Vector3, normal: BABYLON.Vector3, frames: number = Infinity, color?: BABYLON.Color3, scene?: BABYLON.Scene): BABYLON.Mesh {
+        if (!scene) {
+            scene = BABYLON.Engine.Instances[0]?.scenes[0];
+        }
+
+        if (scene) {
+            let colors: BABYLON.Color4[][];
+            if (color) {
+                colors = [
+                    [
+                        color.toColor4(),
+                        color.toColor4(),
+                        color.toColor4()
+                    ],
+                    [
+                        color.toColor4(),
+                        color.toColor4()
+                    ],
+                    [
+                        color.toColor4(),
+                        color.toColor4()
+                    ],
+                    [
+                        color.toColor4(),
+                        color.toColor4()
+                    ]
+                ]
+            }
+            
+            let f1 = BABYLON.Vector3.Cross(normal, new BABYLON.Vector3(Math.random(), Math.random(), Math.random())).normalize().scaleInPlace(0.01);
+            let f2 = Mummu.Rotate(f1, normal, 2 * Math.PI / 3);
+            let f3 = Mummu.Rotate(f2, normal, 2 * Math.PI / 3);
+            f1.addInPlace(point);
+            f2.addInPlace(point);
+            f3.addInPlace(point);
+            let p = point.add(normal.scale(0.1));
+            let line = BABYLON.MeshBuilder.CreateLineSystem(
+                "debug-points",
+                {
+                    lines: [
+                        [f1, f2, f3],
+                        [f1, p],
+                        [f2, p],
+                        [f3, p]
+                    ],
+                    colors: colors
+                },
+                scene
+            );
+            
+            if (isFinite(frames)) {
+                let frameCount = frames;
+                let disposeTimer = () => {
+                    frameCount--;
+                    if (frameCount <= 0) {
+                        line.dispose();
+                    }
+                    else {
+                        requestAnimationFrame(disposeTimer);
+                    }
+                }
+                requestAnimationFrame(disposeTimer);
+            }
+
+            return line;
+        }
+    }
+
     export function DrawDebugPoint(points: BABYLON.Vector3, frames: number = Infinity, color?: BABYLON.Color3, scene?: BABYLON.Scene): BABYLON.Mesh {
         if (!scene) {
             scene = BABYLON.Engine.Instances[0]?.scenes[0];
