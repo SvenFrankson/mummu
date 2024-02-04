@@ -567,8 +567,11 @@ var Mummu;
     function SphereMeshIntersection(cSphere, rSphere, mesh) {
         let intersection = new Intersection();
         let bbox = mesh.getBoundingInfo();
+        let scale = BABYLON.Vector3.One();
+        mesh.getWorldMatrix().decompose(scale, BABYLON.Quaternion.Identity(), BABYLON.Vector3.Zero());
         let localCSphere = BABYLON.Vector3.TransformCoordinates(cSphere, mesh.getWorldMatrix().clone().invert());
-        if (SphereAABBCheck(localCSphere, rSphere, bbox.minimum, bbox.maximum)) {
+        let localRadius = rSphere / scale.x;
+        if (SphereAABBCheck(localCSphere, localRadius, bbox.minimum, bbox.maximum)) {
             let positions = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
             let indices = mesh.getIndices();
             let p1 = BABYLON.Vector3.Zero();
@@ -587,7 +590,7 @@ var Mummu;
                 p3.x = positions[3 * i3];
                 p3.y = positions[3 * i3 + 1];
                 p3.z = positions[3 * i3 + 2];
-                let triIntersection = SphereTriangleIntersection(localCSphere, rSphere, p1, p2, p3);
+                let triIntersection = SphereTriangleIntersection(localCSphere, localRadius, p1, p2, p3);
                 if (triIntersection.hit) {
                     if (!intersection || triIntersection.depth > intersection.depth) {
                         intersection = triIntersection;
