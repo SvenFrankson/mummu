@@ -217,6 +217,62 @@ var Mummu;
         }
     }
     Mummu.DrawDebugLine = DrawDebugLine;
+    function DrawDebugPoint(points, frames = Infinity, color, scene) {
+        if (!scene) {
+            scene = BABYLON.Engine.Instances[0]?.scenes[0];
+        }
+        if (scene) {
+            let colors;
+            if (color) {
+                colors = [
+                    [
+                        color.toColor4(),
+                        color.toColor4()
+                    ],
+                    [
+                        color.toColor4(),
+                        color.toColor4()
+                    ],
+                    [
+                        color.toColor4(),
+                        color.toColor4()
+                    ]
+                ];
+            }
+            let line = BABYLON.MeshBuilder.CreateLineSystem("debug-points", {
+                lines: [
+                    [
+                        points.add(new BABYLON.Vector3(-0.1, 0, 0)),
+                        points.add(new BABYLON.Vector3(0.1, 0, 0))
+                    ],
+                    [
+                        points.add(new BABYLON.Vector3(0, -0.1, 0)),
+                        points.add(new BABYLON.Vector3(0, 0.1, 0))
+                    ],
+                    [
+                        points.add(new BABYLON.Vector3(0, 0, -0.1)),
+                        points.add(new BABYLON.Vector3(0, 0, 0.1))
+                    ]
+                ],
+                colors: colors
+            }, scene);
+            if (isFinite(frames)) {
+                let frameCount = frames;
+                let disposeTimer = () => {
+                    frameCount--;
+                    if (frameCount <= 0) {
+                        line.dispose();
+                    }
+                    else {
+                        requestAnimationFrame(disposeTimer);
+                    }
+                };
+                requestAnimationFrame(disposeTimer);
+            }
+            return line;
+        }
+    }
+    Mummu.DrawDebugPoint = DrawDebugPoint;
     function DrawDebugTriangle(p1, p2, p3, frames = Infinity, color, scene) {
         if (!scene) {
             scene = BABYLON.Engine.Instances[0]?.scenes[0];
