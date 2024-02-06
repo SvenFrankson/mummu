@@ -64,6 +64,18 @@ declare namespace Mummu {
     function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.Mesh): IIntersection;
 }
 declare namespace Mummu {
+    interface IQuadProps {
+        p1: BABYLON.Vector3;
+        p2: BABYLON.Vector3;
+        p3: BABYLON.Vector3;
+        p4: BABYLON.Vector3;
+        colors?: BABYLON.Color4 | BABYLON.Color4[];
+        sideOrientation?: number;
+    }
+    function CreateQuadVertexData(props: IQuadProps): BABYLON.VertexData;
+    function CreateQuad(name: string, props: IQuadProps, scene?: BABYLON.Scene): BABYLON.Mesh;
+}
+declare namespace Mummu {
     function QuaternionFromXYAxis(x: BABYLON.Vector3, y: BABYLON.Vector3): BABYLON.Quaternion;
     function QuaternionFromXYAxisToRef(x: BABYLON.Vector3, y: BABYLON.Vector3, ref: BABYLON.Quaternion): BABYLON.Quaternion;
     function QuaternionFromXZAxis(x: BABYLON.Vector3, z: BABYLON.Vector3): BABYLON.Quaternion;
