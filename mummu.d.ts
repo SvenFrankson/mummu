@@ -30,9 +30,12 @@ declare namespace Mummu {
         constructor(point: BABYLON.Vector3, normal: BABYLON.Vector3);
     }
     class SphereCollider extends Collider implements ISphere {
-        center: BABYLON.Vector3;
+        localCenter: BABYLON.Vector3;
         radius: number;
-        constructor(center: BABYLON.Vector3, radius: number);
+        parent?: BABYLON.TransformNode;
+        center: BABYLON.Vector3;
+        constructor(localCenter: BABYLON.Vector3, radius: number, parent?: BABYLON.TransformNode);
+        recomputeWorldCenter(): void;
     }
     class MeshCollider extends Collider {
         mesh: BABYLON.Mesh;

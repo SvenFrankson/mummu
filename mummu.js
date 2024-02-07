@@ -232,10 +232,21 @@ var Mummu;
     }
     Mummu.PlaneCollider = PlaneCollider;
     class SphereCollider extends Collider {
-        constructor(center, radius) {
+        constructor(localCenter, radius, parent) {
             super();
-            this.center = center;
+            this.localCenter = localCenter;
             this.radius = radius;
+            this.parent = parent;
+            this.center = BABYLON.Vector3.Zero();
+            this.recomputeWorldCenter();
+        }
+        recomputeWorldCenter() {
+            if (this.parent) {
+                BABYLON.Vector3.TransformCoordinatesToRef(this.localCenter, this.parent.getWorldMatrix(), this.center);
+            }
+            else {
+                this.center.copyFrom(this.localCenter);
+            }
         }
     }
     Mummu.SphereCollider = SphereCollider;

@@ -88,11 +88,24 @@ namespace Mummu {
 
     export class SphereCollider extends Collider implements ISphere {
 
+        public center: BABYLON.Vector3 = BABYLON.Vector3.Zero();
+
         constructor(
-            public center: BABYLON.Vector3,
+            public localCenter: BABYLON.Vector3,
             public radius: number,
+            public parent?: BABYLON.TransformNode
         ) {
             super();
+            this.recomputeWorldCenter();
+        }
+
+        public recomputeWorldCenter(): void {
+            if (this.parent) {
+                BABYLON.Vector3.TransformCoordinatesToRef(this.localCenter, this.parent.getWorldMatrix(), this.center);
+            }
+            else {
+                this.center.copyFrom(this.localCenter);
+            }
         }
     }
 
