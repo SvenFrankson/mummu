@@ -74,6 +74,19 @@ declare namespace Mummu {
     }
     function CreateQuadVertexData(props: IQuadProps): BABYLON.VertexData;
     function CreateQuad(name: string, props: IQuadProps, scene?: BABYLON.Scene): BABYLON.Mesh;
+    interface ISphereCutProps {
+        dir: BABYLON.Vector3;
+        up?: BABYLON.Vector3;
+        rMin: number;
+        rMax: number;
+        alpha?: number;
+        beta?: number;
+        angularQuadLength?: number;
+        color?: BABYLON.Color4;
+        sideOrientation?: number;
+    }
+    function CreateSphereCutData(props: ISphereCutProps): BABYLON.VertexData;
+    function CreateSphereCut(name: string, props: ISphereCutProps, scene?: BABYLON.Scene): BABYLON.Mesh;
 }
 declare namespace Mummu {
     function QuaternionFromXYAxis(x: BABYLON.Vector3, y: BABYLON.Vector3): BABYLON.Quaternion;

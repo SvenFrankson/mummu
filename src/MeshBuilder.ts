@@ -103,4 +103,222 @@ namespace Mummu {
         CreateQuadVertexData(props).applyToMesh(mesh);
         return mesh;
     }
+
+    export interface ISphereCutProps {
+        dir: BABYLON.Vector3,
+        up?: BABYLON.Vector3,
+        rMin: number,
+        rMax: number,
+        alpha?: number,
+        beta?: number,
+        angularQuadLength?: number,
+        color?: BABYLON.Color4,
+        sideOrientation?: number
+    }
+
+    export function CreateSphereCutData(props: ISphereCutProps): BABYLON.VertexData {
+        let data = new BABYLON.VertexData();
+        let positions: number[] = [];
+        let normals: number[] = [];
+        let uvs: number[] = [];
+        let indices: number[] = [];
+
+        let dir = props.dir;
+        let up = props.up ? props.up : BABYLON.Axis.Y;
+        if (!isFinite(props.angularQuadLength)) {
+            props.angularQuadLength = Math.PI / 12;
+        }
+        let right = BABYLON.Vector3.Cross(up, dir).normalize();
+        up = BABYLON.Vector3.Cross(dir, right).normalize();
+
+        let cAlpha = Math.round(props.alpha / props.angularQuadLength);
+        let cBeta = Math.round(props.beta / props.angularQuadLength);
+
+        // Large face
+        for (let j = 0; j <= cBeta; j++) {
+            for (let i = 0; i <= cAlpha; i++) {
+                
+                let a = ((i / cAlpha) - 0.5) * props.alpha;
+                let b = ((j / cBeta) - 0.5) * props.beta;
+
+                let p = Mummu.Rotate(dir, right, b);
+                Mummu.RotateInPlace(p, up, a);
+                
+                let n = positions.length / 3;
+                positions.push(p.x * props.rMax, p.y * props.rMax, p.z * props.rMax);
+                uvs.push(1 - i / cAlpha, 1 - j / cBeta);
+
+                if (i < cAlpha && j < cBeta) {
+                    if (isNaN(props.sideOrientation) || props.sideOrientation === 0 || props.sideOrientation === 2) {
+                        indices.push(n, n + 1, n + 1 + (cAlpha + 1));
+                        indices.push(n, n + 1 + (cAlpha + 1), n + (cAlpha + 1));
+                    }
+                    if (props.sideOrientation === 1 || props.sideOrientation === 2) {
+                        indices.push(n, n + 1 + (cAlpha + 1), n + 1);
+                        indices.push(n, n + (cAlpha + 1), n + 1 + (cAlpha + 1));
+                    }
+                }
+            }
+        }
+
+        // Small face
+        for (let j = 0; j <= cBeta; j++) {
+            for (let i = 0; i <= cAlpha; i++) {
+                
+                let a = ((i / cAlpha) - 0.5) * props.alpha;
+                let b = ((j / cBeta) - 0.5) * props.beta;
+
+                let p = Mummu.Rotate(dir, right, b);
+                Mummu.RotateInPlace(p, up, a);
+                
+                let n = positions.length / 3;
+                positions.push(p.x * props.rMin, p.y * props.rMin, p.z * props.rMin);
+                uvs.push(i / cAlpha, 1 - j / cBeta);
+
+                if (i < cAlpha && j < cBeta) {
+                    if (isNaN(props.sideOrientation) || props.sideOrientation === 0 || props.sideOrientation === 2) {
+                        indices.push(n, n + 1 + (cAlpha + 1), n + 1);
+                        indices.push(n, n + (cAlpha + 1), n + 1 + (cAlpha + 1));
+                    }
+                    if (props.sideOrientation === 1 || props.sideOrientation === 2) {
+                        indices.push(n, n + 1, n + 1 + (cAlpha + 1));
+                        indices.push(n, n + 1 + (cAlpha + 1),  n + (cAlpha + 1));
+                    }
+                }
+            }
+        }
+
+        // Left face
+        for (let j = 0; j <= cBeta; j++) {
+            let a = - 0.5 * props.alpha;
+            let b = ((j / cBeta) - 0.5) * props.beta;
+
+            let p = Mummu.Rotate(dir, right, b);
+            Mummu.RotateInPlace(p, up, a);
+            
+            let n = positions.length / 3;
+            positions.push(p.x * props.rMin, p.y * props.rMin, p.z * props.rMin);
+            positions.push(p.x * props.rMax, p.y * props.rMax, p.z * props.rMax);
+            
+            uvs.push(1, 1 - j / cBeta);
+            uvs.push(0, 1 - j / cBeta);
+
+            if (j < cBeta) {
+                if (isNaN(props.sideOrientation) || props.sideOrientation === 0 || props.sideOrientation === 2) {
+                    indices.push(n, n + 1, n + 3);
+                    indices.push(n, n + 3, n + 2);
+                }
+                if (props.sideOrientation === 1 || props.sideOrientation === 2) {
+                    indices.push(n, n + 3, n + 1);
+                    indices.push(n, n + 2, n + 3);
+                }
+            }
+        }
+
+        // Right face
+        for (let j = 0; j <= cBeta; j++) {
+            let a = 0.5 * props.alpha;
+            let b = ((j / cBeta) - 0.5) * props.beta;
+
+            let p = Mummu.Rotate(dir, right, b);
+            Mummu.RotateInPlace(p, up, a);
+            
+            let n = positions.length / 3;
+            positions.push(p.x * props.rMin, p.y * props.rMin, p.z * props.rMin);
+            positions.push(p.x * props.rMax, p.y * props.rMax, p.z * props.rMax);
+            
+            uvs.push(0, 1 - j / cBeta);
+            uvs.push(1, 1 - j / cBeta);
+
+            if (j < cBeta) {
+                if (isNaN(props.sideOrientation) || props.sideOrientation === 0 || props.sideOrientation === 2) {
+                    indices.push(n, n + 3, n + 1);
+                    indices.push(n, n + 2, n + 3);
+                }
+                if (props.sideOrientation === 1 || props.sideOrientation === 2) {
+                    indices.push(n, n + 1, n + 3);
+                    indices.push(n, n + 3, n + 2);
+                }
+            }
+        }
+
+        // Top face
+        for (let i = 0; i <= cAlpha; i++) {
+            
+            let a = ((i / cAlpha) - 0.5) * props.alpha;
+            let b = - 0.5 * props.beta;
+
+            let p = Mummu.Rotate(dir, right, b);
+            Mummu.RotateInPlace(p, up, a);
+            
+            let n = positions.length / 3;
+            positions.push(p.x * props.rMin, p.y * props.rMin, p.z * props.rMin);
+            positions.push(p.x * props.rMax, p.y * props.rMax, p.z * props.rMax);
+            
+            uvs.push(i / cAlpha, 0);
+            uvs.push(i / cAlpha, 1);
+
+            if (i < cAlpha) {
+                if (isNaN(props.sideOrientation) || props.sideOrientation === 0 || props.sideOrientation === 2) {
+                    indices.push(n, n + 3, n + 1);
+                    indices.push(n, n + 2, n + 3);
+                }
+                if (props.sideOrientation === 1 || props.sideOrientation === 2) {
+                    indices.push(n, n + 1, n + 3);
+                    indices.push(n, n + 3, n + 2);
+                }
+            }
+        }
+
+        // Bottom face
+        for (let i = 0; i <= cAlpha; i++) {
+            
+            let a = ((i / cAlpha) - 0.5) * props.alpha;
+            let b = 0.5 * props.beta;
+
+            let p = Mummu.Rotate(dir, right, b);
+            Mummu.RotateInPlace(p, up, a);
+            
+            let n = positions.length / 3;
+            positions.push(p.x * props.rMin, p.y * props.rMin, p.z * props.rMin);
+            positions.push(p.x * props.rMax, p.y * props.rMax, p.z * props.rMax);
+            
+            uvs.push(1 - i / cAlpha, 0);
+            uvs.push(1 - i / cAlpha, 1);
+
+            if (i < cAlpha) {
+                if (isNaN(props.sideOrientation) || props.sideOrientation === 0 || props.sideOrientation === 2) {
+                    indices.push(n, n + 1, n + 3);
+                    indices.push(n, n + 3, n + 2);
+                }
+                if (props.sideOrientation === 1 || props.sideOrientation === 2) {
+                    indices.push(n, n + 3, n + 1);
+                    indices.push(n, n + 2, n + 3);
+                }
+            }
+        }
+
+
+        data.positions = positions;
+        data.indices = indices;
+        BABYLON.VertexData.ComputeNormals(positions, indices, normals);
+        data.normals = normals;
+        data.uvs = uvs;
+
+        if (props.color) {
+            let colors: number[] = [];
+            for (let i = 0; i < positions.length / 3; i++) {
+                colors.push(...props.color.asArray());
+            }
+            data.colors = colors;
+        }
+        
+        return data;
+    }
+
+    export function CreateSphereCut(name: string, props: ISphereCutProps, scene?: BABYLON.Scene): BABYLON.Mesh {
+        let mesh = new BABYLON.Mesh(name, scene);
+        CreateSphereCutData(props).applyToMesh(mesh);
+        return mesh;
+    }
 }
