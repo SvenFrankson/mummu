@@ -294,4 +294,23 @@ namespace Mummu {
         }
         return path;
     }
+
+    export function RandomInSphereCutToRef(dir: BABYLON.Vector3, alphaMin: number, alphaMax: number, betaMin: number, betaMax: number, up: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3 {
+        if (!up) {
+            up = BABYLON.Axis.Y;
+        }
+        let right = BABYLON.Vector3.CrossToRef(up, dir, TmpVec3[0]).normalize();
+        up = BABYLON.Vector3.CrossToRef(dir, right, TmpVec3[1]).normalize();
+        let a = Math.random() * (alphaMax - alphaMin) + alphaMin;
+        let b = Math.random() * (betaMax - betaMin) + betaMin;
+        Mummu.RotateToRef(dir, right, b, ref);
+        Mummu.RotateToRef(ref, up, a, ref);
+        return ref;
+    }
+
+    export function RandomInSphereCut(dir: BABYLON.Vector3, alphaMin: number, alphaMax: number, betaMin: number, betaMax: number, up?: BABYLON.Vector3): BABYLON.Vector3 {
+        let v = BABYLON.Vector3.Zero();
+        RandomInSphereCutToRef(dir, alphaMin, alphaMax, betaMin, betaMax, up, v);
+        return v;
+    }
 }

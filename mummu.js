@@ -1352,6 +1352,25 @@ var Mummu;
         return path;
     }
     Mummu.DecimatePathInPlace = DecimatePathInPlace;
+    function RandomInSphereCutToRef(dir, alphaMin, alphaMax, betaMin, betaMax, up, ref) {
+        if (!up) {
+            up = BABYLON.Axis.Y;
+        }
+        let right = BABYLON.Vector3.CrossToRef(up, dir, TmpVec3[0]).normalize();
+        up = BABYLON.Vector3.CrossToRef(dir, right, TmpVec3[1]).normalize();
+        let a = Math.random() * (alphaMax - alphaMin) + alphaMin;
+        let b = Math.random() * (betaMax - betaMin) + betaMin;
+        Mummu.RotateToRef(dir, right, b, ref);
+        Mummu.RotateToRef(ref, up, a, ref);
+        return ref;
+    }
+    Mummu.RandomInSphereCutToRef = RandomInSphereCutToRef;
+    function RandomInSphereCut(dir, alphaMin, alphaMax, betaMin, betaMax, up) {
+        let v = BABYLON.Vector3.Zero();
+        RandomInSphereCutToRef(dir, alphaMin, alphaMax, betaMin, betaMax, up, v);
+        return v;
+    }
+    Mummu.RandomInSphereCut = RandomInSphereCut;
 })(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
