@@ -154,6 +154,17 @@ var Mummu;
 })(Mummu || (Mummu = {}));
 var Mummu;
 (function (Mummu) {
+    function SphereCollidersIntersection(cSphere, rSphere, colliders) {
+        let intersections = [];
+        for (let i = 0; i < colliders.length; i++) {
+            let intersection = SphereColliderIntersection(cSphere, rSphere, colliders[i]);
+            if (intersection.hit) {
+                intersections.push(intersection);
+            }
+        }
+        return intersections;
+    }
+    Mummu.SphereCollidersIntersection = SphereCollidersIntersection;
     function SphereColliderIntersection(cSphere, rSphere, collider) {
         if (collider instanceof PlaneCollider) {
             return Mummu.SpherePlaneIntersection(cSphere, rSphere, collider);
@@ -164,8 +175,24 @@ var Mummu;
         else if (collider instanceof MeshCollider) {
             return Mummu.SphereMeshIntersection(cSphere, rSphere, collider.mesh);
         }
+        else if (collider instanceof BABYLON.Mesh) {
+            return Mummu.SphereMeshIntersection(cSphere, rSphere, collider);
+        }
     }
     Mummu.SphereColliderIntersection = SphereColliderIntersection;
+    function RayCollidersIntersection(ray, colliders) {
+        let intersection = new Mummu.Intersection();
+        for (let i = 0; i < colliders.length; i++) {
+            let currIntersection = RayColliderIntersection(ray, colliders[i]);
+            if (currIntersection.hit) {
+                if (!currIntersection.hit || currIntersection.depth > intersection.depth) {
+                    intersection = currIntersection;
+                }
+            }
+        }
+        return intersection;
+    }
+    Mummu.RayCollidersIntersection = RayCollidersIntersection;
     function RayColliderIntersection(ray, collider) {
         if (collider instanceof PlaneCollider) {
             return Mummu.RayPlaneIntersection(ray, collider);
@@ -175,6 +202,9 @@ var Mummu;
         }
         else if (collider instanceof MeshCollider) {
             return Mummu.RayMeshIntersection(ray, collider.mesh);
+        }
+        else if (collider instanceof BABYLON.Mesh) {
+            return Mummu.RayMeshIntersection(ray, collider);
         }
     }
     Mummu.RayColliderIntersection = RayColliderIntersection;
@@ -427,6 +457,7 @@ var Mummu;
             this.depth = 0;
         }
     }
+    Mummu.Intersection = Intersection;
     function SphereTriangleCheck(cSphere, rSphere, p1, p2, p3) {
         return SphereAABBCheck(cSphere, rSphere, Math.min(p1.x, p2.x, p3.x), Math.max(p1.x, p2.x, p3.x), Math.min(p1.y, p2.y, p3.y), Math.max(p1.y, p2.y, p3.y), Math.min(p1.z, p2.z, p3.z), Math.max(p1.z, p2.z, p3.z));
     }
@@ -522,6 +553,7 @@ var Mummu;
             intersection.hit = true;
             intersection.point = pickingInfo.pickedPoint;
             intersection.normal = pickingInfo.getNormal(true);
+            intersection.depth = ray.length - pickingInfo.distance;
         }
         return intersection;
     }
@@ -538,10 +570,14 @@ var Mummu;
         let intersection = new Intersection();
         let bjsPlane = BABYLON.Plane.FromPositionAndNormal(pPlane, nPlane);
         let d = ray.intersectsPlane(bjsPlane);
-        if (d >= 0 && d <= ray.length) {
+        if (d > 0 && d <= ray.length) {
             intersection.hit = true;
             intersection.point = ray.origin.add(ray.direction.scale(d));
             intersection.normal = nPlane.clone();
+            intersection.depth = ray.length - d;
+        }
+        else {
+            console.log(d);
         }
         return intersection;
     }

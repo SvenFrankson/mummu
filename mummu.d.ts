@@ -16,8 +16,10 @@ declare namespace Mummu {
     }
 }
 declare namespace Mummu {
-    function SphereColliderIntersection(cSphere: BABYLON.Vector3, rSphere: number, collider: Collider): IIntersection;
-    function RayColliderIntersection(ray: BABYLON.Ray, collider: Collider): IIntersection;
+    function SphereCollidersIntersection(cSphere: BABYLON.Vector3, rSphere: number, colliders: (Collider | BABYLON.Mesh)[]): IIntersection[];
+    function SphereColliderIntersection(cSphere: BABYLON.Vector3, rSphere: number, collider: Collider | BABYLON.Mesh): IIntersection;
+    function RayCollidersIntersection(ray: BABYLON.Ray, colliders: (Collider | BABYLON.Mesh)[]): IIntersection;
+    function RayColliderIntersection(ray: BABYLON.Ray, collider: Collider | BABYLON.Mesh): IIntersection;
     class Collider {
     }
     class PlaneCollider extends Collider implements IPlane {
@@ -57,6 +59,13 @@ declare namespace Mummu {
         point: BABYLON.Vector3;
         normal: BABYLON.Vector3;
         depth: number;
+    }
+    class Intersection implements IIntersection {
+        hit: boolean;
+        point: BABYLON.Vector3;
+        normal: BABYLON.Vector3;
+        depth: number;
+        constructor();
     }
     function SphereTriangleCheck(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): boolean;
     function SphereRayCheck(cSphere: BABYLON.Vector3, rSphere: number, ray: BABYLON.Ray): boolean;

@@ -1,6 +1,19 @@
 namespace Mummu {
 
-    export function SphereColliderIntersection(cSphere: BABYLON.Vector3, rSphere: number, collider: Collider): IIntersection {
+    export function SphereCollidersIntersection(cSphere: BABYLON.Vector3, rSphere: number, colliders: (Collider | BABYLON.Mesh)[]): IIntersection[] {
+        let intersections: IIntersection[] = [];
+
+        for (let i = 0; i < colliders.length; i++) {
+            let intersection = SphereColliderIntersection(cSphere, rSphere, colliders[i]);
+            if (intersection.hit) {
+                intersections.push(intersection);
+            }
+        }
+
+        return intersections;
+    }
+
+    export function SphereColliderIntersection(cSphere: BABYLON.Vector3, rSphere: number, collider: Collider | BABYLON.Mesh): IIntersection {
         if (collider instanceof PlaneCollider) {
             return SpherePlaneIntersection(cSphere, rSphere, collider);
         }
@@ -10,9 +23,27 @@ namespace Mummu {
         else if (collider instanceof MeshCollider) {
             return SphereMeshIntersection(cSphere, rSphere, collider.mesh);
         }
+        else if (collider instanceof BABYLON.Mesh) {
+            return SphereMeshIntersection(cSphere, rSphere, collider);
+        }
     }
 
-    export function RayColliderIntersection(ray: BABYLON.Ray, collider: Collider): IIntersection {
+    export function RayCollidersIntersection(ray: BABYLON.Ray, colliders: (Collider | BABYLON.Mesh)[]): IIntersection {
+        let intersection = new Intersection();
+
+        for (let i = 0; i < colliders.length; i++) {
+            let currIntersection = RayColliderIntersection(ray, colliders[i]);
+            if (currIntersection.hit) {
+                if (!currIntersection.hit || currIntersection.depth > intersection.depth) {
+                    intersection = currIntersection;
+                }
+            }
+        }
+
+        return intersection;
+    }
+
+    export function RayColliderIntersection(ray: BABYLON.Ray, collider: Collider | BABYLON.Mesh): IIntersection {
         if (collider instanceof PlaneCollider) {
             return RayPlaneIntersection(ray, collider);
         }
@@ -21,6 +52,9 @@ namespace Mummu {
         }
         else if (collider instanceof MeshCollider) {
             return RayMeshIntersection(ray, collider.mesh);
+        }
+        else if (collider instanceof BABYLON.Mesh) {
+            return RayMeshIntersection(ray, collider);
         }
     }
 
@@ -56,7 +90,7 @@ namespace Mummu {
 
         constructor(
             public center: BABYLON.Vector3,
-            public radius: number
+            public radius: number,
         ) {
             super();
         }

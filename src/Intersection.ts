@@ -32,7 +32,7 @@ namespace Mummu {
         depth: number;
     }
 
-    class Intersection implements IIntersection {
+    export class Intersection implements IIntersection {
 
         public hit: boolean = false;
         public point: BABYLON.Vector3;
@@ -185,6 +185,7 @@ namespace Mummu {
             intersection.hit = true;
             intersection.point = pickingInfo.pickedPoint;
             intersection.normal = pickingInfo.getNormal(true);
+            intersection.depth = ray.length - pickingInfo.distance;
         }
 
         return intersection;
@@ -206,10 +207,14 @@ namespace Mummu {
         let bjsPlane = BABYLON.Plane.FromPositionAndNormal(pPlane, nPlane);
 
         let d = ray.intersectsPlane(bjsPlane);
-        if (d >= 0 && d <= ray.length) {
+        if (d > 0 && d <= ray.length) {
             intersection.hit = true;
             intersection.point = ray.origin.add(ray.direction.scale(d));
             intersection.normal = nPlane.clone();
+            intersection.depth = ray.length - d;
+        }
+        else {
+            console.log(d);
         }
 
         return intersection;
