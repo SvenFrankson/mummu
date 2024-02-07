@@ -556,7 +556,7 @@ var Mummu;
                     let dist = Math.sqrt(sqrDist);
                     intersection.hit = true;
                     intersection.point = proj;
-                    intersection.normal = cSphere.subtract(proj).normalize();
+                    intersection.normal = BABYLON.Vector3.Cross(p3.subtract(p1), p2.subtract(p1)).normalize();
                     intersection.depth = rSphere - dist;
                 }
             }
