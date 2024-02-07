@@ -1,3 +1,18 @@
+/*
+    Point
+    Line
+    Segment
+    Ray
+    Path
+    Wire
+    Plane
+    AABB
+    Triangle
+    Sphere
+    Capsule
+    Mesh
+*/
+
 namespace Mummu {
     
     export interface IPlane {
@@ -41,6 +56,18 @@ namespace Mummu {
             Math.max(p1.y, p2.y, p3.y),
             Math.min(p1.z, p2.z, p3.z),
             Math.max(p1.z, p2.z, p3.z)
+        );
+    }
+
+    export function SphereRayCheck(cSphere: BABYLON.Vector3, rSphere: number, ray: BABYLON.Ray): boolean {
+        return SphereAABBCheck(
+            cSphere, rSphere,
+            Math.min(ray.origin.x, ray.origin.x + ray.direction.x),
+            Math.max(ray.origin.x, ray.origin.x + ray.direction.x),
+            Math.min(ray.origin.y, ray.origin.y + ray.direction.y),
+            Math.max(ray.origin.y, ray.origin.y + ray.direction.y),
+            Math.min(ray.origin.z, ray.origin.z + ray.direction.z),
+            Math.max(ray.origin.z, ray.origin.z + ray.direction.z)
         );
     }
 
@@ -129,14 +156,82 @@ namespace Mummu {
         return true;
     }
 
+    export function RaySphereIntersection(ray: BABYLON.Ray, sphere: ISphere): IIntersection; // 1
+    export function RaySphereIntersection(ray: BABYLON.Ray, cSphere: BABYLON.Vector3, rSphere: number): IIntersection; // 2
+    export function RaySphereIntersection(ray: BABYLON.Ray, arg2?: any, rSphere?: number): IIntersection {
+        let cSphere: BABYLON.Vector3;
+        if (arg2 instanceof BABYLON.Vector3) { // 2
+            cSphere = arg2;
+        }
+        else { // 1
+            cSphere = (arg2 as ISphere).center;
+            rSphere = (arg2 as ISphere).radius;
+        }
+
+        let intersection = new Intersection();
+
+        if (SphereRayCheck(cSphere, rSphere, ray)) {
+            // todo
+        }
+
+        return intersection;
+    }
+
+    export function RayMeshIntersection(ray: BABYLON.Ray, mesh: BABYLON.Mesh): IIntersection {
+        let intersection = new Intersection();
+
+        let pickingInfo = ray.intersectsMesh(mesh);
+        if (pickingInfo.hit) {
+            intersection.hit = true;
+            intersection.point = pickingInfo.pickedPoint;
+            intersection.normal = pickingInfo.getNormal(true);
+        }
+
+        return intersection;
+    }
+
+    export function RayPlaneIntersection(ray: BABYLON.Ray, plane: IPlane): IIntersection; // 1
+    export function RayPlaneIntersection(ray: BABYLON.Ray, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection; // 2
+    export function RayPlaneIntersection(ray: BABYLON.Ray, arg1: any, nPlane?: any): IIntersection {
+        let pPlane: BABYLON.Vector3;
+        if (arg1 instanceof BABYLON.Vector3) { // 2
+            pPlane = arg1;
+        }
+        else { // 1
+            pPlane = (arg1 as IPlane).point;
+            nPlane = (arg1 as IPlane).normal;
+        }
+
+        let intersection = new Intersection();
+        let bjsPlane = BABYLON.Plane.FromPositionAndNormal(pPlane, nPlane);
+
+        let d = ray.intersectsPlane(bjsPlane);
+        if (d >= 0 && d <= ray.length) {
+            intersection.hit = true;
+            intersection.point = ray.origin.add(ray.direction.scale(d));
+            intersection.normal = nPlane.clone();
+        }
+
+        return intersection;
+    }
+
     export function SpherePlaneIntersection(sphere: ISphere, plane: IPlane): IIntersection;
+    export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, plane: IPlane): IIntersection;
     export function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
-    export function SpherePlaneIntersection(arg1: any, arg2: any, pPlane?: BABYLON.Vector3, nPlane?: BABYLON.Vector3): IIntersection {
+    export function SpherePlaneIntersection(arg1: any, arg2: any, arg3?: any, nPlane?: BABYLON.Vector3): IIntersection {
         let cSphere: BABYLON.Vector3;
         let rSphere: number;
-        if (arg1 instanceof BABYLON.Vector3) {
+        let pPlane: BABYLON.Vector3;
+        if (arg1 instanceof BABYLON.Vector3 && arg3 instanceof BABYLON.Vector3) {
             cSphere = arg1;
             rSphere = arg2;
+            pPlane = arg3;            
+        }
+        else if (arg1 instanceof BABYLON.Vector3) {
+            cSphere = arg1;
+            rSphere = arg2;
+            pPlane = (arg3 as IPlane).point;
+            nPlane = (arg3 as IPlane).normal;
         }
         else {
             cSphere = (arg1 as ISphere).center;

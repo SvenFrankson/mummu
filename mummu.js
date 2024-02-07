@@ -154,8 +154,36 @@ var Mummu;
 })(Mummu || (Mummu = {}));
 var Mummu;
 (function (Mummu) {
-    class PlaneCollider {
+    function SphereColliderIntersection(cSphere, rSphere, collider) {
+        if (collider instanceof PlaneCollider) {
+            return Mummu.SpherePlaneIntersection(cSphere, rSphere, collider);
+        }
+        else if (collider instanceof SphereCollider) {
+            // todo
+        }
+        else if (collider instanceof MeshCollider) {
+            return Mummu.SphereMeshIntersection(cSphere, rSphere, collider.mesh);
+        }
+    }
+    Mummu.SphereColliderIntersection = SphereColliderIntersection;
+    function RayColliderIntersection(ray, collider) {
+        if (collider instanceof PlaneCollider) {
+            return Mummu.RayPlaneIntersection(ray, collider);
+        }
+        else if (collider instanceof SphereCollider) {
+            // todo
+        }
+        else if (collider instanceof MeshCollider) {
+            return Mummu.RayMeshIntersection(ray, collider.mesh);
+        }
+    }
+    Mummu.RayColliderIntersection = RayColliderIntersection;
+    class Collider {
+    }
+    Mummu.Collider = Collider;
+    class PlaneCollider extends Collider {
         constructor(point, normal) {
+            super();
             this.point = point;
             this.normal = normal;
             if (this.normal.lengthSquared() != 1) {
@@ -173,13 +201,21 @@ var Mummu;
         }
     }
     Mummu.PlaneCollider = PlaneCollider;
-    class SphereCollider {
+    class SphereCollider extends Collider {
         constructor(center, radius) {
+            super();
             this.center = center;
             this.radius = radius;
         }
     }
     Mummu.SphereCollider = SphereCollider;
+    class MeshCollider extends Collider {
+        constructor(mesh) {
+            super();
+            this.mesh = mesh;
+        }
+    }
+    Mummu.MeshCollider = MeshCollider;
 })(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
@@ -369,6 +405,20 @@ var Mummu;
     }
     Mummu.DrawDebugTriangle = DrawDebugTriangle;
 })(Mummu || (Mummu = {}));
+/*
+    Point
+    Line
+    Segment
+    Ray
+    Path
+    Wire
+    Plane
+    AABB
+    Triangle
+    Sphere
+    Capsule
+    Mesh
+*/
 var Mummu;
 (function (Mummu) {
     class Intersection {
@@ -381,6 +431,10 @@ var Mummu;
         return SphereAABBCheck(cSphere, rSphere, Math.min(p1.x, p2.x, p3.x), Math.max(p1.x, p2.x, p3.x), Math.min(p1.y, p2.y, p3.y), Math.max(p1.y, p2.y, p3.y), Math.min(p1.z, p2.z, p3.z), Math.max(p1.z, p2.z, p3.z));
     }
     Mummu.SphereTriangleCheck = SphereTriangleCheck;
+    function SphereRayCheck(cSphere, rSphere, ray) {
+        return SphereAABBCheck(cSphere, rSphere, Math.min(ray.origin.x, ray.origin.x + ray.direction.x), Math.max(ray.origin.x, ray.origin.x + ray.direction.x), Math.min(ray.origin.y, ray.origin.y + ray.direction.y), Math.max(ray.origin.y, ray.origin.y + ray.direction.y), Math.min(ray.origin.z, ray.origin.z + ray.direction.z), Math.max(ray.origin.z, ray.origin.z + ray.direction.z));
+    }
+    Mummu.SphereRayCheck = SphereRayCheck;
     function SphereAABBCheck(cSphere, rSphere, arg1, arg2, y2Min, y2Max, z2Min, z2Max) {
         let x2Min;
         let x2Max;
@@ -445,12 +499,67 @@ var Mummu;
         return true;
     }
     Mummu.AABBAABBCheck = AABBAABBCheck;
-    function SpherePlaneIntersection(arg1, arg2, pPlane, nPlane) {
+    function RaySphereIntersection(ray, arg2, rSphere) {
+        let cSphere;
+        if (arg2 instanceof BABYLON.Vector3) { // 2
+            cSphere = arg2;
+        }
+        else { // 1
+            cSphere = arg2.center;
+            rSphere = arg2.radius;
+        }
+        let intersection = new Intersection();
+        if (SphereRayCheck(cSphere, rSphere, ray)) {
+            // todo
+        }
+        return intersection;
+    }
+    Mummu.RaySphereIntersection = RaySphereIntersection;
+    function RayMeshIntersection(ray, mesh) {
+        let intersection = new Intersection();
+        let pickingInfo = ray.intersectsMesh(mesh);
+        if (pickingInfo.hit) {
+            intersection.hit = true;
+            intersection.point = pickingInfo.pickedPoint;
+            intersection.normal = pickingInfo.getNormal(true);
+        }
+        return intersection;
+    }
+    Mummu.RayMeshIntersection = RayMeshIntersection;
+    function RayPlaneIntersection(ray, arg1, nPlane) {
+        let pPlane;
+        if (arg1 instanceof BABYLON.Vector3) { // 2
+            pPlane = arg1;
+        }
+        else { // 1
+            pPlane = arg1.point;
+            nPlane = arg1.normal;
+        }
+        let intersection = new Intersection();
+        let bjsPlane = BABYLON.Plane.FromPositionAndNormal(pPlane, nPlane);
+        let d = ray.intersectsPlane(bjsPlane);
+        if (d >= 0 && d <= ray.length) {
+            intersection.hit = true;
+            intersection.point = ray.origin.add(ray.direction.scale(d));
+            intersection.normal = nPlane.clone();
+        }
+        return intersection;
+    }
+    Mummu.RayPlaneIntersection = RayPlaneIntersection;
+    function SpherePlaneIntersection(arg1, arg2, arg3, nPlane) {
         let cSphere;
         let rSphere;
-        if (arg1 instanceof BABYLON.Vector3) {
+        let pPlane;
+        if (arg1 instanceof BABYLON.Vector3 && arg3 instanceof BABYLON.Vector3) {
             cSphere = arg1;
             rSphere = arg2;
+            pPlane = arg3;
+        }
+        else if (arg1 instanceof BABYLON.Vector3) {
+            cSphere = arg1;
+            rSphere = arg2;
+            pPlane = arg3.point;
+            nPlane = arg3.normal;
         }
         else {
             cSphere = arg1.center;
@@ -1186,6 +1295,24 @@ var Mummu;
         return cross.length();
     }
     Mummu.DistancePointLine = DistancePointLine;
+    function ProjectPointOnLineToRef(point, lineA, lineB, ref) {
+        let AP = TmpVec3[0];
+        let dir = TmpVec3[1];
+        AP.copyFrom(point).subtractInPlace(lineA);
+        dir.copyFrom(lineB).subtractInPlace(lineA);
+        let l = dir.length();
+        dir.scaleInPlace(1 / l);
+        let dist = BABYLON.Vector3.Dot(AP, dir);
+        ref.copyFrom(dir).scaleInPlace(dist).addInPlace(lineA);
+        return ref;
+    }
+    Mummu.ProjectPointOnLineToRef = ProjectPointOnLineToRef;
+    function ProjectPointOnLine(point, lineA, lineB) {
+        let proj = BABYLON.Vector3.Zero();
+        ProjectPointOnLineToRef(point, lineA, lineB, proj);
+        return proj;
+    }
+    Mummu.ProjectPointOnLine = ProjectPointOnLine;
     function ProjectPointOnSegmentToRef(point, segA, segB, ref) {
         let AP = TmpVec3[0];
         let dir = TmpVec3[1];

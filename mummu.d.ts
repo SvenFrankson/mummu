@@ -16,17 +16,25 @@ declare namespace Mummu {
     }
 }
 declare namespace Mummu {
-    class PlaneCollider implements IPlane {
+    function SphereColliderIntersection(cSphere: BABYLON.Vector3, rSphere: number, collider: Collider): IIntersection;
+    function RayColliderIntersection(ray: BABYLON.Ray, collider: Collider): IIntersection;
+    class Collider {
+    }
+    class PlaneCollider extends Collider implements IPlane {
         point: BABYLON.Vector3;
         normal: BABYLON.Vector3;
         static CreateFromBJSPlane(plane: BABYLON.Mesh): PlaneCollider;
         static CreateFromPoints(p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): PlaneCollider;
         constructor(point: BABYLON.Vector3, normal: BABYLON.Vector3);
     }
-    class SphereCollider implements ISphere {
+    class SphereCollider extends Collider implements ISphere {
         center: BABYLON.Vector3;
         radius: number;
         constructor(center: BABYLON.Vector3, radius: number);
+    }
+    class MeshCollider extends Collider {
+        mesh: BABYLON.Mesh;
+        constructor(mesh: BABYLON.Mesh);
     }
 }
 declare namespace Mummu {
@@ -51,11 +59,18 @@ declare namespace Mummu {
         depth: number;
     }
     function SphereTriangleCheck(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): boolean;
+    function SphereRayCheck(cSphere: BABYLON.Vector3, rSphere: number, ray: BABYLON.Ray): boolean;
     function SphereAABBCheck(cSphere: BABYLON.Vector3, rSphere: number, boxMin: BABYLON.Vector3, boxMax: BABYLON.Vector3): boolean;
     function SphereAABBCheck(cSphere: BABYLON.Vector3, rSphere: number, x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number): boolean;
     function AABBAABBCheck(box1Min: BABYLON.Vector3, box1Max: BABYLON.Vector3, box2Min: BABYLON.Vector3, box2Max: BABYLON.Vector3): boolean;
     function AABBAABBCheck(x1Min: number, x1Max: number, y1Min: number, y1Max: number, z1Min: number, z1Max: number, x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number): boolean;
+    function RaySphereIntersection(ray: BABYLON.Ray, sphere: ISphere): IIntersection;
+    function RaySphereIntersection(ray: BABYLON.Ray, cSphere: BABYLON.Vector3, rSphere: number): IIntersection;
+    function RayMeshIntersection(ray: BABYLON.Ray, mesh: BABYLON.Mesh): IIntersection;
+    function RayPlaneIntersection(ray: BABYLON.Ray, plane: IPlane): IIntersection;
+    function RayPlaneIntersection(ray: BABYLON.Ray, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
     function SpherePlaneIntersection(sphere: ISphere, plane: IPlane): IIntersection;
+    function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, plane: IPlane): IIntersection;
     function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
     function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection;
     function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean): IIntersection;
@@ -131,6 +146,8 @@ declare namespace Mummu {
     function ProjectPointOnPlaneToRef(point: BABYLON.Vector3, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3;
     function ProjectPointOnPlane(point: BABYLON.Vector3, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): BABYLON.Vector3;
     function DistancePointLine(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3): number;
+    function ProjectPointOnLineToRef(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3;
+    function ProjectPointOnLine(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3): BABYLON.Vector3;
     function ProjectPointOnSegmentToRef(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3;
     function ProjectPointOnSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): BABYLON.Vector3;
     function DistancePointSegment(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3): number;

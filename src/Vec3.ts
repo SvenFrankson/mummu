@@ -117,6 +117,24 @@ namespace Mummu {
         return cross.length();
     }
 
+    export function ProjectPointOnLineToRef(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3 {
+        let AP = TmpVec3[0];
+        let dir = TmpVec3[1];
+        AP.copyFrom(point).subtractInPlace(lineA);
+        dir.copyFrom(lineB).subtractInPlace(lineA);
+        let l = dir.length();
+        dir.scaleInPlace(1 / l);
+        let dist = BABYLON.Vector3.Dot(AP, dir);
+        ref.copyFrom(dir).scaleInPlace(dist).addInPlace(lineA);
+        return ref;
+    }
+
+    export function ProjectPointOnLine(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3): BABYLON.Vector3 {
+        let proj = BABYLON.Vector3.Zero();
+        ProjectPointOnLineToRef(point, lineA, lineB, proj);
+        return proj;
+    }
+
     export function ProjectPointOnSegmentToRef(point: BABYLON.Vector3, segA: BABYLON.Vector3, segB: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3 {
         let AP = TmpVec3[0];
         let dir = TmpVec3[1];
