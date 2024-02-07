@@ -110,7 +110,11 @@ namespace Mummu {
         rMin: number,
         rMax: number,
         alpha?: number,
+        alphaMin?: number,
+        alphaMax?: number,
         beta?: number,
+        betaMin?: number,
+        betaMax?: number,
         angularQuadLength?: number,
         color?: BABYLON.Color4,
         sideOrientation?: number
@@ -131,15 +135,20 @@ namespace Mummu {
         let right = BABYLON.Vector3.Cross(up, dir).normalize();
         up = BABYLON.Vector3.Cross(dir, right).normalize();
 
-        let cAlpha = Math.round(props.alpha / props.angularQuadLength);
-        let cBeta = Math.round(props.beta / props.angularQuadLength);
+        let alphaL = isFinite(props.alpha) ? props.alpha : props.alphaMax - props.alphaMin;
+        let alphaMin = isFinite(props.alpha) ? - props.alpha * 0.5 : props.alphaMin;
+        let betaL = isFinite(props.beta) ? props.beta : props.betaMax - props.betaMin;
+        let betaMin = isFinite(props.beta) ? - props.beta * 0.5 : props.betaMin;
+        
+        let cAlpha = Math.round(alphaL / props.angularQuadLength);
+        let cBeta = Math.round(betaL / props.angularQuadLength);
 
         // Large face
         for (let j = 0; j <= cBeta; j++) {
             for (let i = 0; i <= cAlpha; i++) {
                 
-                let a = ((i / cAlpha) - 0.5) * props.alpha;
-                let b = ((j / cBeta) - 0.5) * props.beta;
+                let a = (i / cAlpha) * alphaL + alphaMin;
+                let b = (j / cBeta) * betaL + betaMin;
 
                 let p = Mummu.Rotate(dir, right, b);
                 Mummu.RotateInPlace(p, up, a);
@@ -165,8 +174,8 @@ namespace Mummu {
         for (let j = 0; j <= cBeta; j++) {
             for (let i = 0; i <= cAlpha; i++) {
                 
-                let a = ((i / cAlpha) - 0.5) * props.alpha;
-                let b = ((j / cBeta) - 0.5) * props.beta;
+                let a = (i / cAlpha) * alphaL + alphaMin;
+                let b = (j / cBeta) * betaL + betaMin;
 
                 let p = Mummu.Rotate(dir, right, b);
                 Mummu.RotateInPlace(p, up, a);
@@ -190,8 +199,8 @@ namespace Mummu {
 
         // Left face
         for (let j = 0; j <= cBeta; j++) {
-            let a = - 0.5 * props.alpha;
-            let b = ((j / cBeta) - 0.5) * props.beta;
+            let a = alphaMin;
+            let b = (j / cBeta) * betaL + betaMin;
 
             let p = Mummu.Rotate(dir, right, b);
             Mummu.RotateInPlace(p, up, a);
@@ -217,8 +226,8 @@ namespace Mummu {
 
         // Right face
         for (let j = 0; j <= cBeta; j++) {
-            let a = 0.5 * props.alpha;
-            let b = ((j / cBeta) - 0.5) * props.beta;
+            let a = alphaMin + alphaL;
+            let b = (j / cBeta) * betaL + betaMin;
 
             let p = Mummu.Rotate(dir, right, b);
             Mummu.RotateInPlace(p, up, a);
@@ -245,8 +254,8 @@ namespace Mummu {
         // Top face
         for (let i = 0; i <= cAlpha; i++) {
             
-            let a = ((i / cAlpha) - 0.5) * props.alpha;
-            let b = - 0.5 * props.beta;
+            let a = (i / cAlpha) * alphaL + alphaMin;
+            let b = betaMin;
 
             let p = Mummu.Rotate(dir, right, b);
             Mummu.RotateInPlace(p, up, a);
@@ -273,8 +282,8 @@ namespace Mummu {
         // Bottom face
         for (let i = 0; i <= cAlpha; i++) {
             
-            let a = ((i / cAlpha) - 0.5) * props.alpha;
-            let b = 0.5 * props.beta;
+            let a = (i / cAlpha) * alphaL + alphaMin;
+            let b = betaL + betaMin;
 
             let p = Mummu.Rotate(dir, right, b);
             Mummu.RotateInPlace(p, up, a);

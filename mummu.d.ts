@@ -80,7 +80,11 @@ declare namespace Mummu {
         rMin: number;
         rMax: number;
         alpha?: number;
+        alphaMin?: number;
+        alphaMax?: number;
         beta?: number;
+        betaMin?: number;
+        betaMax?: number;
         angularQuadLength?: number;
         color?: BABYLON.Color4;
         sideOrientation?: number;
