@@ -207,14 +207,11 @@ namespace Mummu {
         let bjsPlane = BABYLON.Plane.FromPositionAndNormal(pPlane, nPlane);
 
         let d = ray.intersectsPlane(bjsPlane);
-        if (d > 0 && d <= ray.length) {
+        if (d > 0.001 && (d <= ray.length)) {
             intersection.hit = true;
             intersection.point = ray.origin.add(ray.direction.scale(d));
             intersection.normal = nPlane.clone();
             intersection.depth = ray.length - d;
-        }
-        else {
-            console.log(d);
         }
 
         return intersection;
@@ -367,14 +364,18 @@ namespace Mummu {
 
                 sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);
                 if (sqrDist <= rSphere * rSphere) {
-                    let dist = Math.sqrt(sqrDist);
-                    intersection.hit = true;
-                    intersection.point = proj;
-                    intersection.normal = BABYLON.Vector3.Cross(
+                    let triangleNormal = BABYLON.Vector3.Cross(
                         p3.subtract(p1),
                         p2.subtract(p1)
-                    ).normalize();
-                    intersection.depth = rSphere - dist;
+                    );
+                    let normal = cSphere.subtract(proj);
+                    if (BABYLON.Vector3.Dot(triangleNormal, normal) > 0) {
+                        let dist = Math.sqrt(sqrDist);
+                        intersection.hit = true;
+                        intersection.point = proj;
+                        intersection.normal = triangleNormal.normalize();
+                        intersection.depth = rSphere - dist;
+                    }
                 }
             }
         }
