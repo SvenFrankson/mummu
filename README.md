@@ -9,11 +9,18 @@ Its still a work in progress, and interfaces might change in the future.
 
 ## Usage
 
-Add ./mummu.js to your project.
+Add ./mummu.js to your project
+
 Use ./mummu.d.ts for your Typescript project.
 
 ## Documentation
  
 // todo
-Methods about Spatial Intersections are in ./src/Intersections.ts
-./src/Collider.ts exposes accessors to X-Y intersections (where X and Y are Sphere/Ray/Plane/Babylon.Mesh)
+
+ ./src/Intersections.ts contains methods about Spatial Intersections.
+
+./src/Collider.ts exposes accessors to X-Y intersections (where X and Y are Sphere/Ray/Plane/Babylon.Mesh).
+
+./src/MeshBuilder.ts allows constructing a Quad by its 4 corners and Thick-Sphere slices.
+
+./src/Debug.ts contains methods to instantiate segments, points and normals for n frames.
