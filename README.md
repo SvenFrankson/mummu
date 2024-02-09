@@ -9,6 +9,8 @@ Its still a work in progress, and interfaces might change in the future.
 
 ## Usage
 
+Add https://github.com/SvenFrankson/nabu/blob/main/nabu.js to your project
+
 Add ./mummu.js to your project
 
 Use ./mummu.d.ts for your Typescript project.
