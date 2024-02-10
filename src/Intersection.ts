@@ -311,6 +311,13 @@ namespace Mummu {
         return intersection;
     }
 
+    var SphereTriangleIntersectionTmpVec3_0 = BABYLON.Vector3.Zero();
+    var SphereTriangleIntersectionTmpVec3_1 = BABYLON.Vector3.Zero();
+    var SphereTriangleIntersectionTmpVec3_2 = BABYLON.Vector3.Zero();
+    var SphereTriangleIntersectionTmpVec3_3 = BABYLON.Vector3.Zero();
+    var SphereTriangleIntersectionTmpVec3_4 = BABYLON.Vector3.Zero();
+    var SphereTriangleIntersectionTmpQuat_0 = BABYLON.Quaternion.Identity();
+    var SphereTriangleIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
     export function SphereTriangleIntersection(sphere: ISphere, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
     export function SphereTriangleIntersection(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
     export function SphereTriangleIntersection(arg1: any, arg2: any, arg3: any, arg4: any, arg5?: any): IIntersection {
@@ -339,16 +346,16 @@ namespace Mummu {
 
         if (SphereTriangleCheck(cSphere, rSphere, p1, p2, p3)) {
             let plane = PlaneCollider.CreateFromPoints(p1, p2, p3);
-            let proj = ProjectPointOnPlane(cSphere, plane.point, plane.normal);
+            let proj = ProjectPointOnPlaneToRef(cSphere, plane.point, plane.normal, SphereTriangleIntersectionTmpVec3_0);
             let sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);
             if (sqrDist <= rSphere * rSphere) {                
                 let barycentric = Barycentric(cSphere, p1, p2, p3);
                 if (barycentric.u < 0 || barycentric.u > 1 || barycentric.v < 0 || barycentric.v > 1 || barycentric.w < 0 || barycentric.w > 1) {
-                    let proj1 = ProjectPointOnSegment(proj, p1, p2);
+                    let proj1 = ProjectPointOnSegmentToRef(proj, p1, p2, SphereTriangleIntersectionTmpVec3_1);
                     let sqrDist1 = BABYLON.Vector3.DistanceSquared(proj, proj1);
-                    let proj2 = ProjectPointOnSegment(proj, p2, p3);
+                    let proj2 = ProjectPointOnSegmentToRef(proj, p2, p3, SphereTriangleIntersectionTmpVec3_2);
                     let sqrDist2 = BABYLON.Vector3.DistanceSquared(proj, proj2);
-                    let proj3 = ProjectPointOnSegment(proj, p3, p1);
+                    let proj3 = ProjectPointOnSegmentToRef(proj, p3, p1, SphereTriangleIntersectionTmpVec3_3);
                     let sqrDist3 = BABYLON.Vector3.DistanceSquared(proj, proj3);
 
                     if (sqrDist1 <= sqrDist2 && sqrDist1 <= sqrDist3) {
@@ -364,9 +371,10 @@ namespace Mummu {
 
                 sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj);
                 if (sqrDist <= rSphere * rSphere) {
-                    let triangleNormal = BABYLON.Vector3.Cross(
+                    let triangleNormal = BABYLON.Vector3.CrossToRef(
                         p3.subtract(p1),
-                        p2.subtract(p1)
+                        p2.subtract(p1),
+                        SphereTriangleIntersectionTmpVec3_4
                     );
                     let normal = cSphere.subtract(proj);
                     if (BABYLON.Vector3.Dot(triangleNormal, normal) > 0) {
@@ -383,21 +391,31 @@ namespace Mummu {
         return intersection;
     }
 
+    var SphereMeshIntersectionTmpVec3_0 = BABYLON.Vector3.Zero();
+    var SphereMeshIntersectionTmpVec3_1 = BABYLON.Vector3.Zero();
+    var SphereMeshIntersectionTmpVec3_2 = BABYLON.Vector3.Zero();
+    var SphereMeshIntersectionTmpVec3_3 = BABYLON.Vector3.Zero();
+    var SphereMeshIntersectionTmpVec3_4 = BABYLON.Vector3.Zero();
+    var SphereMeshIntersectionTmpQuat_0 = BABYLON.Quaternion.Identity();
+    var SphereMeshIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
+
     export function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.Mesh): IIntersection {
         let intersection = new Intersection();
 
         let bbox = mesh.getBoundingInfo();
-        let scale: BABYLON.Vector3 = BABYLON.Vector3.One();
-        mesh.getWorldMatrix().decompose(scale, BABYLON.Quaternion.Identity(), BABYLON.Vector3.Zero());
+        let scale: BABYLON.Vector3 = SphereMeshIntersectionTmpVec3_0;
+        mesh.getWorldMatrix().decompose(scale, SphereMeshIntersectionTmpQuat_0, SphereMeshIntersectionTmpVec3_1);
 
-        let localCSphere = BABYLON.Vector3.TransformCoordinates(cSphere, mesh.getWorldMatrix().clone().invert());
+        let invMatrix = SphereMeshIntersectionTmpMatrix_0;
+        invMatrix.copyFrom(mesh.getWorldMatrix()).invert();
+        let localCSphere = BABYLON.Vector3.TransformCoordinates(cSphere, invMatrix);
         let localRadius = rSphere / scale.x;
         if (SphereAABBCheck(localCSphere, localRadius, bbox.minimum, bbox.maximum)) {
             let positions = mesh.getVerticesData(BABYLON.VertexBuffer.PositionKind);
             let indices = mesh.getIndices();
-            let p1 = BABYLON.Vector3.Zero();
-            let p2 = BABYLON.Vector3.Zero();
-            let p3 = BABYLON.Vector3.Zero();
+            let p1 = SphereMeshIntersectionTmpVec3_2;
+            let p2 = SphereMeshIntersectionTmpVec3_3;
+            let p3 = SphereMeshIntersectionTmpVec3_4;
             for (let i = 0; i < indices.length / 3; i++) {
                 let i1 = indices[3 * i];
                 let i2 = indices[3 * i + 1];
