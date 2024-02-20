@@ -331,4 +331,41 @@ namespace Mummu {
         RandomInSphereCutToRef(dir, alphaMin, alphaMax, betaMin, betaMax, up, v);
         return v;
     }
+
+    export function GetClosestAxisToRef(dir: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3 {
+        let X = Math.abs(dir.x);
+        let Y = Math.abs(dir.y);
+        let Z = Math.abs(dir.z);
+        if (X >= Y && X >= Z) {
+            if (dir.x >= 0) {
+                ref.copyFromFloats(1, 0, 0);
+            }
+            else {
+                ref.copyFromFloats(- 1, 0, 0);
+            }
+        }
+        else if (Y >= X && Y >= Z) {
+            if (dir.y >= 0) {
+                ref.copyFromFloats(0, 1, 0);
+            }
+            else {
+                ref.copyFromFloats(0, - 1, 0);
+            }
+        }
+        else if (Z >= X && Z >= Y) {
+            if (dir.z >= 0) {
+                ref.copyFromFloats(0, 0, 1);
+            }
+            else {
+                ref.copyFromFloats(0, 0, - 1);
+            }
+        }
+        return ref;
+    }
+    
+    export function GetClosestAxis(dir: BABYLON.Vector3): BABYLON.Vector3 {
+        let v = BABYLON.Vector3.Zero();
+        GetClosestAxisToRef(dir, v);
+        return v;
+    }
 }
