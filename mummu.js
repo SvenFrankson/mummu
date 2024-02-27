@@ -644,12 +644,10 @@ var Mummu;
         return intersection;
     }
     Mummu.SphereCapsuleIntersection = SphereCapsuleIntersection;
+    var SphereWireIntersectionTmpWireProj_0 = { point: BABYLON.Vector3.Zero(), index: -1 };
     function SphereWireIntersection(cSphere, rSphere, path, rWire, pathIsEvenlyDistributed, nearBestIndex = -1, nearBestSearchRange = 4) {
         let intersection = new Intersection();
-        let proj = {
-            point: BABYLON.Vector3.Zero(),
-            index: -1
-        };
+        let proj = SphereWireIntersectionTmpWireProj_0;
         Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange);
         let dist = BABYLON.Vector3.Distance(cSphere, proj.point);
         let depth = (rSphere + rWire) - dist;
