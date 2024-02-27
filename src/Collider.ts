@@ -29,7 +29,7 @@ namespace Mummu {
     }
 
     export function RayCollidersIntersection(ray: BABYLON.Ray, colliders: (Collider | BABYLON.Mesh)[]): IIntersection {
-        let intersection = new Intersection();
+        let intersection: IIntersection = new Intersection();
 
         for (let i = 0; i < colliders.length; i++) {
             let currIntersection = RayColliderIntersection(ray, colliders[i]);

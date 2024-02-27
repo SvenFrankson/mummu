@@ -30,6 +30,7 @@ namespace Mummu {
         point: BABYLON.Vector3;
         normal: BABYLON.Vector3;
         depth: number;
+        index?: number; // when intersecting with a path
     }
 
     export class Intersection implements IIntersection {
@@ -38,6 +39,7 @@ namespace Mummu {
         public point: BABYLON.Vector3;
         public normal: BABYLON.Vector3;
         public depth: number = 0;
+        public index: number = -1;
 
         constructor() {
 
@@ -290,22 +292,26 @@ namespace Mummu {
         return intersection;
     }
 
-    export function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean): IIntersection {
+    export function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean, nearBestIndex: number = - 1, nearBestSearchRange: number = 4): IIntersection {
         let intersection = new Intersection();
 
-        let proj = BABYLON.Vector3.Zero();
-        Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed);
-        let dist = BABYLON.Vector3.Distance(cSphere, proj);
+        let proj = {
+            point: BABYLON.Vector3.Zero(),
+            index: - 1
+        };
+        Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange);
+        let dist = BABYLON.Vector3.Distance(cSphere, proj.point);
 
         let depth = (rSphere + rWire) - dist;
 
         if (depth > 0) {
             intersection.hit = true;
             intersection.depth = depth;
-            let dir = cSphere.subtract(proj).normalize();
+            let dir = cSphere.subtract(proj.point).normalize();
             intersection.point = dir.scale(rWire);
-            intersection.point.addInPlace(proj);
+            intersection.point.addInPlace(proj.point);
             intersection.normal = dir;
+            intersection.index = proj.index;
         }
 
         return intersection;
@@ -400,7 +406,7 @@ namespace Mummu {
     var SphereMeshIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
 
     export function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.Mesh): IIntersection {
-        let intersection = new Intersection();
+        let intersection: IIntersection = new Intersection();
 
         let bbox = mesh.getBoundingInfo();
         let scale: BABYLON.Vector3 = SphereMeshIntersectionTmpVec3_0;

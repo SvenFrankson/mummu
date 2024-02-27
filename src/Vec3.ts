@@ -170,13 +170,27 @@ namespace Mummu {
         return PprojP.length();
     }
 
-    export function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: BABYLON.Vector3, pathIsEvenlyDistributed?: boolean): BABYLON.Vector3 {
+    export interface IPathProjection {
+        point: BABYLON.Vector3,
+        index: number;
+    }
+    export function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: IPathProjection, pathIsEvenlyDistributed?: boolean, nearBestIndex: number = - 1, nearBestSearchRange: number = 4): IPathProjection {
         let proj = TmpVec3[3];
 
         if (pathIsEvenlyDistributed && path.length >= 4) {
             let bestIndex = - 1;
             let bestSqrDist = Infinity;
-            for (let i = 0; i < path.length; i++) {
+            let start: number;
+            let end: number;
+            if (nearBestIndex >= 0) {
+                start = Nabu.MinMax(nearBestIndex - nearBestSearchRange, 0, path.length);
+                end = Nabu.MinMax(nearBestIndex + nearBestSearchRange, 0, path.length);
+            }
+            else {
+                start = 0;
+                end = path.length;
+            }
+            for (let i = start; i < end; i++) {
                 let sqrDist = BABYLON.Vector3.DistanceSquared(point, path[i]);
                 if (sqrDist < bestSqrDist) {
                     bestIndex = i;
@@ -191,7 +205,8 @@ namespace Mummu {
                 ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
                 let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
                 if (sqrDist < bestSqrDist) {
-                    ref.copyFrom(proj);
+                    ref.point.copyFrom(proj);
+                    ref.index = i;
                     bestSqrDist = sqrDist;
                 }
             }
@@ -202,7 +217,8 @@ namespace Mummu {
                 ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
                 let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
                 if (sqrDist < bestSqrDist) {
-                    ref.copyFrom(proj);
+                    ref.point.copyFrom(proj);
+                    ref.index = i;
                     bestSqrDist = sqrDist;
                 }
             }
