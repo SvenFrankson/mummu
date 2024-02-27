@@ -293,7 +293,7 @@ namespace Mummu {
     }
 
     var SphereWireIntersectionTmpWireProj_0 = { point: BABYLON.Vector3.Zero(), index: - 1 };
-    export function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean, nearBestIndex: number = - 1, nearBestSearchRange: number = 4): IIntersection {
+    export function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection {
         let intersection = new Intersection();
 
         let proj = SphereWireIntersectionTmpWireProj_0;

@@ -174,7 +174,7 @@ namespace Mummu {
         point: BABYLON.Vector3,
         index: number;
     }
-    export function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: IPathProjection, pathIsEvenlyDistributed?: boolean, nearBestIndex: number = - 1, nearBestSearchRange: number = 4): IPathProjection {
+    export function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: IPathProjection, pathIsEvenlyDistributed?: boolean, nearBestIndex: number = - 1, nearBestSearchRange: number = 32): IPathProjection {
         let proj = TmpVec3[3];
 
         if (pathIsEvenlyDistributed && path.length >= 4) {
