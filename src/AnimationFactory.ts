@@ -95,6 +95,7 @@ namespace Mummu {
             properties: string[],
             onUpdateCallback?: () => void,
             isAngle?: boolean[],
+            easing?: (v: number) => number
         ): (targets: number[], duration: number) => Promise<void> {
             return (targets: number[], duration: number) => {
                 return new Promise<void>(resolve => {
@@ -111,6 +112,9 @@ namespace Mummu {
                         t += 1 / 60;
                         let f = t / duration;
                         if (f < 1) {
+                            if (easing) {
+                                f = easing(f);
+                            }
                             for (let i = 0; i < n; i++) {
                                 if (isAngle && isAngle[i]) {
                                     obj[properties[i]] = Nabu.LerpAngle(origins[i], targets[i], f);
@@ -145,7 +149,8 @@ namespace Mummu {
             owner: ISceneObject,
             obj: any,
             property: string,
-            onUpdateCallback?: () => void
+            onUpdateCallback?: () => void,
+            easing?: (v: number) => number
         ): (target: BABYLON.Vector3, duration: number) => Promise<void> {
             return (target: BABYLON.Vector3, duration: number) => {
                 return new Promise<void>(resolve => {
@@ -159,6 +164,9 @@ namespace Mummu {
                         t += 1 / 60;
                         let f = t / duration;
                         if (f < 1) {
+                            if (easing) {
+                                f = easing(f);
+                            }
                             tmpVector3.copyFrom(target).scaleInPlace(f);
                             obj[property].copyFrom(origin).scaleInPlace(1 - f).addInPlace(tmpVector3);
                             if (onUpdateCallback) {
