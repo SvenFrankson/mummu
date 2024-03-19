@@ -103,6 +103,14 @@ declare namespace Mummu {
     }
     function CreateQuadVertexData(props: IQuadProps): BABYLON.VertexData;
     function CreateQuad(name: string, props: IQuadProps, scene?: BABYLON.Scene): BABYLON.Mesh;
+    interface IBoxProps {
+        size?: number;
+        width?: number;
+        height?: number;
+        depth?: number;
+        color?: BABYLON.Color4;
+    }
+    function CreateLineBox(name: string, props: IBoxProps, scene?: BABYLON.Scene): BABYLON.Mesh;
     interface IBeveledBoxProps {
         size?: number;
         width?: number;

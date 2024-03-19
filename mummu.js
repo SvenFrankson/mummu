@@ -844,6 +844,45 @@ var Mummu;
         return mesh;
     }
     Mummu.CreateQuad = CreateQuad;
+    function CreateLineBox(name, props, scene) {
+        let w = isFinite(props.width) ? props.width : props.size;
+        let h = isFinite(props.height) ? props.height : props.size;
+        let d = isFinite(props.depth) ? props.depth : props.size;
+        let w05 = w * 0.5;
+        let h05 = h * 0.5;
+        let d05 = d * 0.5;
+        let p000 = new BABYLON.Vector3(-w05, -h05, -d05);
+        let p100 = new BABYLON.Vector3(w05, -h05, -d05);
+        let p101 = new BABYLON.Vector3(w05, -h05, d05);
+        let p001 = new BABYLON.Vector3(-w05, -h05, d05);
+        let p010 = new BABYLON.Vector3(-w05, h05, -d05);
+        let p110 = new BABYLON.Vector3(w05, h05, -d05);
+        let p111 = new BABYLON.Vector3(w05, h05, d05);
+        let p011 = new BABYLON.Vector3(-w05, h05, d05);
+        let colors;
+        if (props.color) {
+            colors = [
+                [props.color, props.color, props.color, props.color, props.color],
+                [props.color, props.color],
+                [props.color, props.color],
+                [props.color, props.color],
+                [props.color, props.color],
+                [props.color, props.color, props.color, props.color, props.color],
+            ];
+        }
+        return BABYLON.MeshBuilder.CreateLineSystem(name, {
+            lines: [
+                [p000, p100, p101, p001, p000],
+                [p000, p010],
+                [p100, p110],
+                [p101, p111],
+                [p001, p011],
+                [p010, p110, p111, p011, p010],
+            ],
+            colors: colors
+        }, scene);
+    }
+    Mummu.CreateLineBox = CreateLineBox;
     function CreateBeveledBoxVertexData(props) {
         let w = isFinite(props.width) ? props.width : props.size;
         let h = isFinite(props.height) ? props.height : props.size;
