@@ -650,6 +650,21 @@ var Mummu;
         return intersection;
     }
     Mummu.SphereCapsuleIntersection = SphereCapsuleIntersection;
+    var SphereLatheIntersectionTmpVec3 = BABYLON.Vector3.Zero();
+    function SphereLatheIntersection(cSphere, rSphere, cLathe, path, rWire = 0) {
+        let proj = SphereLatheIntersectionTmpVec3;
+        proj.copyFrom(cSphere).subtractInPlace(cLathe);
+        let alpha = Mummu.AngleFromToAround(proj, BABYLON.Axis.X, BABYLON.Axis.Y);
+        Mummu.RotateInPlace(proj, BABYLON.Axis.Y, alpha);
+        let intersection = SphereWireIntersection(proj, rSphere, path, rWire);
+        if (intersection.hit) {
+            Mummu.RotateInPlace(intersection.point, BABYLON.Axis.Y, -alpha);
+            Mummu.RotateInPlace(intersection.normal, BABYLON.Axis.Y, -alpha);
+            intersection.point.addInPlace(cLathe);
+        }
+        return intersection;
+    }
+    Mummu.SphereLatheIntersection = SphereLatheIntersection;
     var SphereWireIntersectionTmpWireProj_0 = { point: BABYLON.Vector3.Zero(), index: -1 };
     function SphereWireIntersection(cSphere, rSphere, path, rWire, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange) {
         let intersection = new Intersection();

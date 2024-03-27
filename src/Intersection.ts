@@ -292,6 +292,24 @@ namespace Mummu {
         return intersection;
     }
 
+    var SphereLatheIntersectionTmpVec3 = BABYLON.Vector3.Zero();
+    export function SphereLatheIntersection(cSphere: BABYLON.Vector3, rSphere: number, cLathe: BABYLON.Vector3, path: BABYLON.Vector3[], rWire: number = 0): IIntersection {
+        let proj = SphereLatheIntersectionTmpVec3;
+        proj.copyFrom(cSphere).subtractInPlace(cLathe);
+        let alpha = Mummu.AngleFromToAround(proj, BABYLON.Axis.X, BABYLON.Axis.Y);
+        Mummu.RotateInPlace(proj, BABYLON.Axis.Y, alpha);
+
+        let intersection = SphereWireIntersection(proj, rSphere, path, rWire);
+
+        if (intersection.hit) {
+            Mummu.RotateInPlace(intersection.point, BABYLON.Axis.Y, - alpha);
+            Mummu.RotateInPlace(intersection.normal, BABYLON.Axis.Y, - alpha);
+            intersection.point.addInPlace(cLathe);
+        }
+
+        return intersection;
+    }
+
     var SphereWireIntersectionTmpWireProj_0 = { point: BABYLON.Vector3.Zero(), index: - 1 };
     export function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection {
         let intersection = new Intersection();
