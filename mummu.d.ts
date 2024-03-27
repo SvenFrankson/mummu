@@ -45,7 +45,7 @@ declare namespace Mummu {
 declare namespace Mummu {
     function DrawDebugLine(from: BABYLON.Vector3, to: BABYLON.Vector3, frames?: number, color?: BABYLON.Color3, scene?: BABYLON.Scene): BABYLON.Mesh;
     function DrawDebugHit(point: BABYLON.Vector3, normal: BABYLON.Vector3, frames?: number, color?: BABYLON.Color3, scene?: BABYLON.Scene): BABYLON.Mesh;
-    function DrawDebugPoint(points: BABYLON.Vector3, frames?: number, color?: BABYLON.Color3, scene?: BABYLON.Scene): BABYLON.Mesh;
+    function DrawDebugPoint(points: BABYLON.Vector3, frames?: number, color?: BABYLON.Color3, size?: number, scene?: BABYLON.Scene): BABYLON.Mesh;
     function DrawDebugTriangle(p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3, frames?: number, color?: BABYLON.Color3, scene?: BABYLON.Scene): BABYLON.Mesh;
 }
 declare namespace Mummu {

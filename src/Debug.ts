@@ -110,7 +110,7 @@ namespace Mummu {
         }
     }
 
-    export function DrawDebugPoint(points: BABYLON.Vector3, frames: number = Infinity, color?: BABYLON.Color3, scene?: BABYLON.Scene): BABYLON.Mesh {
+    export function DrawDebugPoint(points: BABYLON.Vector3, frames: number = Infinity, color?: BABYLON.Color3, size: number = 0.2, scene?: BABYLON.Scene): BABYLON.Mesh {
         if (!scene) {
             scene = BABYLON.Engine.Instances[0]?.scenes[0];
         }
@@ -139,16 +139,16 @@ namespace Mummu {
                 {
                     lines: [
                         [
-                            points.add(new BABYLON.Vector3(-0.1, 0, 0)),
-                            points.add(new BABYLON.Vector3(0.1, 0, 0))
+                            points.add(new BABYLON.Vector3(- size * 0.5, 0, 0)),
+                            points.add(new BABYLON.Vector3( size * 0.5, 0, 0))
                         ],
                         [
-                            points.add(new BABYLON.Vector3(0, -0.1, 0)),
-                            points.add(new BABYLON.Vector3(0, 0.1, 0))
+                            points.add(new BABYLON.Vector3(0, - size * 0.5, 0)),
+                            points.add(new BABYLON.Vector3(0,  size * 0.5, 0))
                         ],
                         [
-                            points.add(new BABYLON.Vector3(0, 0, -0.1)),
-                            points.add(new BABYLON.Vector3(0, 0, 0.1))
+                            points.add(new BABYLON.Vector3(0, 0, - size * 0.5)),
+                            points.add(new BABYLON.Vector3(0, 0,  size * 0.5))
                         ]
                     ],
                     colors: colors

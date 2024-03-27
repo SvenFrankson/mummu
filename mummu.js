@@ -360,7 +360,7 @@ var Mummu;
         }
     }
     Mummu.DrawDebugHit = DrawDebugHit;
-    function DrawDebugPoint(points, frames = Infinity, color, scene) {
+    function DrawDebugPoint(points, frames = Infinity, color, size = 0.2, scene) {
         if (!scene) {
             scene = BABYLON.Engine.Instances[0]?.scenes[0];
         }
@@ -385,16 +385,16 @@ var Mummu;
             let line = BABYLON.MeshBuilder.CreateLineSystem("debug-points", {
                 lines: [
                     [
-                        points.add(new BABYLON.Vector3(-0.1, 0, 0)),
-                        points.add(new BABYLON.Vector3(0.1, 0, 0))
+                        points.add(new BABYLON.Vector3(-size * 0.5, 0, 0)),
+                        points.add(new BABYLON.Vector3(size * 0.5, 0, 0))
                     ],
                     [
-                        points.add(new BABYLON.Vector3(0, -0.1, 0)),
-                        points.add(new BABYLON.Vector3(0, 0.1, 0))
+                        points.add(new BABYLON.Vector3(0, -size * 0.5, 0)),
+                        points.add(new BABYLON.Vector3(0, size * 0.5, 0))
                     ],
                     [
-                        points.add(new BABYLON.Vector3(0, 0, -0.1)),
-                        points.add(new BABYLON.Vector3(0, 0, 0.1))
+                        points.add(new BABYLON.Vector3(0, 0, -size * 0.5)),
+                        points.add(new BABYLON.Vector3(0, 0, size * 0.5))
                     ]
                 ],
                 colors: colors
