@@ -100,6 +100,8 @@ declare namespace Mummu {
         p3: BABYLON.Vector3;
         p4: BABYLON.Vector3;
         colors?: BABYLON.Color4 | BABYLON.Color4[];
+        uvInWorldSpace?: boolean;
+        uvSize?: number;
         sideOrientation?: number;
     }
     function CreateQuadVertexData(props: IQuadProps): BABYLON.VertexData;

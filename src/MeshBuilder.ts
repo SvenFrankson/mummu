@@ -7,6 +7,8 @@ namespace Mummu {
         p3: BABYLON.Vector3;
         p4: BABYLON.Vector3;
         colors?: BABYLON.Color4 | BABYLON.Color4[];
+        uvInWorldSpace?: boolean;
+        uvSize?: number;
         sideOrientation?: number;
     }
 
@@ -43,7 +45,19 @@ namespace Mummu {
 
         let normals = [n1.x, n1.y, n1.z, n2.x, n2.y, n2.z, n3.x, n3.y, n3.z, n4.x, n4.y, n4.z];
 
-        let uvs = [0, 0, 1, 0, 1, 1, 0, 1];
+        let uvs: number[];
+        if (props.uvInWorldSpace) {
+            let s = props.uvSize;
+            if (isNaN(s)) {
+                s = 1;
+            }
+            let w = props.p2.subtract(props.p1).length() / s;
+            let h = props.p4.subtract(props.p1).length() / s;
+            uvs = [0, 0, w, 0, w, h, 0, h];
+        }
+        else {
+            uvs = [0, 0, 1, 0, 1, 1, 0, 1];
+        }
 
         data.positions = positions;
         data.normals = normals;
