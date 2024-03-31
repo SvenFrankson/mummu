@@ -106,6 +106,36 @@ declare namespace Mummu {
     }
     function CreateQuadVertexData(props: IQuadProps): BABYLON.VertexData;
     function CreateQuad(name: string, props: IQuadProps, scene?: BABYLON.Scene): BABYLON.Mesh;
+    interface ICylinderSliceVertexData {
+        center?: BABYLON.Vector3;
+        radius?: number;
+        alphaMin: number;
+        alphaMax: number;
+        yMin?: number;
+        yMax?: number;
+        tesselation?: number;
+        colors?: BABYLON.Color4 | BABYLON.Color4[];
+        uvInWorldSpace?: boolean;
+        uvSize?: number;
+        sideOrientation?: number;
+    }
+    function CreateCylinderSliceVertexData(props: ICylinderSliceVertexData): BABYLON.VertexData;
+    function CreateCylinderSlice(name: string, props: ICylinderSliceVertexData, scene?: BABYLON.Scene): BABYLON.Mesh;
+    interface IDiscSliceVertexData {
+        center?: BABYLON.Vector3;
+        innerRadius?: number;
+        outterRadius?: number;
+        alphaMin: number;
+        alphaMax: number;
+        y?: number;
+        tesselation?: number;
+        colors?: BABYLON.Color4 | BABYLON.Color4[];
+        uvInWorldSpace?: boolean;
+        uvSize?: number;
+        sideOrientation?: number;
+    }
+    function CreateDiscSliceVertexData(props: IDiscSliceVertexData): BABYLON.VertexData;
+    function CreateDiscSlice(name: string, props: IDiscSliceVertexData, scene?: BABYLON.Scene): BABYLON.Mesh;
     interface IBoxProps {
         size?: number;
         width?: number;

@@ -871,6 +871,194 @@ var Mummu;
         return mesh;
     }
     Mummu.CreateQuad = CreateQuad;
+    function CreateCylinderSliceVertexData(props) {
+        if (isNaN(props.tesselation)) {
+            props.tesselation = 16;
+        }
+        if (isNaN(props.radius)) {
+            props.radius = 1;
+        }
+        if (isNaN(props.yMin)) {
+            props.yMin = 0;
+        }
+        if (isNaN(props.yMax)) {
+            props.yMax = 1;
+        }
+        if (isNaN(props.sideOrientation)) {
+            props.sideOrientation = BABYLON.Mesh.FRONTSIDE;
+        }
+        if (isNaN(props.uvSize)) {
+            props.uvSize = 1;
+        }
+        let data = new BABYLON.VertexData();
+        let positions = [];
+        let normals = [];
+        let indices = [];
+        let uvs = [];
+        if (props.sideOrientation === BABYLON.Mesh.FRONTSIDE || props.sideOrientation === BABYLON.Mesh.DOUBLESIDE) {
+            for (let i = 0; i <= props.tesselation; i++) {
+                let f = i / props.tesselation;
+                let a = props.alphaMin * (1 - f) + props.alphaMax * f;
+                let cosa = Math.cos(a);
+                let sina = Math.sin(a);
+                let x = cosa * props.radius;
+                let z = sina * props.radius;
+                let l = positions.length / 3;
+                positions.push(x, props.yMin, z);
+                positions.push(x, props.yMax, z);
+                normals.push(cosa, 0, sina);
+                normals.push(cosa, 0, sina);
+                if (i < props.tesselation) {
+                    indices.push(l, l + 2, l + 3);
+                    indices.push(l, l + 3, l + 1);
+                }
+                if (props.uvInWorldSpace) {
+                    let p = (props.alphaMax - props.alphaMin) * props.radius;
+                    uvs.push((f * p) / props.uvSize, 0);
+                    uvs.push((f * p) / props.uvSize, (props.yMax - props.yMin) / props.uvSize);
+                }
+                else {
+                    uvs.push(f, 0);
+                    uvs.push(f, 1);
+                }
+            }
+        }
+        if (props.sideOrientation === BABYLON.Mesh.BACKSIDE || props.sideOrientation === BABYLON.Mesh.DOUBLESIDE) {
+            for (let i = 0; i <= props.tesselation; i++) {
+                let f = i / props.tesselation;
+                let a = props.alphaMin * (1 - f) + props.alphaMax * f;
+                let cosa = Math.cos(a);
+                let sina = Math.sin(a);
+                let x = cosa * props.radius;
+                let z = sina * props.radius;
+                let l = positions.length / 3;
+                positions.push(x, props.yMin, z);
+                positions.push(x, props.yMax, z);
+                normals.push(-cosa, 0, -sina);
+                normals.push(-cosa, 0, -sina);
+                if (i < props.tesselation) {
+                    indices.push(l, l + 3, l + 2);
+                    indices.push(l, l + 1, l + 3);
+                }
+                if (props.uvInWorldSpace) {
+                    let p = (props.alphaMax - props.alphaMin) * props.radius;
+                    uvs.push(((1 - f) * p) / props.uvSize, 0);
+                    uvs.push(((1 - f) * p) / props.uvSize, (props.yMax - props.yMin) / props.uvSize);
+                }
+                else {
+                    uvs.push((1 - f), 0);
+                    uvs.push((1 - f), 1);
+                }
+            }
+        }
+        data.positions = positions;
+        data.uvs = uvs;
+        data.indices = indices;
+        data.normals = normals;
+        return data;
+    }
+    Mummu.CreateCylinderSliceVertexData = CreateCylinderSliceVertexData;
+    function CreateCylinderSlice(name, props, scene) {
+        let mesh = new BABYLON.Mesh(name, scene);
+        CreateCylinderSliceVertexData(props).applyToMesh(mesh);
+        return mesh;
+    }
+    Mummu.CreateCylinderSlice = CreateCylinderSlice;
+    function CreateDiscSliceVertexData(props) {
+        if (isNaN(props.tesselation)) {
+            props.tesselation = 16;
+        }
+        if (isNaN(props.innerRadius)) {
+            props.innerRadius = 1;
+        }
+        if (isNaN(props.outterRadius)) {
+            props.outterRadius = 1;
+        }
+        if (isNaN(props.y)) {
+            props.y = 0;
+        }
+        if (isNaN(props.sideOrientation)) {
+            props.sideOrientation = BABYLON.Mesh.FRONTSIDE;
+        }
+        if (isNaN(props.uvSize)) {
+            props.uvSize = 1;
+        }
+        let data = new BABYLON.VertexData();
+        let positions = [];
+        let normals = [];
+        let indices = [];
+        let uvs = [];
+        if (props.sideOrientation === BABYLON.Mesh.FRONTSIDE || props.sideOrientation === BABYLON.Mesh.DOUBLESIDE) {
+            for (let i = 0; i <= props.tesselation; i++) {
+                let f = i / props.tesselation;
+                let a = props.alphaMin * (1 - f) + props.alphaMax * f;
+                let cosa = Math.cos(a);
+                let sina = Math.sin(a);
+                let xInner = cosa * props.innerRadius;
+                let zInner = sina * props.innerRadius;
+                let xOutter = cosa * props.outterRadius;
+                let zOutter = sina * props.outterRadius;
+                let l = positions.length / 3;
+                positions.push(xInner, props.y, zInner);
+                positions.push(xOutter, props.y, zOutter);
+                normals.push(0, 1, 0);
+                normals.push(0, 1, 0);
+                if (i < props.tesselation) {
+                    indices.push(l, l + 1, l + 3);
+                    indices.push(l, l + 3, l + 2);
+                }
+                if (props.uvInWorldSpace) {
+                    uvs.push(xInner / props.uvSize, zInner / props.uvSize);
+                    uvs.push(xOutter / props.uvSize, zOutter / props.uvSize);
+                }
+                else {
+                    uvs.push(f, 1);
+                    uvs.push(f, 0);
+                }
+            }
+        }
+        if (props.sideOrientation === BABYLON.Mesh.BACKSIDE || props.sideOrientation === BABYLON.Mesh.DOUBLESIDE) {
+            for (let i = 0; i <= props.tesselation; i++) {
+                let f = i / props.tesselation;
+                let a = props.alphaMin * (1 - f) + props.alphaMax * f;
+                let cosa = Math.cos(a);
+                let sina = Math.sin(a);
+                let xInner = cosa * props.innerRadius;
+                let zInner = sina * props.innerRadius;
+                let xOutter = cosa * props.outterRadius;
+                let zOutter = sina * props.outterRadius;
+                let l = positions.length / 3;
+                positions.push(xInner, props.y, zInner);
+                positions.push(xOutter, props.y, zOutter);
+                normals.push(0, -1, 0);
+                normals.push(0, -1, 0);
+                if (i < props.tesselation) {
+                    indices.push(l, l + 2, l + 3);
+                    indices.push(l, l + 3, l + 1);
+                }
+                if (props.uvInWorldSpace) {
+                    uvs.push(xInner / props.uvSize, zInner / props.uvSize);
+                    uvs.push(xOutter / props.uvSize, zOutter / props.uvSize);
+                }
+                else {
+                    uvs.push(f, 0);
+                    uvs.push(f, 1);
+                }
+            }
+        }
+        data.positions = positions;
+        data.uvs = uvs;
+        data.indices = indices;
+        data.normals = normals;
+        return data;
+    }
+    Mummu.CreateDiscSliceVertexData = CreateDiscSliceVertexData;
+    function CreateDiscSlice(name, props, scene) {
+        let mesh = new BABYLON.Mesh(name, scene);
+        CreateDiscSliceVertexData(props).applyToMesh(mesh);
+        return mesh;
+    }
+    Mummu.CreateDiscSlice = CreateDiscSlice;
     function CreateLineBox(name, props, scene) {
         let w = isFinite(props.width) ? props.width : props.size;
         let h = isFinite(props.height) ? props.height : props.size;
