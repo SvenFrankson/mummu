@@ -327,6 +327,121 @@ namespace Mummu {
         return mesh;
     }
 
+    export interface IDiscVertexData {
+        center?: BABYLON.Vector3;
+        radius?: number;
+        alphaMin: number;
+        alphaMax: number;
+        y?: number;
+        tesselation?: number;
+        colors?: BABYLON.Color4 | BABYLON.Color4[];
+        uvInWorldSpace?: boolean;
+        uvSize?: number;
+        sideOrientation?: number;
+    }
+
+    export function CreateDiscVertexData(props: IDiscVertexData): BABYLON.VertexData {
+        if (isNaN(props.tesselation)) {
+            props.tesselation = 16;
+        }
+        if (isNaN(props.radius)) {
+            props.radius = 1;
+        }
+        if (isNaN(props.y)) {
+            props.y = 0;
+        }
+        if (isNaN(props.sideOrientation)) {
+            props.sideOrientation = BABYLON.Mesh.FRONTSIDE;
+        }
+        if (isNaN(props.uvSize)) {
+            props.uvSize = 1;
+        }
+
+        let data = new BABYLON.VertexData();
+
+        let positions: number[] = [];
+        let normals = [];
+        let indices: number[] = [];
+        let uvs: number[] = [];
+
+        if (props.sideOrientation === BABYLON.Mesh.FRONTSIDE || props.sideOrientation === BABYLON.Mesh.DOUBLESIDE) {
+            let centerIndex = positions.length / 3;
+            positions.push(0, props.y, 0);
+            normals.push(0, 1, 0);
+            uvs.push(0, 0);
+            
+            for (let i = 0; i <= props.tesselation; i++) {
+                let f = i / props.tesselation;
+                let a = props.alphaMin * (1 - f) + props.alphaMax * f;
+                let cosa = Math.cos(a);
+                let sina = Math.sin(a);
+                let x = cosa * props.radius;
+                let z = sina * props.radius;
+
+                let l = positions.length / 3;
+                positions.push(x, props.y, z);
+    
+                normals.push(0, 1, 0);
+                
+                if (i < props.tesselation) {
+                    indices.push(centerIndex, l, l + 1);
+                }
+                
+                if (props.uvInWorldSpace) {
+                    uvs.push(x / props.uvSize, z / props.uvSize);
+                }
+                else {
+                    uvs.push(x, z);
+                }
+            }
+        }
+
+        if (props.sideOrientation === BABYLON.Mesh.BACKSIDE || props.sideOrientation === BABYLON.Mesh.DOUBLESIDE) {
+            let centerIndex = positions.length / 3;
+            positions.push(0, props.y, 0);
+            normals.push(0, - 1, 0);
+            uvs.push(0, 0);
+            
+            for (let i = 0; i <= props.tesselation; i++) {
+                let f = i / props.tesselation;
+                let a = props.alphaMin * (1 - f) + props.alphaMax * f;
+                let cosa = Math.cos(a);
+                let sina = Math.sin(a);
+                let x = cosa * props.radius;
+                let z = sina * props.radius;
+
+                let l = positions.length / 3;
+                positions.push(x, props.y, z);
+    
+                normals.push(0, - 1, 0);
+                
+                if (i < props.tesselation) {
+                    indices.push(centerIndex, l + 1, l);
+                }
+                
+                if (props.uvInWorldSpace) {
+                    uvs.push(x / props.uvSize, z / props.uvSize);
+                }
+                else {
+                    uvs.push(x, z);
+                }
+            }
+        }
+
+        data.positions = positions;
+        data.uvs = uvs;
+        data.indices = indices;
+        data.normals = normals;
+
+        return data;
+    }
+
+    export function CreateDisc(name: string, props: IDiscVertexData, scene?: BABYLON.Scene): BABYLON.Mesh {
+        let mesh = new BABYLON.Mesh(name, scene);
+        CreateDiscVertexData(props).applyToMesh(mesh);
+        return mesh;
+    }
+
     export interface IBoxProps {
         size?: number;
         width?: number;

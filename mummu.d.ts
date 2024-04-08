@@ -136,6 +136,20 @@ declare namespace Mummu {
     }
     function CreateDiscSliceVertexData(props: IDiscSliceVertexData): BABYLON.VertexData;
     function CreateDiscSlice(name: string, props: IDiscSliceVertexData, scene?: BABYLON.Scene): BABYLON.Mesh;
+    interface IDiscVertexData {
+        center?: BABYLON.Vector3;
+        radius?: number;
+        alphaMin: number;
+        alphaMax: number;
+        y?: number;
+        tesselation?: number;
+        colors?: BABYLON.Color4 | BABYLON.Color4[];
+        uvInWorldSpace?: boolean;
+        uvSize?: number;
+        sideOrientation?: number;
+    }
+    function CreateDiscVertexData(props: IDiscVertexData): BABYLON.VertexData;
+    function CreateDisc(name: string, props: IDiscVertexData, scene?: BABYLON.Scene): BABYLON.Mesh;
     interface IBoxProps {
         size?: number;
         width?: number;
