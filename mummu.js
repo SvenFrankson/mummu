@@ -1160,6 +1160,16 @@ var Mummu;
         let p110 = new BABYLON.Vector3(w05, h05, -d05);
         let p111 = new BABYLON.Vector3(w05, h05, d05);
         let p011 = new BABYLON.Vector3(-w05, h05, d05);
+        if (props.offset) {
+            p000.addInPlace(props.offset);
+            p100.addInPlace(props.offset);
+            p001.addInPlace(props.offset);
+            p101.addInPlace(props.offset);
+            p010.addInPlace(props.offset);
+            p110.addInPlace(props.offset);
+            p011.addInPlace(props.offset);
+            p111.addInPlace(props.offset);
+        }
         let colors;
         if (props.color) {
             colors = [

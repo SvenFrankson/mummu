@@ -156,6 +156,7 @@ declare namespace Mummu {
         height?: number;
         depth?: number;
         color?: BABYLON.Color4;
+        offset?: BABYLON.Vector3;
     }
     function CreateLineBox(name: string, props: IBoxProps, scene?: BABYLON.Scene): BABYLON.Mesh;
     interface IBeveledBoxProps {
