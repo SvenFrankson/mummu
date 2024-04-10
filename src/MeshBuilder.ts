@@ -448,6 +448,7 @@ namespace Mummu {
         height?: number;
         depth?: number;
         color?: BABYLON.Color4;
+        grid?: number;
         offset?: BABYLON.Vector3;
     }
 
@@ -469,16 +470,14 @@ namespace Mummu {
         let p111 = new BABYLON.Vector3(w05, h05, d05);
         let p011 = new BABYLON.Vector3(- w05, h05, d05);
 
-        if (props.offset) {
-            p000.addInPlace(props.offset);
-            p100.addInPlace(props.offset);
-            p001.addInPlace(props.offset);
-            p101.addInPlace(props.offset);
-            p010.addInPlace(props.offset);
-            p110.addInPlace(props.offset);
-            p011.addInPlace(props.offset);
-            p111.addInPlace(props.offset);
-        }
+        let lines = [
+            [p000.clone(), p100.clone(), p101.clone(), p001.clone(), p000.clone()],
+            [p000.clone(), p010.clone()],
+            [p100.clone(), p110.clone()],
+            [p101.clone(), p111.clone()],
+            [p001.clone(), p011.clone()],
+            [p010.clone(), p110.clone(), p111.clone(), p011.clone(), p010.clone()],
+        ];
 
         let colors: BABYLON.Color4[][];
         if (props.color) {
@@ -492,17 +491,63 @@ namespace Mummu {
             ]
         }
 
+        if (props.grid) {
+            let cW = Math.round(w / props.grid);
+            let cH = Math.round(h / props.grid);
+            let cD = Math.round(d / props.grid);
+
+            for (let i = 1; i < cW; i++) {
+                lines.push([
+                    new BABYLON.Vector3(- w05 + i * props.grid, - h05, - d05),
+                    new BABYLON.Vector3(- w05 + i * props.grid, - h05, d05),
+                    new BABYLON.Vector3(- w05 + i * props.grid, h05, d05),
+                    new BABYLON.Vector3(- w05 + i * props.grid, h05, - d05),
+                    new BABYLON.Vector3(- w05 + i * props.grid, - h05, - d05)
+                ]);
+                if (props.color) {
+                    colors.push([props.color, props.color, props.color, props.color, props.color]);
+                }
+            }
+
+            for (let i = 1; i < cH; i++) {
+                lines.push([
+                    new BABYLON.Vector3(- w05, - h05 + i * props.grid, - d05),
+                    new BABYLON.Vector3(- w05, - h05 + i * props.grid, d05),
+                    new BABYLON.Vector3(w05, - h05 + i * props.grid, d05),
+                    new BABYLON.Vector3(w05, - h05 + i * props.grid, - d05),
+                    new BABYLON.Vector3(- w05, - h05 + i * props.grid, - d05)
+                ]);
+                if (props.color) {
+                    colors.push([props.color, props.color, props.color, props.color, props.color]);
+                }
+            }
+
+            for (let i = 1; i < cD; i++) {
+                lines.push([
+                    new BABYLON.Vector3(- w05, - h05, - d05 + i * props.grid),
+                    new BABYLON.Vector3(- w05, h05, - d05 + i * props.grid),
+                    new BABYLON.Vector3(w05, h05, - d05 + i * props.grid),
+                    new BABYLON.Vector3(w05, - h05, - d05 + i * props.grid),
+                    new BABYLON.Vector3(- w05, - h05, - d05 + i * props.grid)
+                ]);
+                if (props.color) {
+                    colors.push([props.color, props.color, props.color, props.color, props.color]);
+                }
+            }
+        }
+
+        if (props.offset) {
+            lines.forEach(line => {
+                line.forEach(point => {
+                    point.addInPlace(props.offset);
+                });
+            });
+        }
+
         return BABYLON.MeshBuilder.CreateLineSystem(
             name,
             {
-                lines: [
-                    [p000, p100, p101, p001, p000],
-                    [p000, p010],
-                    [p100, p110],
-                    [p101, p111],
-                    [p001, p011],
-                    [p010, p110, p111, p011, p010],
-                ],
+                lines: lines,
                 colors: colors
             },
             scene
