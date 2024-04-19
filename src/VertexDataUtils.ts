@@ -91,4 +91,34 @@ namespace Mummu {
         data.positions = data.positions.map((n: number) => { return n * s; });
         return data;
     }
+
+    export function ShrinkVertexDataInPlace(data: BABYLON.VertexData, d: number): BABYLON.VertexData {
+        let positions = [...data.positions];
+        let normals = data.normals;
+        for (let i = 0; i < positions.length / 3; i++) {
+            let nx = normals[3 * i];
+            let ny = normals[3 * i + 1];
+            let nz = normals[3 * i + 2];
+            positions[3 * i] += d * nx;
+            positions[3 * i + 1] += d * ny;
+            positions[3 * i + 2] += d * nz;
+        }
+        data.positions = positions;
+
+        return data;
+    }
+
+    export function TriFlipVertexDataInPlace(data: BABYLON.VertexData): BABYLON.VertexData {
+        let indices = [...data.indices];
+        for (let i = 0; i < indices.length / 3; i++) {
+            let i1 = indices[3 * i];
+            let i2 = indices[3 * i + 1];
+            indices[3 * i] = i2;
+            indices[3 * i + 1] = i1;
+        }
+        data.indices = indices;
+        data.normals = data.normals.map((n: number) => { return - n; });
+
+        return data;
+    }
 }

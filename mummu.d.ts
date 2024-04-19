@@ -277,4 +277,6 @@ declare namespace Mummu {
     function TranslateVertexDataInPlace(data: BABYLON.VertexData, t: BABYLON.Vector3): BABYLON.VertexData;
     function RotateVertexDataInPlace(data: BABYLON.VertexData, q: BABYLON.Quaternion): BABYLON.VertexData;
     function ScaleVertexDataInPlace(data: BABYLON.VertexData, s: number): BABYLON.VertexData;
+    function ShrinkVertexDataInPlace(data: BABYLON.VertexData, d: number): BABYLON.VertexData;
+    function TriFlipVertexDataInPlace(data: BABYLON.VertexData): BABYLON.VertexData;
 }

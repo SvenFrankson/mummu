@@ -2391,4 +2391,32 @@ var Mummu;
         return data;
     }
     Mummu.ScaleVertexDataInPlace = ScaleVertexDataInPlace;
+    function ShrinkVertexDataInPlace(data, d) {
+        let positions = [...data.positions];
+        let normals = data.normals;
+        for (let i = 0; i < positions.length / 3; i++) {
+            let nx = normals[3 * i];
+            let ny = normals[3 * i + 1];
+            let nz = normals[3 * i + 2];
+            positions[3 * i] += d * nx;
+            positions[3 * i + 1] += d * ny;
+            positions[3 * i + 2] += d * nz;
+        }
+        data.positions = positions;
+        return data;
+    }
+    Mummu.ShrinkVertexDataInPlace = ShrinkVertexDataInPlace;
+    function TriFlipVertexDataInPlace(data) {
+        let indices = [...data.indices];
+        for (let i = 0; i < indices.length / 3; i++) {
+            let i1 = indices[3 * i];
+            let i2 = indices[3 * i + 1];
+            indices[3 * i] = i2;
+            indices[3 * i + 1] = i1;
+        }
+        data.indices = indices;
+        data.normals = data.normals.map((n) => { return -n; });
+        return data;
+    }
+    Mummu.TriFlipVertexDataInPlace = TriFlipVertexDataInPlace;
 })(Mummu || (Mummu = {}));
