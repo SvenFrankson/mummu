@@ -2,16 +2,32 @@
 
 namespace Mummu {
     
+    class VertexDataInfo {
+
+        public name: string;
+        public position: BABYLON.Vector3;
+    }
+
+    class VertexDataWithInfo {
+        
+        constructor(
+            public vertexDatas: BABYLON.VertexData[],
+            public infos: VertexDataInfo[]
+        ) {
+
+        }
+    }
+
     export class VertexDataLoader {
 
         public static instance: VertexDataLoader;
     
         public scene: BABYLON.Scene;
-        private _vertexDatas: Map<string, BABYLON.VertexData[]>;
+        private _vertexDatas: Map<string, VertexDataWithInfo>;
     
         constructor(scene: BABYLON.Scene) {
             this.scene = scene;
-            this._vertexDatas = new Map<string, BABYLON.VertexData[]>();
+            this._vertexDatas = new Map<string, VertexDataWithInfo>();
             VertexDataLoader.instance = this;
         }
     
@@ -34,14 +50,25 @@ namespace Mummu {
             }
             return clonedData;
         }
+
+        public async getInfos(url: string, scene?: BABYLON.Scene): Promise<VertexDataInfo[]> {
+            if (!this._vertexDatas.get(url)) {
+                await this.get(url, scene);
+            }
+            if (this._vertexDatas.has(url)) {
+                return this._vertexDatas.get(url).infos;
+            }
+            return [];
+        }
     
         public async get(url: string, scene?: BABYLON.Scene): Promise<BABYLON.VertexData[]> {
             if (this._vertexDatas.get(url)) {
-                return this._vertexDatas.get(url);
+                return this._vertexDatas.get(url).vertexDatas;
             }
             let vertexData: BABYLON.VertexData = undefined;
             let loadedFile = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene);
             let vertexDatas: BABYLON.VertexData[] = [];
+            let infos: VertexDataInfo[] = [];
             let loadedFileMeshes = loadedFile.meshes.sort(
                 (m1, m2) => {
                     if (m1.name < m2.name) {
@@ -93,9 +120,14 @@ namespace Mummu {
                     }
                     vertexData.colors = colors;
                     vertexDatas.push(vertexData);
+                    
+                    let vertexDataInfos = new VertexDataInfo();
+                    vertexDataInfos.name = loadedMesh.name;
+                    vertexDataInfos.position = loadedMesh.position.clone();
+                    infos.push(vertexDataInfos);
                 }
             }
-            this._vertexDatas.set(url, vertexDatas);
+            this._vertexDatas.set(url, new VertexDataWithInfo(vertexDatas, infos));
             loadedFileMeshes.forEach(m => { m.dispose(); });
             loadedFile.skeletons.forEach(s => { s.dispose(); });
             return vertexDatas;

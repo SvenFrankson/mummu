@@ -2095,6 +2095,14 @@ var Mummu;
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
 (function (Mummu) {
+    class VertexDataInfo {
+    }
+    class VertexDataWithInfo {
+        constructor(vertexDatas, infos) {
+            this.vertexDatas = vertexDatas;
+            this.infos = infos;
+        }
+    }
     class VertexDataLoader {
         constructor(scene) {
             this.scene = scene;
@@ -2120,13 +2128,23 @@ var Mummu;
             }
             return clonedData;
         }
+        async getInfos(url, scene) {
+            if (!this._vertexDatas.get(url)) {
+                await this.get(url, scene);
+            }
+            if (this._vertexDatas.has(url)) {
+                return this._vertexDatas.get(url).infos;
+            }
+            return [];
+        }
         async get(url, scene) {
             if (this._vertexDatas.get(url)) {
-                return this._vertexDatas.get(url);
+                return this._vertexDatas.get(url).vertexDatas;
             }
             let vertexData = undefined;
             let loadedFile = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene);
             let vertexDatas = [];
+            let infos = [];
             let loadedFileMeshes = loadedFile.meshes.sort((m1, m2) => {
                 if (m1.name < m2.name) {
                     return -1;
@@ -2176,9 +2194,13 @@ var Mummu;
                     }
                     vertexData.colors = colors;
                     vertexDatas.push(vertexData);
+                    let vertexDataInfos = new VertexDataInfo();
+                    vertexDataInfos.name = loadedMesh.name;
+                    vertexDataInfos.position = loadedMesh.position.clone();
+                    infos.push(vertexDataInfos);
                 }
             }
-            this._vertexDatas.set(url, vertexDatas);
+            this._vertexDatas.set(url, new VertexDataWithInfo(vertexDatas, infos));
             loadedFileMeshes.forEach(m => { m.dispose(); });
             loadedFile.skeletons.forEach(s => { s.dispose(); });
             return vertexDatas;

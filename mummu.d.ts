@@ -250,12 +250,17 @@ declare namespace Mummu {
     function GetClosestAxis(dir: BABYLON.Vector3): BABYLON.Vector3;
 }
 declare namespace Mummu {
-    class VertexDataLoader {
+    class VertexDataInfo {
+        name: string;
+        position: BABYLON.Vector3;
+    }
+    export class VertexDataLoader {
         static instance: VertexDataLoader;
         scene: BABYLON.Scene;
         private _vertexDatas;
         constructor(scene: BABYLON.Scene);
         static clone(data: BABYLON.VertexData): BABYLON.VertexData;
+        getInfos(url: string, scene?: BABYLON.Scene): Promise<VertexDataInfo[]>;
         get(url: string, scene?: BABYLON.Scene): Promise<BABYLON.VertexData[]>;
         getColorized(url: string, baseColorHex?: string, frameColorHex?: string, color1Hex?: string, // Replace red
         color2Hex?: string, // Replace green
@@ -264,6 +269,7 @@ declare namespace Mummu {
         color2Hex?: string, // Replace green
         color3Hex?: string): Promise<BABYLON.VertexData[]>;
     }
+    export {};
 }
 declare namespace Mummu {
     function CloneVertexData(data: BABYLON.VertexData): BABYLON.VertexData;
