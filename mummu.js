@@ -2158,46 +2158,48 @@ var Mummu;
                 let loadedMesh = loadedFileMeshes[i];
                 if (loadedMesh instanceof BABYLON.Mesh) {
                     vertexData = BABYLON.VertexData.ExtractFromMesh(loadedMesh);
-                    let colors = [];
-                    if (loadedMesh.material) {
-                        if (loadedMesh.material instanceof BABYLON.PBRMaterial) {
-                            let color = loadedMesh.material.albedoColor;
-                            for (let k = 0; k < vertexData.positions.length / 3; k++) {
-                                let index = k;
-                                colors[4 * index] = color.r;
-                                colors[4 * index + 1] = color.g;
-                                colors[4 * index + 2] = color.b;
-                                colors[4 * index + 3] = 1;
+                    if (vertexData.positions && vertexData.positions.length > 0) {
+                        let colors = [];
+                        if (loadedMesh.material) {
+                            if (loadedMesh.material instanceof BABYLON.PBRMaterial) {
+                                let color = loadedMesh.material.albedoColor;
+                                for (let k = 0; k < vertexData.positions.length / 3; k++) {
+                                    let index = k;
+                                    colors[4 * index] = color.r;
+                                    colors[4 * index + 1] = color.g;
+                                    colors[4 * index + 2] = color.b;
+                                    colors[4 * index + 3] = 1;
+                                }
                             }
-                        }
-                        else if (loadedMesh.material instanceof BABYLON.MultiMaterial) {
-                            for (let j = 0; j < loadedMesh.material.subMaterials.length; j++) {
-                                let subMaterial = loadedMesh.material.subMaterials[j];
-                                if (subMaterial instanceof BABYLON.PBRMaterial) {
-                                    let color = subMaterial.albedoColor;
-                                    let subMesh = loadedMesh.subMeshes.find(sm => { return sm.materialIndex === j; });
-                                    for (let k = 0; k < subMesh.verticesCount; k++) {
-                                        let index = subMesh.verticesStart + k;
-                                        colors[4 * index] = color.r;
-                                        colors[4 * index + 1] = color.g;
-                                        colors[4 * index + 2] = color.b;
-                                        colors[4 * index + 3] = 1;
+                            else if (loadedMesh.material instanceof BABYLON.MultiMaterial) {
+                                for (let j = 0; j < loadedMesh.material.subMaterials.length; j++) {
+                                    let subMaterial = loadedMesh.material.subMaterials[j];
+                                    if (subMaterial instanceof BABYLON.PBRMaterial) {
+                                        let color = subMaterial.albedoColor;
+                                        let subMesh = loadedMesh.subMeshes.find(sm => { return sm.materialIndex === j; });
+                                        for (let k = 0; k < subMesh.verticesCount; k++) {
+                                            let index = subMesh.verticesStart + k;
+                                            colors[4 * index] = color.r;
+                                            colors[4 * index + 1] = color.g;
+                                            colors[4 * index + 2] = color.b;
+                                            colors[4 * index + 3] = 1;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    if (colors.length === 0) {
-                        for (let i = 0; i < vertexData.positions.length / 3; i++) {
-                            colors.push(1, 1, 1, 1);
+                        if (colors.length === 0) {
+                            for (let i = 0; i < vertexData.positions.length / 3; i++) {
+                                colors.push(1, 1, 1, 1);
+                            }
                         }
+                        vertexData.colors = colors;
+                        vertexDatas.push(vertexData);
+                        let vertexDataInfos = new VertexDataInfo();
+                        vertexDataInfos.name = loadedMesh.name;
+                        vertexDataInfos.position = loadedMesh.position.clone();
+                        infos.push(vertexDataInfos);
                     }
-                    vertexData.colors = colors;
-                    vertexDatas.push(vertexData);
-                    let vertexDataInfos = new VertexDataInfo();
-                    vertexDataInfos.name = loadedMesh.name;
-                    vertexDataInfos.position = loadedMesh.position.clone();
-                    infos.push(vertexDataInfos);
                 }
             }
             this._vertexDatas.set(url, new VertexDataWithInfo(vertexDatas, infos));
