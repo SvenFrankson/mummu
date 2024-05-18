@@ -134,6 +134,20 @@ namespace Mummu {
             loadedFile.skeletons.forEach(s => { s.dispose(); });
             return vertexDatas;
         }
+
+        public async getAtIndex(url: string, index: number = 0, scene?: BABYLON.Scene): Promise<BABYLON.VertexData> {
+            let datas = await this.get(url, scene);
+            if (datas) {
+                return datas[index];
+            }
+        }
+
+        public async getAndInstantiateAtIndex(name: string, url: string, index: number = 0, scene?: BABYLON.Scene): Promise<BABYLON.Mesh> {
+            let data = await this.getAtIndex(url, index);
+            let mesh = new BABYLON.Mesh(name, scene);
+            data.applyToMesh(mesh);
+            return mesh;
+        }
     
         public async getColorized(
             url: string, 
