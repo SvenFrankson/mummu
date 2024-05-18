@@ -25,6 +25,13 @@ namespace Mummu {
         let uvs = [];
         let colors = [];
 
+        let useColors = false;
+        for (let i = 0; i < datas.length; i++) {
+            if (datas[i].colors) {
+                useColors = true;
+            }
+        }
+
         for (let i = 0; i < datas.length; i++) {
             let offset = positions.length / 3;
             positions.push(...datas[i].positions);
@@ -35,6 +42,11 @@ namespace Mummu {
             }
             if (datas[i].colors) {
                 colors.push(...datas[i].colors);
+            }
+            else if (useColors) {
+                for (let j = 0; j < positions.length / 3; j++) {
+                    colors.push(1, 1, 1, 1);
+                }
             }
         }
 

@@ -2207,6 +2207,18 @@ var Mummu;
             loadedFile.skeletons.forEach(s => { s.dispose(); });
             return vertexDatas;
         }
+        async getAtIndex(url, index = 0, scene) {
+            let datas = await this.get(url, scene);
+            if (datas) {
+                return datas[index];
+            }
+        }
+        async getAndInstantiateAtIndex(name, url, index = 0, scene) {
+            let data = await this.getAtIndex(url, index);
+            let mesh = new BABYLON.Mesh(name, scene);
+            data.applyToMesh(mesh);
+            return mesh;
+        }
         async getColorized(url, baseColorHex = "#FFFFFF", frameColorHex = "", color1Hex = "", // Replace red
         color2Hex = "", // Replace green
         color3Hex = "" // Replace blue
@@ -2330,6 +2342,12 @@ var Mummu;
         let normals = [];
         let uvs = [];
         let colors = [];
+        let useColors = false;
+        for (let i = 0; i < datas.length; i++) {
+            if (datas[i].colors) {
+                useColors = true;
+            }
+        }
         for (let i = 0; i < datas.length; i++) {
             let offset = positions.length / 3;
             positions.push(...datas[i].positions);
@@ -2340,6 +2358,11 @@ var Mummu;
             }
             if (datas[i].colors) {
                 colors.push(...datas[i].colors);
+            }
+            else if (useColors) {
+                for (let j = 0; j < positions.length / 3; j++) {
+                    colors.push(1, 1, 1, 1);
+                }
             }
         }
         mergedData.positions = positions;

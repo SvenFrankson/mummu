@@ -262,6 +262,8 @@ declare namespace Mummu {
         static clone(data: BABYLON.VertexData): BABYLON.VertexData;
         getInfos(url: string, scene?: BABYLON.Scene): Promise<VertexDataInfo[]>;
         get(url: string, scene?: BABYLON.Scene): Promise<BABYLON.VertexData[]>;
+        getAtIndex(url: string, index?: number, scene?: BABYLON.Scene): Promise<BABYLON.VertexData>;
+        getAndInstantiateAtIndex(name: string, url: string, index?: number, scene?: BABYLON.Scene): Promise<BABYLON.Mesh>;
         getColorized(url: string, baseColorHex?: string, frameColorHex?: string, color1Hex?: string, // Replace red
         color2Hex?: string, // Replace green
         color3Hex?: string): Promise<BABYLON.VertexData>;
