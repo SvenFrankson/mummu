@@ -23,6 +23,7 @@ namespace Mummu {
         let indices = [];
         let normals = [];
         let uvs = [];
+        let uvs2 = [];
         let colors = [];
 
         let useColors = false;
@@ -40,6 +41,9 @@ namespace Mummu {
             if (datas[i].uvs) {
                 uvs.push(...datas[i].uvs);
             }
+            if (datas[i].uvs2) {
+                uvs2.push(...datas[i].uvs2);
+            }
             if (datas[i].colors) {
                 colors.push(...datas[i].colors);
             }
@@ -55,6 +59,9 @@ namespace Mummu {
         mergedData.normals = normals;
         if (uvs.length > 0) {
             mergedData.uvs = uvs;
+        }
+        if (uvs2.length > 0) {
+            mergedData.uvs2 = uvs2;
         }
         if (colors.length > 0) {
             mergedData.colors = colors;
@@ -73,6 +80,11 @@ namespace Mummu {
         data.positions = positions;
 
         return data;
+    }
+
+    export function RotateAngleAxisVertexDataInPlace(data: BABYLON.VertexData, angle: number, axis: BABYLON.Vector3): BABYLON.VertexData {
+        let q = BABYLON.Quaternion.RotationAxis(axis, angle);
+        return RotateVertexDataInPlace(data, q);
     }
 
     export function RotateVertexDataInPlace(data: BABYLON.VertexData, q: BABYLON.Quaternion): BABYLON.VertexData {

@@ -30,13 +30,12 @@ var Mummu;
             return (target, duration) => {
                 return new Promise(resolve => {
                     let origin = obj[property];
-                    let t = 0;
+                    let t0 = performance.now();
                     if (owner[property + "_animation"]) {
                         owner.getScene().onBeforeRenderObservable.removeCallback(owner[property + "_animation"]);
                     }
                     let animationCB = () => {
-                        t += 1 / 60;
-                        let f = t / duration;
+                        let f = (performance.now() - t0) / 1000 / duration;
                         if (f < 1) {
                             if (isAngle) {
                                 obj[property] = Nabu.LerpAngle(origin, target, f);
@@ -74,13 +73,12 @@ var Mummu;
                     for (let i = 0; i < n; i++) {
                         origins[i] = obj[properties[i]];
                     }
-                    let t = 0;
+                    let t0 = performance.now();
                     if (owner[properties[0] + "_animation"]) {
                         owner.getScene().onBeforeRenderObservable.removeCallback(owner[properties[0] + "_animation"]);
                     }
                     let animationCB = () => {
-                        t += 1 / 60;
-                        let f = t / duration;
+                        let f = (performance.now() - t0) / 1000 / duration;
                         if (f < 1) {
                             if (easing) {
                                 f = easing(f);
@@ -119,13 +117,12 @@ var Mummu;
                 return new Promise(resolve => {
                     let origin = obj[property].clone();
                     let tmpVector3 = BABYLON.Vector3.Zero();
-                    let t = 0;
+                    let t0 = performance.now();
                     if (owner[property + "_animation"]) {
                         owner.getScene().onBeforeRenderObservable.removeCallback(owner[property + "_animation"]);
                     }
                     let animationCB = () => {
-                        t += 1 / 60;
-                        let f = t / duration;
+                        let f = (performance.now() - t0) / 1000 / duration;
                         if (f < 1) {
                             if (easing) {
                                 f = easing(f);
@@ -808,6 +805,16 @@ var Mummu;
 (function (Mummu) {
     function CreateQuadVertexData(props) {
         let data = new BABYLON.VertexData();
+        if (isFinite(props.width) && isFinite(props.height)) {
+            props.p1 = new BABYLON.Vector3(-props.width * 0.5, -props.height * 0.5, 0);
+            props.p2 = props.p1.clone();
+            props.p2.x += props.width;
+            props.p3 = props.p1.clone();
+            props.p3.x += props.width;
+            props.p3.y += props.height;
+            props.p4 = props.p1.clone();
+            props.p4.y += props.height;
+        }
         let positions = [props.p1.x, props.p1.y, props.p1.z, props.p2.x, props.p2.y, props.p2.z, props.p3.x, props.p3.y, props.p3.z, props.p4.x, props.p4.y, props.p4.z];
         let n1 = BABYLON.Vector3.Cross(props.p4.subtract(props.p1), props.p2.subtract(props.p1)).normalize();
         let n2 = BABYLON.Vector3.Cross(props.p1.subtract(props.p2), props.p3.subtract(props.p2)).normalize();
@@ -871,6 +878,108 @@ var Mummu;
         return mesh;
     }
     Mummu.CreateQuad = CreateQuad;
+    function Create9SliceVertexData(props) {
+        let data = new BABYLON.VertexData();
+        let w2 = props.width * 0.5;
+        let h2 = props.height * 0.5;
+        let m = props.margin;
+        let positions = [
+            -w2, -h2, 0,
+            -w2 + m, -h2, 0,
+            w2 - m, -h2, 0,
+            w2, -h2, 0,
+            -w2, -h2 + m, 0,
+            -w2 + m, -h2 + m, 0,
+            w2 - m, -h2 + m, 0,
+            w2, -h2 + m, 0,
+            -w2, h2 - m, 0,
+            -w2 + m, h2 - m, 0,
+            w2 - m, h2 - m, 0,
+            w2, h2 - m, 0,
+            -w2, h2, 0,
+            -w2 + m, h2, 0,
+            w2 - m, h2, 0,
+            w2, h2, 0
+        ];
+        let normals = [
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1
+        ];
+        let indices = [];
+        for (let j = 0; j < 3; j++) {
+            for (let i = 0; i < 3; i++) {
+                let n = i + j * 4;
+                indices.push(n, n + 1, n + 1 + 4);
+                indices.push(n, n + 1 + 4, n + 4);
+            }
+        }
+        let slice9uvs = [
+            0, 0,
+            1 / 3, 0,
+            2 / 3, 0,
+            1, 0,
+            0, 1 / 3,
+            1 / 3, 1 / 3,
+            2 / 3, 1 / 3,
+            1, 1 / 3,
+            0, 2 / 3,
+            1 / 3, 2 / 3,
+            2 / 3, 2 / 3,
+            1, 2 / 3,
+            0, 1,
+            1 / 3, 1,
+            2 / 3, 1,
+            1, 1
+        ];
+        data.positions = positions;
+        data.normals = normals;
+        data.indices = indices;
+        if (props.color) {
+            let colors = [];
+            for (let i = 0; i < 16; i++) {
+                colors.push(...props.color.asArray());
+            }
+            data.colors = colors;
+        }
+        if (props.uv1InWorldSpace) {
+            let s = props.uv1Size;
+            if (isNaN(s)) {
+                s = 1;
+            }
+            let uvs = [];
+            for (let i = 0; i < positions.length / 3; i++) {
+                uvs[2 * i] = positions[3 * i] * s;
+                uvs[2 * i + 1] = positions[3 * i + 1] * s;
+            }
+            data.uvs = uvs;
+            data.uvs2 = slice9uvs;
+        }
+        else {
+            data.uvs = slice9uvs;
+        }
+        return data;
+    }
+    Mummu.Create9SliceVertexData = Create9SliceVertexData;
+    function Create9Slice(name, props, scene) {
+        let mesh = new BABYLON.Mesh(name, scene);
+        Create9SliceVertexData(props).applyToMesh(mesh);
+        return mesh;
+    }
+    Mummu.Create9Slice = Create9Slice;
     function CreateCylinderSliceVertexData(props) {
         if (isNaN(props.tesselation)) {
             props.tesselation = 16;
@@ -2341,6 +2450,7 @@ var Mummu;
         let indices = [];
         let normals = [];
         let uvs = [];
+        let uvs2 = [];
         let colors = [];
         let useColors = false;
         for (let i = 0; i < datas.length; i++) {
@@ -2356,6 +2466,9 @@ var Mummu;
             if (datas[i].uvs) {
                 uvs.push(...datas[i].uvs);
             }
+            if (datas[i].uvs2) {
+                uvs2.push(...datas[i].uvs2);
+            }
             if (datas[i].colors) {
                 colors.push(...datas[i].colors);
             }
@@ -2370,6 +2483,9 @@ var Mummu;
         mergedData.normals = normals;
         if (uvs.length > 0) {
             mergedData.uvs = uvs;
+        }
+        if (uvs2.length > 0) {
+            mergedData.uvs2 = uvs2;
         }
         if (colors.length > 0) {
             mergedData.colors = colors;
@@ -2388,6 +2504,11 @@ var Mummu;
         return data;
     }
     Mummu.TranslateVertexDataInPlace = TranslateVertexDataInPlace;
+    function RotateAngleAxisVertexDataInPlace(data, angle, axis) {
+        let q = BABYLON.Quaternion.RotationAxis(axis, angle);
+        return RotateVertexDataInPlace(data, q);
+    }
+    Mummu.RotateAngleAxisVertexDataInPlace = RotateAngleAxisVertexDataInPlace;
     function RotateVertexDataInPlace(data, q) {
         let pos = BABYLON.Vector3.Zero();
         let normal = BABYLON.Vector3.Up();

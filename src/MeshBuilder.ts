@@ -2,10 +2,12 @@
 
 namespace Mummu {
     export interface IQuadProps {
-        p1: BABYLON.Vector3;
-        p2: BABYLON.Vector3;
-        p3: BABYLON.Vector3;
-        p4: BABYLON.Vector3;
+        width?: number;
+        height?: number;
+        p1?: BABYLON.Vector3;
+        p2?: BABYLON.Vector3;
+        p3?: BABYLON.Vector3;
+        p4?: BABYLON.Vector3;
         colors?: BABYLON.Color4 | BABYLON.Color4[];
         uvInWorldSpace?: boolean;
         uvSize?: number;
@@ -14,6 +16,20 @@ namespace Mummu {
 
     export function CreateQuadVertexData(props: IQuadProps): BABYLON.VertexData {
         let data = new BABYLON.VertexData();
+
+        if (isFinite(props.width) && isFinite(props.height)) {
+            props.p1 = new BABYLON.Vector3(- props.width * 0.5, - props.height * 0.5, 0);
+
+            props.p2 = props.p1.clone();
+            props.p2.x += props.width;
+
+            props.p3 = props.p1.clone();
+            props.p3.x += props.width;
+            props.p3.y += props.height;
+
+            props.p4 = props.p1.clone();
+            props.p4.y += props.height;
+        }
 
         let positions = [props.p1.x, props.p1.y, props.p1.z, props.p2.x, props.p2.y, props.p2.z, props.p3.x, props.p3.y, props.p3.z, props.p4.x, props.p4.y, props.p4.z];
 
@@ -80,6 +96,128 @@ namespace Mummu {
     export function CreateQuad(name: string, props: IQuadProps, scene?: BABYLON.Scene): BABYLON.Mesh {
         let mesh = new BABYLON.Mesh(name, scene);
         CreateQuadVertexData(props).applyToMesh(mesh);
+        return mesh;
+    }
+
+    export interface I9SliceProps {
+        width: number;
+        height: number;
+        margin: number;
+        color?: BABYLON.Color4;
+        sideOrientation?: number;
+        uv1InWorldSpace?: boolean;
+        uv1Size?: number;
+    }
+
+    export function Create9SliceVertexData(props: I9SliceProps): BABYLON.VertexData {
+        let data = new BABYLON.VertexData();
+
+        let w2 = props.width * 0.5;
+        let h2 = props.height * 0.5;
+        let m = props.margin;
+
+        let positions = [
+            -w2, -h2, 0,
+            -w2 + m, -h2, 0,
+            w2 - m, -h2, 0,
+            w2, -h2, 0,
+            -w2, -h2 + m, 0,
+            -w2 + m, -h2 + m, 0,
+            w2 - m, -h2 + m, 0,
+            w2, -h2 + m, 0,
+            -w2, h2 - m, 0,
+            -w2 + m, h2 - m, 0,
+            w2 - m, h2 - m, 0,
+            w2, h2 - m, 0,
+            -w2, h2, 0,
+            -w2 + m, h2, 0,
+            w2 - m, h2, 0,
+            w2, h2, 0
+        ];
+
+        let normals = [
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1,
+            0, 0, -1
+        ]
+
+        let indices: number[] = [];
+        for (let j = 0; j < 3; j++) {
+            for (let i = 0; i < 3; i++) {
+                let n = i + j * 4;
+                indices.push(n, n + 1, n + 1 + 4);
+                indices.push(n, n + 1 + 4, n + 4);
+            }
+        }
+
+        let slice9uvs = [
+            0, 0,
+            1/3, 0,
+            2/3, 0,
+            1, 0,
+            0, 1/3,
+            1/3, 1/3,
+            2/3, 1/3,
+            1, 1/3,
+            0, 2/3,
+            1/3, 2/3,
+            2/3, 2/3,
+            1, 2/3,
+            0, 1,
+            1/3, 1,
+            2/3, 1,
+            1, 1
+        ];
+
+        data.positions = positions;
+        data.normals = normals;
+        data.indices = indices;
+
+        if (props.color) {
+            let colors: number[] = [];
+            for (let i = 0; i < 16; i++) {
+                colors.push(...props.color.asArray());
+            }
+            data.colors = colors;
+        }
+
+        if (props.uv1InWorldSpace) {
+            let s = props.uv1Size;
+            if (isNaN(s)) {
+                s = 1;
+            }
+
+            let uvs: number[] = [];
+            for (let i = 0; i < positions.length / 3; i++) {
+                uvs[2 * i] = positions[3 * i] * s;
+                uvs[2 * i + 1] = positions[3 * i + 1] * s;
+            }
+            data.uvs = uvs;
+            data.uvs2 = slice9uvs;
+        }
+        else {
+            data.uvs = slice9uvs;
+        }
+
+        return data;
+    }
+
+    export function Create9Slice(name: string, props: I9SliceProps, scene?: BABYLON.Scene): BABYLON.Mesh {
+        let mesh = new BABYLON.Mesh(name, scene);
+        Create9SliceVertexData(props).applyToMesh(mesh);
         return mesh;
     }
 

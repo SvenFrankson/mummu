@@ -52,13 +52,12 @@ namespace Mummu {
             return (target: number, duration: number) => {
                 return new Promise<void>(resolve => {
                     let origin: number = obj[property];
-                    let t = 0;
+                    let t0 = performance.now();
                     if (owner[property + "_animation"]) {
                         owner.getScene().onBeforeRenderObservable.removeCallback(owner[property + "_animation"]);
                     }
                     let animationCB = () => {
-                        t += 1 / 60;
-                        let f = t / duration;
+                        let f = (performance.now() - t0) / 1000 / duration;
                         if (f < 1) {
                             if (isAngle) {
                                 obj[property] = Nabu.LerpAngle(origin, target, f);
@@ -104,13 +103,12 @@ namespace Mummu {
                     for (let i = 0; i < n; i++) {
                         origins[i] = obj[properties[i]];
                     }
-                    let t = 0;
+                    let t0 = performance.now();
                     if (owner[properties[0] + "_animation"]) {
                         owner.getScene().onBeforeRenderObservable.removeCallback(owner[properties[0] + "_animation"]);
                     }
                     let animationCB = () => {
-                        t += 1 / 60;
-                        let f = t / duration;
+                        let f = (performance.now() - t0) / 1000 / duration;
                         if (f < 1) {
                             if (easing) {
                                 f = easing(f);
@@ -156,13 +154,12 @@ namespace Mummu {
                 return new Promise<void>(resolve => {
                     let origin: BABYLON.Vector3 = obj[property].clone();
                     let tmpVector3 = BABYLON.Vector3.Zero();
-                    let t = 0;
+                    let t0 = performance.now();
                     if (owner[property + "_animation"]) {
                         owner.getScene().onBeforeRenderObservable.removeCallback(owner[property + "_animation"]);
                     }
                     let animationCB = () => {
-                        t += 1 / 60;
-                        let f = t / duration;
+                        let f = (performance.now() - t0) / 1000 / duration;
                         if (f < 1) {
                             if (easing) {
                                 f = easing(f);

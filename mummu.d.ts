@@ -95,10 +95,12 @@ declare namespace Mummu {
 }
 declare namespace Mummu {
     interface IQuadProps {
-        p1: BABYLON.Vector3;
-        p2: BABYLON.Vector3;
-        p3: BABYLON.Vector3;
-        p4: BABYLON.Vector3;
+        width?: number;
+        height?: number;
+        p1?: BABYLON.Vector3;
+        p2?: BABYLON.Vector3;
+        p3?: BABYLON.Vector3;
+        p4?: BABYLON.Vector3;
         colors?: BABYLON.Color4 | BABYLON.Color4[];
         uvInWorldSpace?: boolean;
         uvSize?: number;
@@ -106,6 +108,17 @@ declare namespace Mummu {
     }
     function CreateQuadVertexData(props: IQuadProps): BABYLON.VertexData;
     function CreateQuad(name: string, props: IQuadProps, scene?: BABYLON.Scene): BABYLON.Mesh;
+    interface I9SliceProps {
+        width: number;
+        height: number;
+        margin: number;
+        color?: BABYLON.Color4;
+        sideOrientation?: number;
+        uv1InWorldSpace?: boolean;
+        uv1Size?: number;
+    }
+    function Create9SliceVertexData(props: I9SliceProps): BABYLON.VertexData;
+    function Create9Slice(name: string, props: I9SliceProps, scene?: BABYLON.Scene): BABYLON.Mesh;
     interface ICylinderSliceVertexData {
         center?: BABYLON.Vector3;
         radius?: number;
@@ -277,6 +290,7 @@ declare namespace Mummu {
     function CloneVertexData(data: BABYLON.VertexData): BABYLON.VertexData;
     function MergeVertexDatas(...datas: BABYLON.VertexData[]): BABYLON.VertexData;
     function TranslateVertexDataInPlace(data: BABYLON.VertexData, t: BABYLON.Vector3): BABYLON.VertexData;
+    function RotateAngleAxisVertexDataInPlace(data: BABYLON.VertexData, angle: number, axis: BABYLON.Vector3): BABYLON.VertexData;
     function RotateVertexDataInPlace(data: BABYLON.VertexData, q: BABYLON.Quaternion): BABYLON.VertexData;
     function ScaleVertexDataInPlace(data: BABYLON.VertexData, s: number): BABYLON.VertexData;
     function ShrinkVertexDataInPlace(data: BABYLON.VertexData, d: number): BABYLON.VertexData;
