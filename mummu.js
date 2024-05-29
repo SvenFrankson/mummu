@@ -1934,6 +1934,14 @@ var Mummu;
         return proj;
     }
     Mummu.ProjectPointOnPlane = ProjectPointOnPlane;
+    function DistancePointRay(point, ray) {
+        let PA = TmpVec3[0];
+        let cross = TmpVec3[2];
+        PA.copyFrom(ray.origin).subtractInPlace(point);
+        BABYLON.Vector3.CrossToRef(PA, ray.direction, cross);
+        return cross.length();
+    }
+    Mummu.DistancePointRay = DistancePointRay;
     function DistancePointLine(point, lineA, lineB) {
         let PA = TmpVec3[0];
         let dir = TmpVec3[1];

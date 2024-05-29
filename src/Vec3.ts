@@ -107,6 +107,14 @@ namespace Mummu {
         return proj;
     }
 
+    export function DistancePointRay(point: BABYLON.Vector3, ray: BABYLON.Ray): number {
+        let PA = TmpVec3[0];
+        let cross = TmpVec3[2];
+        PA.copyFrom(ray.origin).subtractInPlace(point);
+        BABYLON.Vector3.CrossToRef(PA, ray.direction, cross);
+        return cross.length();
+    }
+
     export function DistancePointLine(point: BABYLON.Vector3, lineA: BABYLON.Vector3, lineB: BABYLON.Vector3): number {
         let PA = TmpVec3[0];
         let dir = TmpVec3[1];
