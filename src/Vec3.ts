@@ -339,6 +339,46 @@ namespace Mummu {
         return path;
     }
 
+    export function RemoveFromStartForDistanceInPlace(path: BABYLON.Vector3[], distance: number, outRemovedPart?: BABYLON.Vector3[]): BABYLON.Vector3[] {
+        if (!outRemovedPart) {
+            outRemovedPart = [];
+        }
+        let distanceLeft = distance;
+        while (distanceLeft > 0 && path.length >= 2) {
+            let pA = path[0];
+            let pB = path[1];
+
+            let d = BABYLON.Vector3.Distance(pA, pB)
+            if (d <= distanceLeft) {
+                console.log("! " + d.toFixed(4));
+                outRemovedPart.push(path[0]);
+                path.splice(0, 1);
+                distanceLeft -= d;
+            }
+            else if (d > distanceLeft) {
+                console.log("?");
+                let newPoint = pB.subtract(pA).normalize().scaleInPlace(distanceLeft).addInPlace(pA);
+                outRemovedPart.push(path[0]);
+                outRemovedPart.push(newPoint);
+                path[0] = newPoint;
+                distanceLeft = 0;
+            }
+        }
+        
+        return path;
+    }
+
+    export function RemoveFromEndForDistanceInPlace(path: BABYLON.Vector3[], distance: number, outRemovedPart?: BABYLON.Vector3[]): BABYLON.Vector3[] {
+        if (!outRemovedPart) {
+            outRemovedPart = [];
+        }
+        path.reverse();
+        RemoveFromStartForDistanceInPlace(path, distance, outRemovedPart);
+        path.reverse();
+        outRemovedPart.reverse();
+        return path;
+    }
+
     export function RandomInSphereCutToRef(dir: BABYLON.Vector3, alphaMin: number, alphaMax: number, betaMin: number, betaMax: number, up: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3 {
         if (!up) {
             up = BABYLON.Axis.Y;

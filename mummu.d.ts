@@ -258,6 +258,8 @@ declare namespace Mummu {
     function CatmullRomPathInPlace(path: BABYLON.Vector3[], inDir?: BABYLON.Vector3, outDir?: BABYLON.Vector3): BABYLON.Vector3[];
     function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[];
     function DecimatePathInPlace(path: BABYLON.Vector3[], minAngle?: number): BABYLON.Vector3[];
+    function RemoveFromStartForDistanceInPlace(path: BABYLON.Vector3[], distance: number, outRemovedPart?: BABYLON.Vector3[]): BABYLON.Vector3[];
+    function RemoveFromEndForDistanceInPlace(path: BABYLON.Vector3[], distance: number, outRemovedPart?: BABYLON.Vector3[]): BABYLON.Vector3[];
     function RandomInSphereCutToRef(dir: BABYLON.Vector3, alphaMin: number, alphaMax: number, betaMin: number, betaMax: number, up: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3;
     function RandomInSphereCut(dir: BABYLON.Vector3, alphaMin: number, alphaMax: number, betaMin: number, betaMax: number, up?: BABYLON.Vector3): BABYLON.Vector3;
     function GetClosestAxisToRef(dir: BABYLON.Vector3, ref: BABYLON.Vector3): BABYLON.Vector3;
@@ -296,4 +298,5 @@ declare namespace Mummu {
     function ScaleVertexDataInPlace(data: BABYLON.VertexData, s: number): BABYLON.VertexData;
     function ShrinkVertexDataInPlace(data: BABYLON.VertexData, d: number): BABYLON.VertexData;
     function TriFlipVertexDataInPlace(data: BABYLON.VertexData): BABYLON.VertexData;
+    function ColorizeVertexDataInPlace(data: BABYLON.VertexData, c: BABYLON.Color3): BABYLON.VertexData;
 }

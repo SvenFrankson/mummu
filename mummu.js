@@ -2154,6 +2154,44 @@ var Mummu;
         return path;
     }
     Mummu.DecimatePathInPlace = DecimatePathInPlace;
+    function RemoveFromStartForDistanceInPlace(path, distance, outRemovedPart) {
+        if (!outRemovedPart) {
+            outRemovedPart = [];
+        }
+        let distanceLeft = distance;
+        while (distanceLeft > 0 && path.length >= 2) {
+            let pA = path[0];
+            let pB = path[1];
+            let d = BABYLON.Vector3.Distance(pA, pB);
+            if (d <= distanceLeft) {
+                console.log("! " + d.toFixed(4));
+                outRemovedPart.push(path[0]);
+                path.splice(0, 1);
+                distanceLeft -= d;
+            }
+            else if (d > distanceLeft) {
+                console.log("?");
+                let newPoint = pB.subtract(pA).normalize().scaleInPlace(distanceLeft).addInPlace(pA);
+                outRemovedPart.push(path[0]);
+                outRemovedPart.push(newPoint);
+                path[0] = newPoint;
+                distanceLeft = 0;
+            }
+        }
+        return path;
+    }
+    Mummu.RemoveFromStartForDistanceInPlace = RemoveFromStartForDistanceInPlace;
+    function RemoveFromEndForDistanceInPlace(path, distance, outRemovedPart) {
+        if (!outRemovedPart) {
+            outRemovedPart = [];
+        }
+        path.reverse();
+        RemoveFromStartForDistanceInPlace(path, distance, outRemovedPart);
+        path.reverse();
+        outRemovedPart.reverse();
+        return path;
+    }
+    Mummu.RemoveFromEndForDistanceInPlace = RemoveFromEndForDistanceInPlace;
     function RandomInSphereCutToRef(dir, alphaMin, alphaMax, betaMin, betaMax, up, ref) {
         if (!up) {
             up = BABYLON.Axis.Y;
@@ -2575,4 +2613,16 @@ var Mummu;
         return data;
     }
     Mummu.TriFlipVertexDataInPlace = TriFlipVertexDataInPlace;
+    function ColorizeVertexDataInPlace(data, c) {
+        let colors = [];
+        for (let i = 0; i < data.positions.length / 3; i++) {
+            colors[4 * i] = c.r;
+            colors[4 * i + 1] = c.g;
+            colors[4 * i + 2] = c.b;
+            colors[4 * i + 3] = 1;
+        }
+        data.colors = colors;
+        return data;
+    }
+    Mummu.ColorizeVertexDataInPlace = ColorizeVertexDataInPlace;
 })(Mummu || (Mummu = {}));
