@@ -145,4 +145,17 @@ namespace Mummu {
 
         return data;
     }
+
+    export function ColorizeVertexDataInPlace(data: BABYLON.VertexData, c: BABYLON.Color3): BABYLON.VertexData {
+        let colors = [];
+        for (let i = 0; i < data.positions.length / 3; i++) {
+            colors[4 * i] = c.r;
+            colors[4 * i + 1] = c.g;
+            colors[4 * i + 2] = c.b;
+            colors[4 * i + 3] = 1;
+        }
+        data.colors = colors;
+
+        return data;
+    }
 }
