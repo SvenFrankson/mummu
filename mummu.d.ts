@@ -219,6 +219,15 @@ declare namespace Mummu {
     }
     function CreateSphereCutData(props: ISphereCutProps): BABYLON.VertexData;
     function CreateSphereCut(name: string, props: ISphereCutProps, scene?: BABYLON.Scene): BABYLON.Mesh;
+    interface IWireProps {
+        path: BABYLON.Vector3[];
+        color: BABYLON.Color4;
+        radius: number;
+        tesselation?: number;
+        closed?: boolean;
+        textureRatio?: number;
+    }
+    function CreateWireVertexData(props: IWireProps): BABYLON.VertexData;
 }
 declare namespace Mummu {
     function QuaternionFromXYAxis(x: BABYLON.Vector3, y: BABYLON.Vector3): BABYLON.Quaternion;

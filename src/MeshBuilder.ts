@@ -1051,4 +1051,122 @@ namespace Mummu {
         CreateSphereCutData(props).applyToMesh(mesh);
         return mesh;
     }
+
+    export interface IWireProps {
+        path: BABYLON.Vector3[],
+        color: BABYLON.Color4,
+        radius: number,
+        tesselation?: number,
+        closed?: boolean,
+        textureRatio?: number
+    }
+
+    export function CreateWireVertexData(props: IWireProps): BABYLON.VertexData {
+        let data = new BABYLON.VertexData();
+        let positions: number[] = [];
+        let normals = [];
+        let indices: number[] = [];
+        let uvs: number[] = [];
+
+        if (isNaN(props.tesselation)) {
+            props.tesselation = 12;
+        }
+        if (isNaN(props.textureRatio)) {
+            props.textureRatio = 1;
+        }
+
+        let center = BABYLON.Vector3.Zero();
+        let path = [...props.path];
+        let n = path.length;
+        let directions = [];
+        let perimeter = 2 * Math.PI * props.radius;
+
+        if (props.closed) {
+            if (BABYLON.Vector3.DistanceSquared(path[0], path[n - 1]) > 0) {
+                path.push(path[0].clone());
+            }
+        }
+        
+        n = path.length;
+
+        if (props.closed) {
+            let prev = path[n - 2];
+            let next = path[1];
+            directions[0] = next.subtract(prev).normalize();
+        }
+        else {
+            let prev = path[0];
+            let next = path[1];
+            directions[0] = next.subtract(prev).normalize();
+        }
+        center.addInPlace(path[0]);
+
+        for (let i = 1; i < path.length - 1; i++) {
+            center.addInPlace(path[i]);
+            let prev = path[i - 1];
+            let next = path[i + 1];
+            directions[i] = next.subtract(prev).normalize();
+        }
+        
+        if (props.closed) {
+            let prev = path[n - 2];
+            let next = path[1];
+            directions[n - 1] = next.subtract(prev).normalize();
+        }
+        else {
+            let prev = path[n - 2];
+            let next = path[n - 1];
+            directions[n - 1] = next.subtract(prev).normalize();
+        }
+        center.addInPlace(path[n - 1]);
+
+        center.scaleInPlace(1 / n);
+
+        let cumulLength = 0;
+        let t = props.tesselation;
+        let angle = 2 * Math.PI / t;
+        for (let i = 0; i < n; i++) {
+            let p = path[i];
+            if (i > 0) {
+                cumulLength += BABYLON.Vector3.Distance(p, path[i - 1]);
+            }
+            let dir = directions[i];
+            let rayon = p.subtract(center);
+            let xDir = BABYLON.Vector3.Cross(dir, rayon);
+            rayon = BABYLON.Vector3.Cross(xDir, dir).normalize().scaleInPlace(props.radius);
+
+            let idx0 = positions.length / 3;
+            positions.push(rayon.x + p.x, rayon.y + p.y, rayon.z + p.z);
+            let normal = rayon.clone().normalize();
+            normals.push(normal.x, normal.y, normal.z);
+            uvs.push(0, cumulLength / perimeter / props.textureRatio);
+            if (i < n - 1) {
+                indices.push(idx0, idx0 + (t + 1) + 1, idx0 + (t + 1));
+                indices.push(idx0, idx0 + 1, idx0 + (t + 1) + 1);
+            }
+            for (let j = 1; j <= t; j++) {
+                Mummu.RotateInPlace(rayon, dir, - angle);
+                positions.push(rayon.x + p.x, rayon.y + p.y, rayon.z + p.z);
+                let normal = rayon.clone().normalize();
+                normals.push(normal.x, normal.y, normal.z);
+                uvs.push(j / t, cumulLength / perimeter / props.textureRatio);
+                if (i < n - 1) {
+                    if (j < t) {
+                        indices.push(idx0 + j, idx0 + j + (t + 1) + 1, idx0 + j + (t + 1));
+                        indices.push(idx0 + j, idx0 + j + 1, idx0 + j + (t + 1) + 1);
+                    }
+                }
+            }
+        }
+
+        data.positions = positions;
+        data.indices = indices;
+        data.normals = normals;
+        data.uvs = uvs;
+
+        console.log("n = " + n );
+        console.log(data);
+
+        return data;
+    }
 }
