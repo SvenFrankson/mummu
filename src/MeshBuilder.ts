@@ -221,6 +221,31 @@ namespace Mummu {
         return mesh;
     }
 
+    export interface IExtrudeShapeVertexData {
+        shape: BABYLON.Vector3[],
+        path: BABYLON.Vector3[],
+        scale?: number,
+        rotation?: number,
+        closeShape?: boolean,
+        closePath?: boolean,
+        cap?: number,
+        updatable?: boolean,
+        sideOrientation?: number,
+        frontUVs?: BABYLON.Vector4,
+        backUVs?: BABYLON.Vector4,
+        instance?: BABYLON.Mesh,
+        invertUV?: boolean,
+        firstNormal?: BABYLON.Vector3,
+        adjustFrame?: boolean 
+    } 
+
+    export function CreateExtrudeShapeVertexData(data: IExtrudeShapeVertexData): BABYLON.VertexData {
+        let tmp = BABYLON.MeshBuilder.ExtrudeShape("tmp", data);
+        let vertexData = BABYLON.VertexData.ExtractFromMesh(tmp);
+        tmp.dispose();
+        return vertexData;
+    }
+
     export interface ICylinderSliceVertexData {
         center?: BABYLON.Vector3;
         radius?: number;

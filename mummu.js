@@ -980,6 +980,13 @@ var Mummu;
         return mesh;
     }
     Mummu.Create9Slice = Create9Slice;
+    function CreateExtrudeShapeVertexData(data) {
+        let tmp = BABYLON.MeshBuilder.ExtrudeShape("tmp", data);
+        let vertexData = BABYLON.VertexData.ExtractFromMesh(tmp);
+        tmp.dispose();
+        return vertexData;
+    }
+    Mummu.CreateExtrudeShapeVertexData = CreateExtrudeShapeVertexData;
     function CreateCylinderSliceVertexData(props) {
         if (isNaN(props.tesselation)) {
             props.tesselation = 16;
