@@ -2171,13 +2171,11 @@ var Mummu;
             let pB = path[1];
             let d = BABYLON.Vector3.Distance(pA, pB);
             if (d <= distanceLeft) {
-                console.log("! " + d.toFixed(4));
                 outRemovedPart.push(path[0]);
                 path.splice(0, 1);
                 distanceLeft -= d;
             }
             else if (d > distanceLeft) {
-                console.log("?");
                 let newPoint = pB.subtract(pA).normalize().scaleInPlace(distanceLeft).addInPlace(pA);
                 outRemovedPart.push(path[0]);
                 outRemovedPart.push(newPoint);
