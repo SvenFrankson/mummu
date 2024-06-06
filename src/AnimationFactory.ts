@@ -19,9 +19,9 @@ namespace Mummu {
         ): (duration: number) => Promise<void> {
             return (duration: number) => {
                 return new Promise<void>(resolve => {
-                    let t = 0;
+                    let t0 = performance.now();
                     let animationCB = () => {
-                        t += 1 / 60;
+                        let t = (performance.now() - t0) / 1000;
                         let f = t / duration;
                         if (f < 1) {
                             if (onUpdateCallback) {

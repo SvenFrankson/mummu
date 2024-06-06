@@ -5,9 +5,9 @@ var Mummu;
         static CreateWait(owner, onUpdateCallback) {
             return (duration) => {
                 return new Promise(resolve => {
-                    let t = 0;
+                    let t0 = performance.now();
                     let animationCB = () => {
-                        t += 1 / 60;
+                        let t = (performance.now() - t0) / 1000;
                         let f = t / duration;
                         if (f < 1) {
                             if (onUpdateCallback) {
