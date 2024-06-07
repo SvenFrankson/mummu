@@ -1164,9 +1164,6 @@ namespace Mummu {
         data.normals = normals;
         data.uvs = uvs;
 
-        console.log("n = " + n );
-        console.log(data);
-
         return data;
     }
 }
