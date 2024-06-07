@@ -1054,7 +1054,7 @@ namespace Mummu {
 
     export interface IWireProps {
         path: BABYLON.Vector3[],
-        color: BABYLON.Color4,
+        color?: BABYLON.Color4,
         radius: number,
         tesselation?: number,
         closed?: boolean,
@@ -1067,6 +1067,7 @@ namespace Mummu {
         let normals = [];
         let indices: number[] = [];
         let uvs: number[] = [];
+        let colors: number[] = [];
 
         if (isNaN(props.tesselation)) {
             props.tesselation = 12;
@@ -1137,6 +1138,9 @@ namespace Mummu {
 
             let idx0 = positions.length / 3;
             positions.push(rayon.x + p.x, rayon.y + p.y, rayon.z + p.z);
+            if (props.color) {
+                colors.push(props.color.r, props.color.g, props.color.b, props.color.a);
+            }
             let normal = rayon.clone().normalize();
             normals.push(normal.x, normal.y, normal.z);
             uvs.push(0, cumulLength / perimeter / props.textureRatio);
@@ -1147,6 +1151,9 @@ namespace Mummu {
             for (let j = 1; j <= t; j++) {
                 Mummu.RotateInPlace(rayon, dir, - angle);
                 positions.push(rayon.x + p.x, rayon.y + p.y, rayon.z + p.z);
+                if (props.color) {
+                    colors.push(props.color.r, props.color.g, props.color.b, props.color.a);
+                }
                 let normal = rayon.clone().normalize();
                 normals.push(normal.x, normal.y, normal.z);
                 uvs.push(j / t, cumulLength / perimeter / props.textureRatio);
@@ -1163,6 +1170,9 @@ namespace Mummu {
         data.indices = indices;
         data.normals = normals;
         data.uvs = uvs;
+        if (props.color) {
+            data.colors = colors;
+        }
 
         return data;
     }

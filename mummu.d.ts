@@ -221,7 +221,7 @@ declare namespace Mummu {
     function CreateSphereCut(name: string, props: ISphereCutProps, scene?: BABYLON.Scene): BABYLON.Mesh;
     interface IWireProps {
         path: BABYLON.Vector3[];
-        color: BABYLON.Color4;
+        color?: BABYLON.Color4;
         radius: number;
         tesselation?: number;
         closed?: boolean;
@@ -283,6 +283,7 @@ declare namespace Mummu {
     function Step(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number): BABYLON.Vector3;
     function ForceDistanceFromOriginInPlace(point: BABYLON.Vector3, origin: BABYLON.Vector3, distance: number): BABYLON.Vector3;
     function CatmullRomPathInPlace(path: BABYLON.Vector3[], inDir?: BABYLON.Vector3, outDir?: BABYLON.Vector3): BABYLON.Vector3[];
+    function SmoothPathInPlace(path: BABYLON.Vector3[], f: number): BABYLON.Vector3[];
     function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[];
     function DecimatePathInPlace(path: BABYLON.Vector3[], minAngle?: number): BABYLON.Vector3[];
     function RemoveFromStartForDistanceInPlace(path: BABYLON.Vector3[], distance: number, outRemovedPart?: BABYLON.Vector3[]): BABYLON.Vector3[];

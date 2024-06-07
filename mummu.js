@@ -1625,6 +1625,7 @@ var Mummu;
         let normals = [];
         let indices = [];
         let uvs = [];
+        let colors = [];
         if (isNaN(props.tesselation)) {
             props.tesselation = 12;
         }
@@ -1685,6 +1686,9 @@ var Mummu;
             rayon = BABYLON.Vector3.Cross(xDir, dir).normalize().scaleInPlace(props.radius);
             let idx0 = positions.length / 3;
             positions.push(rayon.x + p.x, rayon.y + p.y, rayon.z + p.z);
+            if (props.color) {
+                colors.push(props.color.r, props.color.g, props.color.b, props.color.a);
+            }
             let normal = rayon.clone().normalize();
             normals.push(normal.x, normal.y, normal.z);
             uvs.push(0, cumulLength / perimeter / props.textureRatio);
@@ -1695,6 +1699,9 @@ var Mummu;
             for (let j = 1; j <= t; j++) {
                 Mummu.RotateInPlace(rayon, dir, -angle);
                 positions.push(rayon.x + p.x, rayon.y + p.y, rayon.z + p.z);
+                if (props.color) {
+                    colors.push(props.color.r, props.color.g, props.color.b, props.color.a);
+                }
                 let normal = rayon.clone().normalize();
                 normals.push(normal.x, normal.y, normal.z);
                 uvs.push(j / t, cumulLength / perimeter / props.textureRatio);
@@ -1710,6 +1717,9 @@ var Mummu;
         data.indices = indices;
         data.normals = normals;
         data.uvs = uvs;
+        if (props.color) {
+            data.colors = colors;
+        }
         return data;
     }
     Mummu.CreateWireVertexData = CreateWireVertexData;
@@ -2214,6 +2224,21 @@ var Mummu;
         }
     }
     Mummu.CatmullRomPathInPlace = CatmullRomPathInPlace;
+    function SmoothPathInPlace(path, f) {
+        let clone = path.map(p => { return p.clone(); });
+        let l = path.length;
+        for (let i = 1; i < l - 1; i++) {
+            let x = (path[i - 1].x + path[i].x * (1 - f) + path[i + 1].x) / (3 - f);
+            let y = (path[i - 1].y + path[i].y * (1 - f) + path[i + 1].y) / (3 - f);
+            let z = (path[i - 1].z + path[i].z * (1 - f) + path[i + 1].z) / (3 - f);
+            clone[i].copyFromFloats(x, y, z);
+        }
+        for (let i = 0; i < l; i++) {
+            path[i].copyFrom(clone[i]);
+        }
+        return path;
+    }
+    Mummu.SmoothPathInPlace = SmoothPathInPlace;
     function CatmullRomClosedPathInPlace(path) {
         let interpolatedPoints = [];
         for (let i = 0; i < path.length; i++) {
