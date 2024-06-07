@@ -298,6 +298,24 @@ namespace Mummu {
         }
     }
 
+    export function SmoothPathInPlace(path: BABYLON.Vector3[], f: number): BABYLON.Vector3[] {
+        let clone = path.map(p => { return p.clone(); });
+
+        let l = path.length;
+        for (let i = 1; i < l - 1; i++) {
+            let x = (path[i - 1].x + path[i].x * (1 - f) + path[i + 1].x) / (3 - f);
+            let y = (path[i - 1].y + path[i].y * (1 - f) + path[i + 1].y) / (3 - f);
+            let z = (path[i - 1].z + path[i].z * (1 - f) + path[i + 1].z) / (3 - f);
+            clone[i].copyFromFloats(x, y, z);
+        }
+
+        for (let i = 0; i < l; i++) {
+            path[i].copyFrom(clone[i]);
+        }
+
+        return path;
+    }
+
     export function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[] {
         let interpolatedPoints: BABYLON.Vector3[] = [];
         for (let i: number = 0; i < path.length; i++) {
