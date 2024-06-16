@@ -74,6 +74,8 @@ declare namespace Mummu {
     }
     function SphereTriangleCheck(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): boolean;
     function SphereRayCheck(cSphere: BABYLON.Vector3, rSphere: number, ray: BABYLON.Ray): boolean;
+    function PointAABBCheck(p: BABYLON.Vector3, boxMin: BABYLON.Vector3, boxMax: BABYLON.Vector3): boolean;
+    function PointAABBCheck(p: BABYLON.Vector3, x2Min: number, x2Max: number, y1Min: number, y2Max: number, z2Min: number, z2Max: number): boolean;
     function SphereAABBCheck(cSphere: BABYLON.Vector3, rSphere: number, boxMin: BABYLON.Vector3, boxMax: BABYLON.Vector3): boolean;
     function SphereAABBCheck(cSphere: BABYLON.Vector3, rSphere: number, x2Min: number, x2Max: number, y2Min: number, y2Max: number, z2Min: number, z2Max: number): boolean;
     function AABBAABBCheck(box1Min: BABYLON.Vector3, box1Max: BABYLON.Vector3, box2Min: BABYLON.Vector3, box2Max: BABYLON.Vector3): boolean;

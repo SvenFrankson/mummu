@@ -481,6 +481,37 @@ var Mummu;
         return SphereAABBCheck(cSphere, rSphere, Math.min(ray.origin.x, ray.origin.x + ray.direction.x), Math.max(ray.origin.x, ray.origin.x + ray.direction.x), Math.min(ray.origin.y, ray.origin.y + ray.direction.y), Math.max(ray.origin.y, ray.origin.y + ray.direction.y), Math.min(ray.origin.z, ray.origin.z + ray.direction.z), Math.max(ray.origin.z, ray.origin.z + ray.direction.z));
     }
     Mummu.SphereRayCheck = SphereRayCheck;
+    function PointAABBCheck(p, arg1, arg2, y1Min, y1Max, z1Min, z1Max) {
+        let x1Min;
+        let x1Max;
+        if (arg1 instanceof BABYLON.Vector3) {
+            x1Min = arg1.x;
+            x1Max = arg2.x;
+            y1Min = arg1.y;
+            y1Max = arg2.y;
+            z1Min = arg1.z;
+            z1Max = arg2.z;
+        }
+        else {
+            x1Min = arg1;
+            x1Max = arg2;
+        }
+        if (p.x >= x1Min) {
+            if (p.x <= x1Max) {
+                if (p.y >= y1Min) {
+                    if (p.y <= y1Max) {
+                        if (p.z >= z1Min) {
+                            if (p.z <= z1Max) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    Mummu.PointAABBCheck = PointAABBCheck;
     function SphereAABBCheck(cSphere, rSphere, arg1, arg2, y2Min, y2Max, z2Min, z2Max) {
         let x2Min;
         let x2Max;
@@ -667,11 +698,11 @@ var Mummu;
         let intersection = new Intersection();
         let proj = SphereWireIntersectionTmpWireProj_0;
         Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange);
-        let dist = BABYLON.Vector3.Distance(cSphere, proj.point);
-        let depth = (rSphere + rWire) - dist;
-        if (depth > 0) {
+        let sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj.point);
+        let sqrDepth = (rSphere + rWire) * (rSphere + rWire) - sqrDist;
+        if (sqrDepth > 0) {
             intersection.hit = true;
-            intersection.depth = depth;
+            intersection.depth = (rSphere + rWire) - Math.sqrt(sqrDist);
             let dir = cSphere.subtract(proj.point).normalize();
             intersection.point = dir.scale(rWire);
             intersection.point.addInPlace(proj.point);
