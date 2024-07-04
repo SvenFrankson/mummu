@@ -1665,12 +1665,19 @@ var Mummu;
         }
         let center = BABYLON.Vector3.Zero();
         let path = [...props.path];
+        let ups;
+        if (props.pathUps) {
+            ups = [...props.pathUps];
+        }
         let n = path.length;
         let directions = [];
         let perimeter = 2 * Math.PI * props.radius;
         if (props.closed) {
             if (BABYLON.Vector3.DistanceSquared(path[0], path[n - 1]) > 0) {
                 path.push(path[0].clone());
+                if (ups) {
+                    ups.push(ups[0].clone());
+                }
             }
         }
         n = path.length;
@@ -1712,7 +1719,13 @@ var Mummu;
                 cumulLength += BABYLON.Vector3.Distance(p, path[i - 1]);
             }
             let dir = directions[i];
-            let rayon = p.subtract(center);
+            let rayon;
+            if (ups) {
+                rayon = ups[i].clone();
+            }
+            else {
+                rayon = p.subtract(center);
+            }
             let xDir = BABYLON.Vector3.Cross(dir, rayon);
             rayon = BABYLON.Vector3.Cross(xDir, dir).normalize().scaleInPlace(props.radius);
             let idx0 = positions.length / 3;
@@ -2285,7 +2298,7 @@ var Mummu;
         return path;
     }
     Mummu.CatmullRomClosedPathInPlace = CatmullRomClosedPathInPlace;
-    function DecimatePathInPlace(path, minAngle = 1 / 180 * Math.PI) {
+    function DecimatePathInPlace(path, minAngle = 1 / 180 * Math.PI, collateral) {
         let done = false;
         while (!done) {
             let flatestAngle = Infinity;
@@ -2303,6 +2316,9 @@ var Mummu;
             }
             if (flatestIndex != -1) {
                 path.splice(flatestIndex, 1);
+                if (collateral) {
+                    collateral.splice(flatestIndex, 1);
+                }
             }
             else {
                 done = true;
@@ -2457,6 +2473,10 @@ var Mummu;
             let loadedFile = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene);
             let vertexDatas = [];
             let infos = [];
+            let gltfCase = false;
+            if (loadedFile.meshes && loadedFile.meshes[0] && loadedFile.meshes[0].name === "__root__") {
+                gltfCase = true;
+            }
             let loadedFileMeshes = loadedFile.meshes.sort((m1, m2) => {
                 if (m1.name < m2.name) {
                     return -1;
@@ -2507,6 +2527,9 @@ var Mummu;
                         }
                         vertexData.colors = colors;
                         vertexDatas.push(vertexData);
+                        if (gltfCase) {
+                            Mummu.RotateAngleAxisVertexDataInPlace(vertexData, Math.PI, BABYLON.Axis.Y);
+                        }
                         let vertexDataInfos = new VertexDataInfo();
                         vertexDataInfos.name = loadedMesh.name;
                         vertexDataInfos.position = loadedMesh.position.clone();

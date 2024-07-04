@@ -69,6 +69,10 @@ namespace Mummu {
             let loadedFile = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene);
             let vertexDatas: BABYLON.VertexData[] = [];
             let infos: VertexDataInfo[] = [];
+            let gltfCase = false;
+            if (loadedFile.meshes && loadedFile.meshes[0] && loadedFile.meshes[0].name === "__root__") {
+                gltfCase = true;
+            }
             let loadedFileMeshes = loadedFile.meshes.sort(
                 (m1, m2) => {
                     if (m1.name < m2.name) {
@@ -122,6 +126,10 @@ namespace Mummu {
                         vertexData.colors = colors;
                         vertexDatas.push(vertexData);
                         
+                        if (gltfCase) {
+                            RotateAngleAxisVertexDataInPlace(vertexData, Math.PI, BABYLON.Axis.Y);
+                        }
+
                         let vertexDataInfos = new VertexDataInfo();
                         vertexDataInfos.name = loadedMesh.name;
                         vertexDataInfos.position = loadedMesh.position.clone();
