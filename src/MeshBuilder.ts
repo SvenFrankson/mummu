@@ -1054,6 +1054,7 @@ namespace Mummu {
 
     export interface IWireProps {
         path: BABYLON.Vector3[],
+        pathUps?: BABYLON.Vector3[],
         color?: BABYLON.Color4,
         radius: number,
         tesselation?: number,
@@ -1078,6 +1079,10 @@ namespace Mummu {
 
         let center = BABYLON.Vector3.Zero();
         let path = [...props.path];
+        let ups: BABYLON.Vector3[];
+        if (props.pathUps) {
+            ups = [...props.pathUps];
+        }
         let n = path.length;
         let directions = [];
         let perimeter = 2 * Math.PI * props.radius;
@@ -1085,6 +1090,9 @@ namespace Mummu {
         if (props.closed) {
             if (BABYLON.Vector3.DistanceSquared(path[0], path[n - 1]) > 0) {
                 path.push(path[0].clone());
+                if (ups) {
+                    ups.push(ups[0].clone());
+                }
             }
         }
         
@@ -1132,7 +1140,13 @@ namespace Mummu {
                 cumulLength += BABYLON.Vector3.Distance(p, path[i - 1]);
             }
             let dir = directions[i];
-            let rayon = p.subtract(center);
+            let rayon: BABYLON.Vector3;
+            if (ups) {
+                rayon = ups[i].clone();
+            }
+            else {
+                rayon = p.subtract(center);
+            }
             let xDir = BABYLON.Vector3.Cross(dir, rayon);
             rayon = BABYLON.Vector3.Cross(xDir, dir).normalize().scaleInPlace(props.radius);
 
