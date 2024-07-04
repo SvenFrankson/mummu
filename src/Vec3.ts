@@ -331,7 +331,7 @@ namespace Mummu {
         return path;
     }
 
-    export function DecimatePathInPlace(path: BABYLON.Vector3[], minAngle: number = 1 / 180 * Math.PI): BABYLON.Vector3[] {
+    export function DecimatePathInPlace(path: BABYLON.Vector3[], minAngle: number = 1 / 180 * Math.PI, collateral?: BABYLON.Vector3[]): BABYLON.Vector3[] {
         let done = false;
         while (!done) {
             let flatestAngle = Infinity;
@@ -349,6 +349,9 @@ namespace Mummu {
             }
             if (flatestIndex != -1) {
                 path.splice(flatestIndex, 1);
+                if (collateral) {
+                    collateral.splice(flatestIndex, 1);
+                }
             }
             else {
                 done = true;
