@@ -1055,6 +1055,7 @@ namespace Mummu {
     export interface IWireProps {
         path: BABYLON.Vector3[],
         pathUps?: BABYLON.Vector3[],
+        bissectFirstRayon?: boolean,
         color?: BABYLON.Color4,
         radius: number,
         tesselation?: number,
@@ -1149,6 +1150,9 @@ namespace Mummu {
             }
             let xDir = BABYLON.Vector3.Cross(dir, rayon);
             rayon = BABYLON.Vector3.Cross(xDir, dir).normalize().scaleInPlace(props.radius);
+            if (props.bissectFirstRayon) {
+                Mummu.RotateInPlace(rayon, dir, - angle * 0.5);
+            }
 
             let idx0 = positions.length / 3;
             positions.push(rayon.x + p.x, rayon.y + p.y, rayon.z + p.z);

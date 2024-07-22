@@ -373,6 +373,43 @@ namespace Mummu {
         return intersection;
     }
 
+    var SphereInTubeIntersectionTmpWireProj_0 = { point: BABYLON.Vector3.Zero(), index: - 1 };
+    export function SphereInTubeIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rTube: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection {
+        let intersection = new Intersection();
+
+        let proj = SphereInTubeIntersectionTmpWireProj_0;
+        Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange);
+        let dist = BABYLON.Vector3.Distance(cSphere, proj.point);
+        if (proj.index === 0) {
+            let AB = path[1].subtract(path[0]);
+            let AP = cSphere.subtract(path[0]);
+            if (BABYLON.Vector3.Dot(AB, AP) < 0) {
+                dist = 0;
+            }
+        }
+        else if (proj.index === path.length - 2) {
+            let AB = path[path.length - 1].subtract(path[path.length - 2]);
+            let AP = cSphere.subtract(path[path.length - 1]);
+            if (BABYLON.Vector3.Dot(AB, AP) > 0) {
+                dist = 0;
+            }
+        }
+
+        let depth = (rSphere + dist) - rTube;
+        
+        if (depth > 0 && depth < rSphere) {
+            intersection.hit = true;
+            intersection.depth = depth;
+            let dir = proj.point.subtract(cSphere).normalize();
+            intersection.point = dir.scale(- rTube);
+            intersection.point.addInPlace(proj.point);
+            intersection.normal = dir;
+            intersection.index = proj.index;
+        }
+
+        return intersection;
+    }
+
     var SphereTriangleIntersectionTmpVec3_0 = BABYLON.Vector3.Zero();
     var SphereTriangleIntersectionTmpVec3_1 = BABYLON.Vector3.Zero();
     var SphereTriangleIntersectionTmpVec3_2 = BABYLON.Vector3.Zero();
