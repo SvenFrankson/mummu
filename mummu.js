@@ -1803,6 +1803,308 @@ var Mummu;
         return data;
     }
     Mummu.CreateWireVertexData = CreateWireVertexData;
+    function CreateCubeSphereVertexData(diameter, color, alpha = 1) {
+        let datas = new BABYLON.VertexData();
+        let positions = [];
+        let indices = [];
+        let normals = [];
+        let colors = [];
+        let o = 0.005;
+        let first = -Math.floor(diameter / 2);
+        let last = Math.ceil(diameter / 2);
+        let offset = diameter % 2 === 0 ? 0.5 : 0;
+        let isInRange = (i, j, k) => {
+            if (i >= first && i < last) {
+                if (j >= first && j < last) {
+                    if (k >= first && k < last) {
+                        let r = Math.sqrt((i + offset) * (i + offset) + (j + offset) * (j + offset) + (k + offset) * (k + offset));
+                        if (r <= Math.ceil(diameter / 2)) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+        };
+        for (let i = first; i < last; i++) {
+            for (let j = first; j < last; j++) {
+                for (let k = first; k < last; k++) {
+                    let b = isInRange(i, j, k);
+                    if (b) {
+                        let x0 = i - 0.5 + offset;
+                        let x1 = i + 1 - 0.5 + offset;
+                        let y0 = k - 0.5 + offset;
+                        let y1 = k + 1 - 0.5 + offset;
+                        let z0 = j - 0.5 + offset;
+                        let z1 = j + 1 - 0.5 + offset;
+                        let bIP = isInRange(i + 1, j, k);
+                        if (!bIP) {
+                            let l = positions.length / 3;
+                            positions.push(x1 + o, y0 + o, z0 + o);
+                            positions.push(x1 + o, y1 - o, z0 + o);
+                            positions.push(x1 + o, y1 - o, z1 - o);
+                            positions.push(x1 + o, y0 + o, z1 - o);
+                            indices.push(l, l + 2, l + 1);
+                            indices.push(l, l + 3, l + 2);
+                            normals.push(1, 0, 0);
+                            normals.push(1, 0, 0);
+                            normals.push(1, 0, 0);
+                            normals.push(1, 0, 0);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                        }
+                        let bIM = isInRange(i - 1, j, k);
+                        if (!bIM) {
+                            let l = positions.length / 3;
+                            positions.push(x0 - o, y0 + o, z1 + o);
+                            positions.push(x0 - o, y1 - o, z1 + o);
+                            positions.push(x0 - o, y1 - o, z0 - o);
+                            positions.push(x0 - o, y0 + o, z0 - o);
+                            indices.push(l, l + 2, l + 1);
+                            indices.push(l, l + 3, l + 2);
+                            normals.push(-1, 0, 0);
+                            normals.push(-1, 0, 0);
+                            normals.push(-1, 0, 0);
+                            normals.push(-1, 0, 0);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                        }
+                        let bKP = isInRange(i, j, k + 1);
+                        if (!bKP) {
+                            let l = positions.length / 3;
+                            positions.push(x0 + o, y1 + o, z0 + o);
+                            positions.push(x0 + o, y1 + o, z1 - o);
+                            positions.push(x1 - o, y1 + o, z1 - o);
+                            positions.push(x1 - o, y1 + o, z0 + o);
+                            indices.push(l, l + 2, l + 1);
+                            indices.push(l, l + 3, l + 2);
+                            normals.push(0, 1, 0);
+                            normals.push(0, 1, 0);
+                            normals.push(0, 1, 0);
+                            normals.push(0, 1, 0);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                        }
+                        let bKM = isInRange(i, j, k - 1);
+                        if (!bKM) {
+                            let l = positions.length / 3;
+                            positions.push(x0 + o, y0 - o, z1 - o);
+                            positions.push(x0 + o, y0 - o, z0 + o);
+                            positions.push(x1 - o, y0 - o, z0 + o);
+                            positions.push(x1 - o, y0 - o, z1 - o);
+                            indices.push(l, l + 2, l + 1);
+                            indices.push(l, l + 3, l + 2);
+                            normals.push(0, -1, 0);
+                            normals.push(0, -1, 0);
+                            normals.push(0, -1, 0);
+                            normals.push(0, -1, 0);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                        }
+                        let bJP = isInRange(i, j + 1, k);
+                        if (!bJP) {
+                            let l = positions.length / 3;
+                            positions.push(x1 - o, y0 + o, z1 + o);
+                            positions.push(x1 - o, y1 - o, z1 + o);
+                            positions.push(x0 + o, y1 - o, z1 + o);
+                            positions.push(x0 + o, y0 + o, z1 + o);
+                            indices.push(l, l + 2, l + 1);
+                            indices.push(l, l + 3, l + 2);
+                            normals.push(0, 0, 1);
+                            normals.push(0, 0, 1);
+                            normals.push(0, 0, 1);
+                            normals.push(0, 0, 1);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                        }
+                        let bJM = isInRange(i, j - 1, k);
+                        if (!bJM) {
+                            let l = positions.length / 3;
+                            positions.push(x0 - o, y0 + o, z0 - o);
+                            positions.push(x0 - o, y1 - o, z0 - o);
+                            positions.push(x1 + o, y1 - o, z0 - o);
+                            positions.push(x1 + o, y0 + o, z0 - o);
+                            indices.push(l, l + 2, l + 1);
+                            indices.push(l, l + 3, l + 2);
+                            normals.push(0, 0, -1);
+                            normals.push(0, 0, -1);
+                            normals.push(0, 0, -1);
+                            normals.push(0, 0, -1);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                            colors.push(color.r, color.g, color.b, alpha);
+                        }
+                    }
+                }
+            }
+        }
+        datas.positions = positions;
+        datas.indices = indices;
+        datas.normals = normals;
+        datas.colors = colors;
+        return datas;
+    }
+    Mummu.CreateCubeSphereVertexData = CreateCubeSphereVertexData;
+    function CreateCubeDiscVertexData(diameter, color, alpha = 1) {
+        let datas = new BABYLON.VertexData();
+        let positions = [];
+        let indices = [];
+        let normals = [];
+        let colors = [];
+        let o = 0.005;
+        let first = -Math.floor(diameter / 2);
+        let last = Math.ceil(diameter / 2);
+        let offset = diameter % 2 === 0 ? 0.5 : 0;
+        let isInRange = (i, j) => {
+            if (i >= first && i < last) {
+                if (j >= first && j < last) {
+                    let r = Math.sqrt((i + offset) * (i + offset) + (j + offset) * (j + offset));
+                    if (r <= Math.ceil(diameter / 2)) {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+        };
+        for (let i = first; i < last; i++) {
+            for (let j = first; j < last; j++) {
+                let b = isInRange(i, j);
+                if (b) {
+                    let x0 = i - 0.5 + offset;
+                    let x1 = i + 1 - 0.5 + offset;
+                    let y0 = -0.5;
+                    let y1 = 0.5;
+                    let z0 = j - 0.5 + offset;
+                    let z1 = j + 1 - 0.5 + offset;
+                    let bIP = isInRange(i + 1, j);
+                    if (!bIP) {
+                        let l = positions.length / 3;
+                        positions.push(x1 + o, y0 + o, z0 + o);
+                        positions.push(x1 + o, y1 - o, z0 + o);
+                        positions.push(x1 + o, y1 - o, z1 - o);
+                        positions.push(x1 + o, y0 + o, z1 - o);
+                        indices.push(l, l + 2, l + 1);
+                        indices.push(l, l + 3, l + 2);
+                        normals.push(1, 0, 0);
+                        normals.push(1, 0, 0);
+                        normals.push(1, 0, 0);
+                        normals.push(1, 0, 0);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                    }
+                    let bIM = isInRange(i - 1, j);
+                    if (!bIM) {
+                        let l = positions.length / 3;
+                        positions.push(x0 - o, y0 + o, z1 + o);
+                        positions.push(x0 - o, y1 - o, z1 + o);
+                        positions.push(x0 - o, y1 - o, z0 - o);
+                        positions.push(x0 - o, y0 + o, z0 - o);
+                        indices.push(l, l + 2, l + 1);
+                        indices.push(l, l + 3, l + 2);
+                        normals.push(-1, 0, 0);
+                        normals.push(-1, 0, 0);
+                        normals.push(-1, 0, 0);
+                        normals.push(-1, 0, 0);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                    }
+                    let bKP = false;
+                    if (!bKP) {
+                        let l = positions.length / 3;
+                        positions.push(x0 + o, y1 + o, z0 + o);
+                        positions.push(x0 + o, y1 + o, z1 - o);
+                        positions.push(x1 - o, y1 + o, z1 - o);
+                        positions.push(x1 - o, y1 + o, z0 + o);
+                        indices.push(l, l + 2, l + 1);
+                        indices.push(l, l + 3, l + 2);
+                        normals.push(0, 1, 0);
+                        normals.push(0, 1, 0);
+                        normals.push(0, 1, 0);
+                        normals.push(0, 1, 0);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                    }
+                    let bKM = false;
+                    if (!bKM) {
+                        let l = positions.length / 3;
+                        positions.push(x0 + o, y0 - o, z1 - o);
+                        positions.push(x0 + o, y0 - o, z0 + o);
+                        positions.push(x1 - o, y0 - o, z0 + o);
+                        positions.push(x1 - o, y0 - o, z1 - o);
+                        indices.push(l, l + 2, l + 1);
+                        indices.push(l, l + 3, l + 2);
+                        normals.push(0, -1, 0);
+                        normals.push(0, -1, 0);
+                        normals.push(0, -1, 0);
+                        normals.push(0, -1, 0);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                    }
+                    let bJP = isInRange(i, j + 1);
+                    if (!bJP) {
+                        let l = positions.length / 3;
+                        positions.push(x1 - o, y0 + o, z1 + o);
+                        positions.push(x1 - o, y1 - o, z1 + o);
+                        positions.push(x0 + o, y1 - o, z1 + o);
+                        positions.push(x0 + o, y0 + o, z1 + o);
+                        indices.push(l, l + 2, l + 1);
+                        indices.push(l, l + 3, l + 2);
+                        normals.push(0, 0, 1);
+                        normals.push(0, 0, 1);
+                        normals.push(0, 0, 1);
+                        normals.push(0, 0, 1);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                    }
+                    let bJM = isInRange(i, j - 1);
+                    if (!bJM) {
+                        let l = positions.length / 3;
+                        positions.push(x0 - o, y0 + o, z0 - o);
+                        positions.push(x0 - o, y1 - o, z0 - o);
+                        positions.push(x1 + o, y1 - o, z0 - o);
+                        positions.push(x1 + o, y0 + o, z0 - o);
+                        indices.push(l, l + 2, l + 1);
+                        indices.push(l, l + 3, l + 2);
+                        normals.push(0, 0, -1);
+                        normals.push(0, 0, -1);
+                        normals.push(0, 0, -1);
+                        normals.push(0, 0, -1);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                        colors.push(color.r, color.g, color.b, alpha);
+                    }
+                }
+            }
+        }
+        datas.positions = positions;
+        datas.indices = indices;
+        datas.normals = normals;
+        datas.colors = colors;
+        return datas;
+    }
+    Mummu.CreateCubeDiscVertexData = CreateCubeDiscVertexData;
 })(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;

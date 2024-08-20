@@ -233,6 +233,8 @@ declare namespace Mummu {
         textureRatio?: number;
     }
     function CreateWireVertexData(props: IWireProps): BABYLON.VertexData;
+    function CreateCubeSphereVertexData(diameter: number, color: BABYLON.Color3, alpha?: number): BABYLON.VertexData;
+    function CreateCubeDiscVertexData(diameter: number, color: BABYLON.Color3, alpha?: number): BABYLON.VertexData;
 }
 declare namespace Mummu {
     function QuaternionFromXYAxis(x: BABYLON.Vector3, y: BABYLON.Vector3): BABYLON.Quaternion;
