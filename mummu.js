@@ -27,7 +27,7 @@ var Mummu;
             };
         }
         static CreateNumber(owner, obj, property, onUpdateCallback, isAngle, easing) {
-            return (target, duration) => {
+            return (target, duration, overrideEasing) => {
                 return new Promise(resolve => {
                     let origin = obj[property];
                     let t0 = performance.now();
@@ -41,7 +41,10 @@ var Mummu;
                                 obj[property] = Nabu.LerpAngle(origin, target, f);
                             }
                             else {
-                                if (easing) {
+                                if (overrideEasing) {
+                                    f = overrideEasing(f);
+                                }
+                                else if (easing) {
                                     f = easing(f);
                                 }
                                 obj[property] = origin * (1 - f) + target * f;
@@ -1965,28 +1968,41 @@ var Mummu;
         let o = 0.005;
         let first = -Math.floor(diameter / 2);
         let last = Math.ceil(diameter / 2);
-        let offset = diameter % 2 === 0 ? 0.5 : 0;
+        let offset = diameter % 2 === 0 ? 0 : 0.5;
         let isInRange = (i, j) => {
             if (i >= first && i < last) {
                 if (j >= first && j < last) {
-                    let r = Math.sqrt((i + offset) * (i + offset) + (j + offset) * (j + offset));
-                    if (r <= Math.ceil(diameter / 2)) {
+                    let r = Math.sqrt(i * i + j * j);
+                    if (r < Math.floor(diameter / 2) + 0.3) {
                         return true;
                     }
                     return false;
                 }
             }
         };
+        if (diameter % 2 === 0) {
+            isInRange = (i, j) => {
+                if (i >= first && i < last) {
+                    if (j >= first && j < last) {
+                        let r = Math.sqrt((i + 0.5) * (i + 0.5) + (j + 0.5) * (j + 0.5));
+                        if (r < Math.floor(diameter / 2) + 0.3) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            };
+        }
         for (let i = first; i < last; i++) {
             for (let j = first; j < last; j++) {
                 let b = isInRange(i, j);
                 if (b) {
-                    let x0 = i - 0.5 + offset;
-                    let x1 = i + 1 - 0.5 + offset;
+                    let x0 = i - offset;
+                    let x1 = i + 1 - offset;
                     let y0 = -0.5;
                     let y1 = 0.5;
-                    let z0 = j - 0.5 + offset;
-                    let z1 = j + 1 - 0.5 + offset;
+                    let z0 = j - offset;
+                    let z1 = j + 1 - offset;
                     let bIP = isInRange(i + 1, j);
                     if (!bIP) {
                         let l = positions.length / 3;

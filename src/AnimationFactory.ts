@@ -9,7 +9,7 @@ namespace Mummu {
     export class AnimationFactory {
     
         public static EmptyVoidCallback: (duration: number) => Promise<void> = async (duration: number) => {};
-        public static EmptyNumberCallback: (target: number, duration: number) => Promise<void> = async (target: number, duration: number) => {};
+        public static EmptyNumberCallback: (target: number, duration: number, overrideEasing?: (v: number) => number) => Promise<void> = async (target: number, duration: number) => {};
         public static EmptyNumbersCallback: (targets: number[], duration: number) => Promise<void> = async (targets: number[], duration: number) => {};
         public static EmptyVector3Callback: (target: BABYLON.Vector3, duration: number) => Promise<void> = async (target: BABYLON.Vector3, duration: number) => {};
     
@@ -49,7 +49,7 @@ namespace Mummu {
             isAngle?: boolean,
             easing?: (v: number) => number
         ): (target: number, duration: number) => Promise<void> {
-            return (target: number, duration: number) => {
+            return (target: number, duration: number, overrideEasing?: (v: number) => number) => {
                 return new Promise<void>(resolve => {
                     let origin: number = obj[property];
                     let t0 = performance.now();
@@ -63,7 +63,10 @@ namespace Mummu {
                                 obj[property] = Nabu.LerpAngle(origin, target, f);
                             }
                             else {
-                                if (easing) {
+                                if (overrideEasing) {
+                                    f = overrideEasing(f);
+                                }
+                                else if (easing) {
                                     f = easing(f);
                                 }
                                 obj[property] = origin * (1 - f) + target * f;
