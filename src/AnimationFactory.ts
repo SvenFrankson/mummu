@@ -48,7 +48,7 @@ namespace Mummu {
             onUpdateCallback?: () => void,
             isAngle?: boolean,
             easing?: (v: number) => number
-        ): (target: number, duration: number) => Promise<void> {
+        ): (target: number, duration: number, overrideEasing?: (v: number) => number) => Promise<void> {
             return (target: number, duration: number, overrideEasing?: (v: number) => number) => {
                 return new Promise<void>(resolve => {
                     let origin: number = obj[property];
