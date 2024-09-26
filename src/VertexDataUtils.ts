@@ -146,12 +146,23 @@ namespace Mummu {
         return data;
     }
 
-    export function ColorizeVertexDataInPlace(data: BABYLON.VertexData, c: BABYLON.Color3): BABYLON.VertexData {
+    export function ColorizeVertexDataInPlace(data: BABYLON.VertexData, color: BABYLON.Color3, colorToReplace?: BABYLON.Color3): BABYLON.VertexData {
         let colors = [];
+        if (colorToReplace && data.colors) {
+            colors = [...data.colors];
+        }
         for (let i = 0; i < data.positions.length / 3; i++) {
-            colors[4 * i] = c.r;
-            colors[4 * i + 1] = c.g;
-            colors[4 * i + 2] = c.b;
+            if (colorToReplace) {
+                let r = data.colors[4 * i];
+                let g = data.colors[4 * i + 1];
+                let b = data.colors[4 * i + 2];
+                if (r != colorToReplace.r || g != colorToReplace.g || b != colorToReplace.b) {
+                    continue;
+                }
+            }
+            colors[4 * i] = color.r;
+            colors[4 * i + 1] = color.g;
+            colors[4 * i + 2] = color.b;
             colors[4 * i + 3] = 1;
         }
         data.colors = colors;
