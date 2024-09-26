@@ -1057,7 +1057,8 @@ namespace Mummu {
         pathUps?: BABYLON.Vector3[],
         bissectFirstRayon?: boolean,
         color?: BABYLON.Color4,
-        radius: number,
+        radius?: number,
+        radiusFunc?: (f: number) => number,
         tesselation?: number,
         closed?: boolean,
         textureRatio?: number
@@ -1149,7 +1150,11 @@ namespace Mummu {
                 rayon = p.subtract(center);
             }
             let xDir = BABYLON.Vector3.Cross(dir, rayon);
-            rayon = BABYLON.Vector3.Cross(xDir, dir).normalize().scaleInPlace(props.radius);
+            let r = props.radius;
+            if (props.radiusFunc) {
+                r = props.radiusFunc(i / (n - 1));
+            }
+            rayon = BABYLON.Vector3.Cross(xDir, dir).normalize().scaleInPlace(r);
             if (props.bissectFirstRayon) {
                 Mummu.RotateInPlace(rayon, dir, - angle * 0.5);
             }
