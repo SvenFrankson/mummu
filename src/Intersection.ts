@@ -498,7 +498,7 @@ namespace Mummu {
     var SphereMeshIntersectionTmpQuat_0 = BABYLON.Quaternion.Identity();
     var SphereMeshIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
 
-    export function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.Mesh): IIntersection {
+    export function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.AbstractMesh): IIntersection {
         let intersection: IIntersection = new Intersection();
 
         let bbox = mesh.getBoundingInfo();

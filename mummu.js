@@ -1763,7 +1763,11 @@ var Mummu;
                 rayon = p.subtract(center);
             }
             let xDir = BABYLON.Vector3.Cross(dir, rayon);
-            rayon = BABYLON.Vector3.Cross(xDir, dir).normalize().scaleInPlace(props.radius);
+            let r = props.radius;
+            if (props.radiusFunc) {
+                r = props.radiusFunc(i / (n - 1));
+            }
+            rayon = BABYLON.Vector3.Cross(xDir, dir).normalize().scaleInPlace(r);
             if (props.bissectFirstRayon) {
                 Mummu.RotateInPlace(rayon, dir, -angle * 0.5);
             }
@@ -3145,12 +3149,23 @@ var Mummu;
         return data;
     }
     Mummu.TriFlipVertexDataInPlace = TriFlipVertexDataInPlace;
-    function ColorizeVertexDataInPlace(data, c) {
+    function ColorizeVertexDataInPlace(data, color, colorToReplace) {
         let colors = [];
+        if (colorToReplace && data.colors) {
+            colors = [...data.colors];
+        }
         for (let i = 0; i < data.positions.length / 3; i++) {
-            colors[4 * i] = c.r;
-            colors[4 * i + 1] = c.g;
-            colors[4 * i + 2] = c.b;
+            if (colorToReplace) {
+                let r = data.colors[4 * i];
+                let g = data.colors[4 * i + 1];
+                let b = data.colors[4 * i + 2];
+                if (r != colorToReplace.r || g != colorToReplace.g || b != colorToReplace.b) {
+                    continue;
+                }
+            }
+            colors[4 * i] = color.r;
+            colors[4 * i + 1] = color.g;
+            colors[4 * i + 2] = color.b;
             colors[4 * i + 3] = 1;
         }
         data.colors = colors;

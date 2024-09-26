@@ -10,7 +10,7 @@ declare namespace Mummu {
         static EmptyNumbersCallback: (targets: number[], duration: number) => Promise<void>;
         static EmptyVector3Callback: (target: BABYLON.Vector3, duration: number) => Promise<void>;
         static CreateWait(owner: ISceneObject, onUpdateCallback?: () => void): (duration: number) => Promise<void>;
-        static CreateNumber(owner: ISceneObject, obj: any, property: string, onUpdateCallback?: () => void, isAngle?: boolean, easing?: (v: number) => number): (target: number, duration: number) => Promise<void>;
+        static CreateNumber(owner: ISceneObject, obj: any, property: string, onUpdateCallback?: () => void, isAngle?: boolean, easing?: (v: number) => number): (target: number, duration: number, overrideEasing?: (v: number) => number) => Promise<void>;
         static CreateNumbers(owner: ISceneObject, obj: any, properties: string[], onUpdateCallback?: () => void, isAngle?: boolean[], easing?: (v: number) => number): (targets: number[], duration: number) => Promise<void>;
         static CreateVector3(owner: ISceneObject, obj: any, property: string, onUpdateCallback?: () => void, easing?: (v: number) => number): (target: BABYLON.Vector3, duration: number) => Promise<void>;
     }
@@ -94,7 +94,7 @@ declare namespace Mummu {
     function SphereInTubeIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rTube: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection;
     function SphereTriangleIntersection(sphere: ISphere, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
     function SphereTriangleIntersection(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
-    function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.Mesh): IIntersection;
+    function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.AbstractMesh): IIntersection;
 }
 declare namespace Mummu {
     interface IQuadProps {
@@ -227,7 +227,8 @@ declare namespace Mummu {
         pathUps?: BABYLON.Vector3[];
         bissectFirstRayon?: boolean;
         color?: BABYLON.Color4;
-        radius: number;
+        radius?: number;
+        radiusFunc?: (f: number) => number;
         tesselation?: number;
         closed?: boolean;
         textureRatio?: number;
@@ -333,5 +334,5 @@ declare namespace Mummu {
     function ScaleVertexDataInPlace(data: BABYLON.VertexData, s: number): BABYLON.VertexData;
     function ShrinkVertexDataInPlace(data: BABYLON.VertexData, d: number): BABYLON.VertexData;
     function TriFlipVertexDataInPlace(data: BABYLON.VertexData): BABYLON.VertexData;
-    function ColorizeVertexDataInPlace(data: BABYLON.VertexData, c: BABYLON.Color3): BABYLON.VertexData;
+    function ColorizeVertexDataInPlace(data: BABYLON.VertexData, color: BABYLON.Color3, colorToReplace?: BABYLON.Color3): BABYLON.VertexData;
 }
