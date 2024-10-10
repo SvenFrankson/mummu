@@ -119,6 +119,10 @@ declare namespace Mummu {
         sideOrientation?: number;
         uv1InWorldSpace?: boolean;
         uv1Size?: number;
+        cutTop?: boolean;
+        cutRight?: boolean;
+        cutBottom?: boolean;
+        cutLeft?: boolean;
     }
     function Create9SliceVertexData(props: I9SliceProps): BABYLON.VertexData;
     function Create9Slice(name: string, props: I9SliceProps, scene?: BABYLON.Scene): BABYLON.Mesh;

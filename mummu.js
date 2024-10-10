@@ -987,8 +987,12 @@ var Mummu;
             0, 0, -1
         ];
         let indices = [];
-        for (let j = 0; j < 3; j++) {
-            for (let i = 0; i < 3; i++) {
+        let i0 = props.cutLeft ? 1 : 0;
+        let j0 = props.cutBottom ? 1 : 0;
+        let im = props.cutRight ? 2 : 3;
+        let jm = props.cutTop ? 2 : 3;
+        for (let j = j0; j < jm; j++) {
+            for (let i = i0; i < im; i++) {
                 let n = i + j * 4;
                 indices.push(n, n + 1, n + 1 + 4);
                 indices.push(n, n + 1 + 4, n + 4);
