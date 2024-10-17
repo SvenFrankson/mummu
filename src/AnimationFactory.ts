@@ -9,9 +9,9 @@ namespace Mummu {
     export class AnimationFactory {
     
         public static EmptyVoidCallback: (duration: number) => Promise<void> = async (duration: number) => {};
-        public static EmptyNumberCallback: (target: number, duration: number, overrideEasing?: (v: number) => number) => Promise<void> = async (target: number, duration: number) => {};
+        public static EmptyNumberCallback: (target: number, duration: number, overrideEasing?: (v: number) => number) => Promise<void> = async (target: number, duration: number, overrideEasing?: (v: number) => number) => {};
         public static EmptyNumbersCallback: (targets: number[], duration: number) => Promise<void> = async (targets: number[], duration: number) => {};
-        public static EmptyVector3Callback: (target: BABYLON.Vector3, duration: number) => Promise<void> = async (target: BABYLON.Vector3, duration: number) => {};
+        public static EmptyVector3Callback: (target: BABYLON.Vector3, duration: number, overrideEasing?: (v: number) => number) => Promise<void> = async (target: BABYLON.Vector3, duration: number, overrideEasing?: (v: number) => number) => {};
     
         public static CreateWait(
             owner: ISceneObject,
@@ -152,8 +152,8 @@ namespace Mummu {
             property: string,
             onUpdateCallback?: () => void,
             easing?: (v: number) => number
-        ): (target: BABYLON.Vector3, duration: number) => Promise<void> {
-            return (target: BABYLON.Vector3, duration: number) => {
+        ): (target: BABYLON.Vector3, duration: number, overrideEasing?: (v: number) => number) => Promise<void> {
+            return (target: BABYLON.Vector3, duration: number, overrideEasing?: (v: number) => number) => {
                 return new Promise<void>(resolve => {
                     let origin: BABYLON.Vector3 = obj[property].clone();
                     let tmpVector3 = BABYLON.Vector3.Zero();
@@ -164,7 +164,10 @@ namespace Mummu {
                     let animationCB = () => {
                         let f = (performance.now() - t0) / 1000 / duration;
                         if (f < 1) {
-                            if (easing) {
+                            if (overrideEasing) {
+                                f = overrideEasing(f);
+                            }
+                            else if (easing) {
                                 f = easing(f);
                             }
                             tmpVector3.copyFrom(target).scaleInPlace(f);

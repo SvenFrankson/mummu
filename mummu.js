@@ -116,7 +116,7 @@ var Mummu;
             };
         }
         static CreateVector3(owner, obj, property, onUpdateCallback, easing) {
-            return (target, duration) => {
+            return (target, duration, overrideEasing) => {
                 return new Promise(resolve => {
                     let origin = obj[property].clone();
                     let tmpVector3 = BABYLON.Vector3.Zero();
@@ -127,7 +127,10 @@ var Mummu;
                     let animationCB = () => {
                         let f = (performance.now() - t0) / 1000 / duration;
                         if (f < 1) {
-                            if (easing) {
+                            if (overrideEasing) {
+                                f = overrideEasing(f);
+                            }
+                            else if (easing) {
                                 f = easing(f);
                             }
                             tmpVector3.copyFrom(target).scaleInPlace(f);
@@ -153,9 +156,9 @@ var Mummu;
         }
     }
     AnimationFactory.EmptyVoidCallback = async (duration) => { };
-    AnimationFactory.EmptyNumberCallback = async (target, duration) => { };
+    AnimationFactory.EmptyNumberCallback = async (target, duration, overrideEasing) => { };
     AnimationFactory.EmptyNumbersCallback = async (targets, duration) => { };
-    AnimationFactory.EmptyVector3Callback = async (target, duration) => { };
+    AnimationFactory.EmptyVector3Callback = async (target, duration, overrideEasing) => { };
     Mummu.AnimationFactory = AnimationFactory;
 })(Mummu || (Mummu = {}));
 var Mummu;
