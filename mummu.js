@@ -920,6 +920,7 @@ var Mummu;
             }
             let w = props.p2.subtract(props.p1).length() / s;
             let h = props.p4.subtract(props.p1).length() / s;
+            console.log(w + " " + h);
             uvs = [0, 0, w, 0, w, h, 0, h];
         }
         else {
@@ -2600,6 +2601,23 @@ var Mummu;
         return point;
     }
     Mummu.ForceDistanceFromOriginInPlace = ForceDistanceFromOriginInPlace;
+    function EvaluatePathToRef(f, path, ref) {
+        if (f === 1) {
+            return path[path.length - 1].clone();
+        }
+        let n = Math.floor(f * (path.length - 1));
+        let ff = f * (path.length - 1) - n;
+        TmpVec3[0].copyFrom(path[n]).scaleInPlace(1 - ff);
+        ref.copyFrom(path[n + 1]).scaleInPlace(ff).addInPlace(TmpVec3[0]);
+        return ref;
+    }
+    Mummu.EvaluatePathToRef = EvaluatePathToRef;
+    function EvaluatePath(f, path) {
+        let v = BABYLON.Vector3.Zero();
+        EvaluatePathToRef(f, path, v);
+        return v;
+    }
+    Mummu.EvaluatePath = EvaluatePath;
     function CatmullRomPathInPlace(path, inDir, outDir) {
         if (path.length >= 2) {
             let pFirst = TmpVec3[0];

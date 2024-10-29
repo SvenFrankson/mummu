@@ -294,6 +294,8 @@ declare namespace Mummu {
     function StepToRef(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number, ref: BABYLON.Vector3): BABYLON.Vector3;
     function Step(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number): BABYLON.Vector3;
     function ForceDistanceFromOriginInPlace(point: BABYLON.Vector3, origin: BABYLON.Vector3, distance: number): BABYLON.Vector3;
+    function EvaluatePathToRef(f: number, path: BABYLON.Vector3[], ref: BABYLON.Vector3): BABYLON.Vector3;
+    function EvaluatePath(f: number, path: BABYLON.Vector3[]): BABYLON.Vector3;
     function CatmullRomPathInPlace(path: BABYLON.Vector3[], inDir?: BABYLON.Vector3, outDir?: BABYLON.Vector3): BABYLON.Vector3[];
     function SmoothPathInPlace(path: BABYLON.Vector3[], f: number): BABYLON.Vector3[];
     function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[];

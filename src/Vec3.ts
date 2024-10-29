@@ -262,6 +262,23 @@ namespace Mummu {
         return point;
     }
 
+    export function EvaluatePathToRef(f: number, path: BABYLON.Vector3[], ref: BABYLON.Vector3): BABYLON.Vector3 {
+        if (f === 1) {
+            return path[path.length - 1].clone();
+        }
+        let n = Math.floor(f * (path.length - 1));
+        let ff = f * (path.length - 1) - n;
+        TmpVec3[0].copyFrom(path[n]).scaleInPlace(1 - ff);
+        ref.copyFrom(path[n + 1]).scaleInPlace(ff).addInPlace(TmpVec3[0]);
+        return ref;
+    }
+
+    export function EvaluatePath(f: number, path: BABYLON.Vector3[]): BABYLON.Vector3 {
+        let v = BABYLON.Vector3.Zero();
+        EvaluatePathToRef(f, path, v);
+        return v;
+    }
+
     export function CatmullRomPathInPlace(path: BABYLON.Vector3[], inDir?: BABYLON.Vector3, outDir?: BABYLON.Vector3): BABYLON.Vector3[] {
         if (path.length >= 2) {
 

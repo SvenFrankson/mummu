@@ -69,6 +69,7 @@ namespace Mummu {
             }
             let w = props.p2.subtract(props.p1).length() / s;
             let h = props.p4.subtract(props.p1).length() / s;
+            console.log(w + " " + h);
             uvs = [0, 0, w, 0, w, h, 0, h];
         }
         else {
