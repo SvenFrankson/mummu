@@ -920,7 +920,6 @@ var Mummu;
             }
             let w = props.p2.subtract(props.p1).length() / s;
             let h = props.p4.subtract(props.p1).length() / s;
-            console.log(w + " " + h);
             uvs = [0, 0, w, 0, w, h, 0, h];
         }
         else {
@@ -3161,6 +3160,29 @@ var Mummu;
         return data;
     }
     Mummu.ShrinkVertexDataInPlace = ShrinkVertexDataInPlace;
+    function MirrorXVertexDataInPlace(data) {
+        let positions = [...data.positions];
+        let normals = [...data.normals];
+        let uvs = [...data.uvs];
+        for (let i = 0; i < positions.length / 3; i++) {
+            normals[3 * i] *= -1;
+            positions[3 * i] *= -1;
+            uvs[2 * i] *= -1;
+        }
+        data.positions = positions;
+        data.normals = normals;
+        data.uvs = uvs;
+        let indices = [...data.indices];
+        for (let i = 0; i < indices.length / 3; i++) {
+            let i1 = indices[3 * i];
+            let i2 = indices[3 * i + 1];
+            indices[3 * i] = i2;
+            indices[3 * i + 1] = i1;
+        }
+        data.indices = indices;
+        return data;
+    }
+    Mummu.MirrorXVertexDataInPlace = MirrorXVertexDataInPlace;
     function TriFlipVertexDataInPlace(data) {
         let indices = [...data.indices];
         for (let i = 0; i < indices.length / 3; i++) {
