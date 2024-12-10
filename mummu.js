@@ -154,11 +154,49 @@ var Mummu;
                 });
             };
         }
+        static CreateQuaternion(owner, obj, property, onUpdateCallback, easing) {
+            return (target, duration, overrideEasing) => {
+                return new Promise(resolve => {
+                    let origin = obj[property].clone();
+                    let t0 = performance.now();
+                    if (owner[property + "_animation"]) {
+                        owner.getScene().onBeforeRenderObservable.removeCallback(owner[property + "_animation"]);
+                    }
+                    let animationCB = () => {
+                        let f = (performance.now() - t0) / 1000 / duration;
+                        if (f < 1) {
+                            if (overrideEasing) {
+                                f = overrideEasing(f);
+                            }
+                            else if (easing) {
+                                f = easing(f);
+                            }
+                            BABYLON.Quaternion.SlerpToRef(origin, target, f, obj[property]);
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                        }
+                        else {
+                            obj[property].copyFrom(target);
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                            owner.getScene().onBeforeRenderObservable.removeCallback(animationCB);
+                            owner[property + "_animation"] = undefined;
+                            resolve();
+                        }
+                    };
+                    owner.getScene().onBeforeRenderObservable.add(animationCB);
+                    owner[property + "_animation"] = animationCB;
+                });
+            };
+        }
     }
     AnimationFactory.EmptyVoidCallback = async (duration) => { };
     AnimationFactory.EmptyNumberCallback = async (target, duration, overrideEasing) => { };
     AnimationFactory.EmptyNumbersCallback = async (targets, duration) => { };
     AnimationFactory.EmptyVector3Callback = async (target, duration, overrideEasing) => { };
+    AnimationFactory.EmptyQuaternionCallback = async (target, duration, overrideEasing) => { };
     Mummu.AnimationFactory = AnimationFactory;
 })(Mummu || (Mummu = {}));
 var Mummu;
@@ -2812,12 +2850,70 @@ var Mummu;
             this.vertexDatas = vertexDatas;
             this.infos = infos;
         }
+        serialize() {
+            let datas = {
+                vertexDatas: [],
+                infos: []
+            };
+            for (let i = 0; i < this.vertexDatas.length; i++) {
+                let bVData = this.vertexDatas[i];
+                for (let i = 0; i < bVData.positions.length; i++) {
+                    bVData.positions[i] = Math.floor(bVData.positions[i] * 1000) / 1000;
+                }
+                for (let i = 0; i < bVData.normals.length; i++) {
+                    bVData.normals[i] = Math.floor(bVData.normals[i] * 1000) / 1000;
+                }
+                datas.vertexDatas[i] = bVData.serialize();
+            }
+            for (let i = 0; i < this.infos.length; i++) {
+                datas.infos[i] = {
+                    name: this.infos[i].name,
+                    position: this.infos[i].position.asArray(),
+                };
+            }
+            return datas;
+        }
+        static CreateFromData(data) {
+            let vertexDatas = [];
+            let infos = [];
+            for (let i = 0; i < data.vertexDatas.length; i++) {
+                let vertexData = new BABYLON.VertexData();
+                vertexData.positions = data.vertexDatas[i].positions;
+                vertexData.indices = new Uint16Array(data.vertexDatas[i].indices);
+                vertexData.normals = data.vertexDatas[i].normals;
+                vertexData.uvs = data.vertexDatas[i].uvs;
+                vertexData.colors = data.vertexDatas[i].colors;
+                vertexDatas[i] = vertexData;
+            }
+            for (let i = 0; i < data.infos.length; i++) {
+                let info = new VertexDataInfo();
+                info.name = data.infos[i].name;
+                info.position = BABYLON.Vector3.FromArray(data.infos[i].position);
+                infos[i] = info;
+            }
+            return new VertexDataWithInfo(vertexDatas, infos);
+        }
     }
     class VertexDataLoader {
         constructor(scene) {
             this.scene = scene;
-            this._vertexDatas = new Map();
+            this.vertexDatas = new Map();
             VertexDataLoader.instance = this;
+        }
+        serialize() {
+            let datas = [];
+            this.vertexDatas.forEach((vData, name) => {
+                datas.push({
+                    key: name,
+                    value: vData.serialize()
+                });
+            });
+            return datas;
+        }
+        deserialize(data) {
+            for (let i = 0; i < data.length; i++) {
+                this.vertexDatas.set(data[i].key, VertexDataWithInfo.CreateFromData(data[i].value));
+            }
         }
         static clone(data) {
             let clonedData = new BABYLON.VertexData();
@@ -2839,17 +2935,17 @@ var Mummu;
             return clonedData;
         }
         async getInfos(url, scene) {
-            if (!this._vertexDatas.get(url)) {
+            if (!this.vertexDatas.get(url)) {
                 await this.get(url, scene);
             }
-            if (this._vertexDatas.has(url)) {
-                return this._vertexDatas.get(url).infos;
+            if (this.vertexDatas.has(url)) {
+                return this.vertexDatas.get(url).infos;
             }
             return [];
         }
         async get(url, scene) {
-            if (this._vertexDatas.get(url)) {
-                return this._vertexDatas.get(url).vertexDatas;
+            if (this.vertexDatas.get(url)) {
+                return this.vertexDatas.get(url).vertexDatas;
             }
             let vertexData = undefined;
             let loadedFile = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene);
@@ -2919,7 +3015,7 @@ var Mummu;
                     }
                 }
             }
-            this._vertexDatas.set(url, new VertexDataWithInfo(vertexDatas, infos));
+            this.vertexDatas.set(url, new VertexDataWithInfo(vertexDatas, infos));
             loadedFileMeshes.forEach(m => { m.dispose(); });
             loadedFile.skeletons.forEach(s => { s.dispose(); });
             return vertexDatas;

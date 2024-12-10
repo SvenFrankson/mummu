@@ -16,6 +16,56 @@ namespace Mummu {
         ) {
 
         }
+
+        public serialize(): any {
+            let datas = {
+                vertexDatas: [],
+                infos: []
+            }
+
+            for (let i = 0; i < this.vertexDatas.length; i++) {
+                let bVData: BABYLON.VertexData = this.vertexDatas[i];
+                for (let i = 0; i < bVData.positions.length; i++) {
+                    bVData.positions[i] = Math.floor(bVData.positions[i] * 1000) / 1000;
+                }
+                for (let i = 0; i < bVData.normals.length; i++) {
+                    bVData.normals[i] = Math.floor(bVData.normals[i] * 1000) / 1000;
+                }
+                datas.vertexDatas[i] = bVData.serialize();
+            }
+            for (let i = 0; i < this.infos.length; i++) {
+                datas.infos[i] = {
+                    name: this.infos[i].name,
+                    position: this.infos[i].position.asArray(),
+                }
+            }
+
+            return datas;
+        }
+
+        public static CreateFromData(data: any): VertexDataWithInfo {
+            let vertexDatas = [];
+            let infos = [];
+
+            for (let i = 0; i < data.vertexDatas.length; i++) {
+                let vertexData = new BABYLON.VertexData();
+                vertexData.positions = data.vertexDatas[i].positions;
+                vertexData.indices = new Uint16Array(data.vertexDatas[i].indices);
+                vertexData.normals = data.vertexDatas[i].normals;
+                vertexData.uvs = data.vertexDatas[i].uvs;
+                vertexData.colors = data.vertexDatas[i].colors;
+                vertexDatas[i] = vertexData;
+            }
+
+            for (let i = 0; i < data.infos.length; i++) {
+                let info = new VertexDataInfo();
+                info.name = data.infos[i].name;
+                info.position = BABYLON.Vector3.FromArray(data.infos[i].position);
+                infos[i] = info;
+            }
+
+            return new VertexDataWithInfo(vertexDatas, infos);
+        }
     }
 
     export class VertexDataLoader {
@@ -23,12 +73,29 @@ namespace Mummu {
         public static instance: VertexDataLoader;
     
         public scene: BABYLON.Scene;
-        private _vertexDatas: Map<string, VertexDataWithInfo>;
+        public vertexDatas: Map<string, VertexDataWithInfo>;
     
         constructor(scene: BABYLON.Scene) {
             this.scene = scene;
-            this._vertexDatas = new Map<string, VertexDataWithInfo>();
+            this.vertexDatas = new Map<string, VertexDataWithInfo>();
             VertexDataLoader.instance = this;
+        }
+
+        public serialize(): any {
+            let datas = [];
+            this.vertexDatas.forEach((vData, name) => {
+                datas.push({
+                    key: name,
+                    value: vData.serialize()
+                });
+            })
+            return datas;
+        }
+
+        public deserialize(data: any): void {
+            for (let i = 0; i < data.length; i++) {
+                this.vertexDatas.set(data[i].key, VertexDataWithInfo.CreateFromData(data[i].value));
+            }
         }
     
         public static clone(data: BABYLON.VertexData): BABYLON.VertexData {
@@ -52,18 +119,18 @@ namespace Mummu {
         }
 
         public async getInfos(url: string, scene?: BABYLON.Scene): Promise<VertexDataInfo[]> {
-            if (!this._vertexDatas.get(url)) {
+            if (!this.vertexDatas.get(url)) {
                 await this.get(url, scene);
             }
-            if (this._vertexDatas.has(url)) {
-                return this._vertexDatas.get(url).infos;
+            if (this.vertexDatas.has(url)) {
+                return this.vertexDatas.get(url).infos;
             }
             return [];
         }
     
         public async get(url: string, scene?: BABYLON.Scene): Promise<BABYLON.VertexData[]> {
-            if (this._vertexDatas.get(url)) {
-                return this._vertexDatas.get(url).vertexDatas;
+            if (this.vertexDatas.get(url)) {
+                return this.vertexDatas.get(url).vertexDatas;
             }
             let vertexData: BABYLON.VertexData = undefined;
             let loadedFile = await BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene);
@@ -137,7 +204,7 @@ namespace Mummu {
                     }
                 }
             }
-            this._vertexDatas.set(url, new VertexDataWithInfo(vertexDatas, infos));
+            this.vertexDatas.set(url, new VertexDataWithInfo(vertexDatas, infos));
             loadedFileMeshes.forEach(m => { m.dispose(); });
             loadedFile.skeletons.forEach(s => { s.dispose(); });
             return vertexDatas;

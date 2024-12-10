@@ -9,10 +9,12 @@ declare namespace Mummu {
         static EmptyNumberCallback: (target: number, duration: number, overrideEasing?: (v: number) => number) => Promise<void>;
         static EmptyNumbersCallback: (targets: number[], duration: number) => Promise<void>;
         static EmptyVector3Callback: (target: BABYLON.Vector3, duration: number, overrideEasing?: (v: number) => number) => Promise<void>;
+        static EmptyQuaternionCallback: (target: BABYLON.Quaternion, duration: number, overrideEasing?: (v: number) => number) => Promise<void>;
         static CreateWait(owner: ISceneObject, onUpdateCallback?: () => void): (duration: number) => Promise<void>;
         static CreateNumber(owner: ISceneObject, obj: any, property: string, onUpdateCallback?: () => void, isAngle?: boolean, easing?: (v: number) => number): (target: number, duration: number, overrideEasing?: (v: number) => number) => Promise<void>;
         static CreateNumbers(owner: ISceneObject, obj: any, properties: string[], onUpdateCallback?: () => void, isAngle?: boolean[], easing?: (v: number) => number): (targets: number[], duration: number) => Promise<void>;
         static CreateVector3(owner: ISceneObject, obj: any, property: string, onUpdateCallback?: () => void, easing?: (v: number) => number): (target: BABYLON.Vector3, duration: number, overrideEasing?: (v: number) => number) => Promise<void>;
+        static CreateQuaternion(owner: ISceneObject, obj: any, property: string, onUpdateCallback?: () => void, easing?: (v: number) => number): (target: BABYLON.Quaternion, duration: number, overrideEasing?: (v: number) => number) => Promise<void>;
     }
 }
 declare namespace Mummu {
@@ -312,11 +314,20 @@ declare namespace Mummu {
         name: string;
         position: BABYLON.Vector3;
     }
+    class VertexDataWithInfo {
+        vertexDatas: BABYLON.VertexData[];
+        infos: VertexDataInfo[];
+        constructor(vertexDatas: BABYLON.VertexData[], infos: VertexDataInfo[]);
+        serialize(): any;
+        static CreateFromData(data: any): VertexDataWithInfo;
+    }
     export class VertexDataLoader {
         static instance: VertexDataLoader;
         scene: BABYLON.Scene;
-        private _vertexDatas;
+        vertexDatas: Map<string, VertexDataWithInfo>;
         constructor(scene: BABYLON.Scene);
+        serialize(): any;
+        deserialize(data: any): void;
         static clone(data: BABYLON.VertexData): BABYLON.VertexData;
         getInfos(url: string, scene?: BABYLON.Scene): Promise<VertexDataInfo[]>;
         get(url: string, scene?: BABYLON.Scene): Promise<BABYLON.VertexData[]>;
