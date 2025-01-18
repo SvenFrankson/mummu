@@ -107,12 +107,22 @@ namespace Mummu {
         return proj;
     }
 
-    export function DistancePointRay(point: BABYLON.Vector3, ray: BABYLON.Ray): number {
+    export function DistancePointRay(point: BABYLON.Vector3, origin: BABYLON.Vector3, direction: BABYLON.Vector3): number;
+    export function DistancePointRay(point: BABYLON.Vector3, ray: BABYLON.Ray): number;
+    export function DistancePointRay(point: BABYLON.Vector3, a: BABYLON.Ray | BABYLON.Vector3, direction?: BABYLON.Vector3): number {
+        let origin: BABYLON.Vector3;
+        if (a instanceof BABYLON.Ray) {
+            origin = a.origin;
+            direction = a.direction;
+        }
+        else {
+            origin = a;
+        }
         let PA = TmpVec3[0];
         let dir = TmpVec3[1];
         let cross = TmpVec3[2];
-        PA.copyFrom(ray.origin).subtractInPlace(point);
-        dir.copyFrom(ray.direction).normalize();
+        PA.copyFrom(origin).subtractInPlace(point);
+        dir.copyFrom(direction).normalize();
         BABYLON.Vector3.CrossToRef(PA, dir, cross);
         return cross.length();
     }

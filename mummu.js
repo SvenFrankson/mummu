@@ -1845,6 +1845,80 @@ var Mummu;
                 }
             }
         }
+        if (props.cap === BABYLON.Mesh.CAP_START || props.cap === BABYLON.Mesh.CAP_ALL) {
+            let cx = 0;
+            let cy = 0;
+            let cz = 0;
+            let l = positions.length / 3;
+            for (let i = 0; i <= t; i++) {
+                let idx = 3 * i;
+                let px = positions[idx];
+                let py = positions[idx + 1];
+                let pz = positions[idx + 2];
+                cx += px;
+                cy += py;
+                cz += pz;
+                if (i < t) {
+                    indices.push(l, (i + 1) % t, i);
+                }
+            }
+            cx /= (t + 1);
+            cy /= (t + 1);
+            cz /= (t + 1);
+            positions.push(cx, cy, cz);
+            let dir = path[0].subtract(path[1]).normalize();
+            normals.push(dir.x, dir.y, dir.z);
+            for (let i = 0; i <= t; i++) {
+                let idx = 3 * i;
+                let nx = normals[idx];
+                let ny = normals[idx + 1];
+                let nz = normals[idx + 2];
+                nx += dir.x;
+                ny += dir.y;
+                nz += dir.z;
+                let nL = Math.sqrt(nx * nx + ny * ny + nz * nz);
+                normals[idx] = nx / nL;
+                normals[idx + 1] = ny / nL;
+                normals[idx + 2] = nz / nL;
+            }
+        }
+        if (props.cap === BABYLON.Mesh.CAP_END || props.cap === BABYLON.Mesh.CAP_ALL) {
+            let cx = 0;
+            let cy = 0;
+            let cz = 0;
+            let l = positions.length / 3;
+            for (let i = 0; i <= t; i++) {
+                let idx = 3 * (n - 1) + 3 * i;
+                let px = positions[idx];
+                let py = positions[idx + 1];
+                let pz = positions[idx + 2];
+                cx += px;
+                cy += py;
+                cz += pz;
+                if (i < t) {
+                    indices.push(l, (n - 1) + i, (n - 1) + (i + 1) % t);
+                }
+            }
+            cx /= (t + 1);
+            cy /= (t + 1);
+            cz /= (t + 1);
+            positions.push(cx, cy, cz);
+            let dir = path[n - 1].subtract(path[n - 2]).normalize();
+            normals.push(dir.x, dir.y, dir.z);
+            for (let i = 0; i <= t; i++) {
+                let idx = 3 * (n - 1) + 3 * i;
+                let nx = normals[idx];
+                let ny = normals[idx + 1];
+                let nz = normals[idx + 2];
+                nx += dir.x;
+                ny += dir.y;
+                nz += dir.z;
+                let nL = Math.sqrt(nx * nx + ny * ny + nz * nz);
+                normals[idx] = nx / nL;
+                normals[idx + 1] = ny / nL;
+                normals[idx + 2] = nz / nL;
+            }
+        }
         data.positions = positions;
         data.indices = indices;
         data.normals = normals;
@@ -2492,12 +2566,20 @@ var Mummu;
         return proj;
     }
     Mummu.ProjectPointOnPlane = ProjectPointOnPlane;
-    function DistancePointRay(point, ray) {
+    function DistancePointRay(point, a, direction) {
+        let origin;
+        if (a instanceof BABYLON.Ray) {
+            origin = a.origin;
+            direction = a.direction;
+        }
+        else {
+            origin = a;
+        }
         let PA = TmpVec3[0];
         let dir = TmpVec3[1];
         let cross = TmpVec3[2];
-        PA.copyFrom(ray.origin).subtractInPlace(point);
-        dir.copyFrom(ray.direction).normalize();
+        PA.copyFrom(origin).subtractInPlace(point);
+        dir.copyFrom(direction).normalize();
         BABYLON.Vector3.CrossToRef(PA, dir, cross);
         return cross.length();
     }
