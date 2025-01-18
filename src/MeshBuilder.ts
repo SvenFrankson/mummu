@@ -1069,7 +1069,8 @@ namespace Mummu {
         radiusFunc?: (f: number) => number,
         tesselation?: number,
         closed?: boolean,
-        textureRatio?: number
+        textureRatio?: number,
+        cap?: number
     }
 
     export function CreateWireVertexData(props: IWireProps): BABYLON.VertexData {
@@ -1194,6 +1195,96 @@ namespace Mummu {
                         indices.push(idx0 + j, idx0 + j + 1, idx0 + j + (t + 1) + 1);
                     }
                 }
+            }
+        }
+
+        if (props.cap === BABYLON.Mesh.CAP_START || props.cap === BABYLON.Mesh.CAP_ALL) {
+            let cx = 0;
+            let cy = 0;
+            let cz = 0;
+            let l = positions.length / 3;
+
+            for (let i = 0; i <= t; i++) {
+                let idx = 3 * i;
+                let px = positions[idx];
+                let py = positions[idx + 1];
+                let pz = positions[idx + 2];
+                cx += px;
+                cy += py;
+                cz += pz;
+
+                if (i < t) {
+                    indices.push(l, (i + 1) % t, i);
+                }
+            }
+            cx /= (t + 1);
+            cy /= (t + 1);
+            cz /= (t + 1);
+
+            positions.push(cx, cy, cz);
+
+            let dir = path[0].subtract(path[1]).normalize();
+            normals.push(dir.x, dir.y, dir.z);
+
+            for (let i = 0; i <= t; i++) {
+                let idx = 3 * i;
+                let nx = normals[idx];
+                let ny = normals[idx + 1];
+                let nz = normals[idx + 2];
+                nx += dir.x;
+                ny += dir.y;
+                nz += dir.z;
+
+                let nL = Math.sqrt(nx * nx + ny * ny + nz * nz);
+
+                normals[idx] = nx / nL;
+                normals[idx + 1] = ny / nL;
+                normals[idx + 2] = nz / nL;
+            }
+        }
+
+        if (props.cap === BABYLON.Mesh.CAP_END || props.cap === BABYLON.Mesh.CAP_ALL) {
+            let cx = 0;
+            let cy = 0;
+            let cz = 0;
+            let l = positions.length / 3;
+
+            for (let i = 0; i <= t; i++) {
+                let idx = 3 * (n - 1) + 3 * i;
+                let px = positions[idx];
+                let py = positions[idx + 1];
+                let pz = positions[idx + 2];
+                cx += px;
+                cy += py;
+                cz += pz;
+
+                if (i < t) {
+                    indices.push(l, (n - 1) + i, (n - 1) + (i + 1) % t);
+                }
+            }
+            cx /= (t + 1);
+            cy /= (t + 1);
+            cz /= (t + 1);
+
+            positions.push(cx, cy, cz);
+
+            let dir = path[n - 1].subtract(path[n - 2]).normalize();
+            normals.push(dir.x, dir.y, dir.z);
+
+            for (let i = 0; i <= t; i++) {
+                let idx = 3 * (n - 1) + 3 * i;
+                let nx = normals[idx];
+                let ny = normals[idx + 1];
+                let nz = normals[idx + 2];
+                nx += dir.x;
+                ny += dir.y;
+                nz += dir.z;
+
+                let nL = Math.sqrt(nx * nx + ny * ny + nz * nz);
+
+                normals[idx] = nx / nL;
+                normals[idx + 1] = ny / nL;
+                normals[idx + 2] = nz / nL;
             }
         }
 
