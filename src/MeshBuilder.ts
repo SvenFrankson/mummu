@@ -1250,7 +1250,7 @@ namespace Mummu {
             let l = positions.length / 3;
 
             for (let i = 0; i <= t; i++) {
-                let idx = 3 * (n - 1) + 3 * i;
+                let idx = 3 * (n - 1) * (t + 1) + 3 * i;
                 let px = positions[idx];
                 let py = positions[idx + 1];
                 let pz = positions[idx + 2];
@@ -1259,7 +1259,7 @@ namespace Mummu {
                 cz += pz;
 
                 if (i < t) {
-                    indices.push(l, (n - 1) + i, (n - 1) + (i + 1) % t);
+                    indices.push(l, (n - 1) * (t + 1) + i, (n - 1) * (t + 1) + (i + 1) % t);
                 }
             }
             cx /= (t + 1);
@@ -1272,7 +1272,7 @@ namespace Mummu {
             normals.push(dir.x, dir.y, dir.z);
 
             for (let i = 0; i <= t; i++) {
-                let idx = 3 * (n - 1) + 3 * i;
+                let idx = 3 * (n - 1) * (t + 1) + 3 * i;
                 let nx = normals[idx];
                 let ny = normals[idx + 1];
                 let nz = normals[idx + 2];
