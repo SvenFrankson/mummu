@@ -343,6 +343,25 @@ namespace Mummu {
         return path;
     }
 
+    export function BevelClosedPath(path: BABYLON.Vector3[], bevel: number): BABYLON.Vector3[] {
+        let beveledPath: BABYLON.Vector3[] = [];
+        
+        for (let i: number = 0; i < path.length; i++) {
+            let pPrev = path[(i - 1 + path.length) % path.length];
+            let p = path[i];
+            let pNext = path[(i + 1) % path.length];
+            let dPrev = pPrev.subtract(p).normalize();
+            dPrev.scaleInPlace(bevel);
+            let dNext = pNext.subtract(p).normalize();
+            dNext.scaleInPlace(bevel);
+
+            beveledPath.push(p.add(dPrev));
+            beveledPath.push(p.add(dNext));
+        }
+        
+        return beveledPath;
+    }
+
     export function CatmullRomClosedPathInPlace(path: BABYLON.Vector3[]): BABYLON.Vector3[] {
         let interpolatedPoints: BABYLON.Vector3[] = [];
         for (let i: number = 0; i < path.length; i++) {
