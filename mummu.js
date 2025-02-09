@@ -3377,6 +3377,29 @@ var Mummu;
         return data;
     }
     Mummu.MirrorXVertexDataInPlace = MirrorXVertexDataInPlace;
+    function MirrorZVertexDataInPlace(data) {
+        let positions = [...data.positions];
+        let normals = [...data.normals];
+        let uvs = [...data.uvs];
+        for (let i = 0; i < positions.length / 3; i++) {
+            normals[3 * i + 2] *= -1;
+            positions[3 * i + 2] *= -1;
+            uvs[2 * i] *= -1;
+        }
+        data.positions = positions;
+        data.normals = normals;
+        data.uvs = uvs;
+        let indices = [...data.indices];
+        for (let i = 0; i < indices.length / 3; i++) {
+            let i1 = indices[3 * i];
+            let i2 = indices[3 * i + 1];
+            indices[3 * i] = i2;
+            indices[3 * i + 1] = i1;
+        }
+        data.indices = indices;
+        return data;
+    }
+    Mummu.MirrorZVertexDataInPlace = MirrorZVertexDataInPlace;
     function TriFlipVertexDataInPlace(data) {
         let indices = [...data.indices];
         for (let i = 0; i < indices.length / 3; i++) {
