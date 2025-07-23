@@ -408,6 +408,12 @@ namespace Mummu {
         if (isNaN(props.uvSize)) {
             props.uvSize = 1;
         }
+        if (isNaN(props.alphaMin)) {
+            props.alphaMin = 0;
+        }
+        if (isNaN(props.alphaMax)) {
+            props.alphaMax = 2 * Math.PI;
+        }
 
         let data = new BABYLON.VertexData();
 
@@ -498,11 +504,11 @@ namespace Mummu {
         return mesh;
     }
 
-    export interface IDiscVertexData {
+    export interface IDiscProps {
         center?: BABYLON.Vector3;
         radius?: number;
-        alphaMin: number;
-        alphaMax: number;
+        alphaMin?: number;
+        alphaMax?: number;
         y?: number;
         tesselation?: number;
         colors?: BABYLON.Color4 | BABYLON.Color4[];
@@ -511,7 +517,7 @@ namespace Mummu {
         sideOrientation?: number;
     }
 
-    export function CreateDiscVertexData(props: IDiscVertexData): BABYLON.VertexData {
+    export function CreateDiscVertexData(props: IDiscProps): BABYLON.VertexData {
         if (isNaN(props.tesselation)) {
             props.tesselation = 16;
         }
@@ -526,6 +532,12 @@ namespace Mummu {
         }
         if (isNaN(props.uvSize)) {
             props.uvSize = 1;
+        }
+        if (isNaN(props.alphaMin)) {
+            props.alphaMin = 0;
+        }
+        if (isNaN(props.alphaMax)) {
+            props.alphaMax = 2 * Math.PI;
         }
 
         let data = new BABYLON.VertexData();
@@ -607,10 +619,57 @@ namespace Mummu {
         return data;
     }
 
-    export function CreateDisc(name: string, props: IDiscVertexData, scene?: BABYLON.Scene): BABYLON.Mesh {
+    export function CreateDisc(name: string, props: IDiscProps, scene?: BABYLON.Scene): BABYLON.Mesh {
         let mesh = new BABYLON.Mesh(name, scene);
         CreateDiscVertexData(props).applyToMesh(mesh);
         return mesh;
+    }
+
+    export function CreateDiscLine(name: string, props: IDiscProps, scene?: BABYLON.Scene): BABYLON.Mesh {
+        if (isNaN(props.tesselation)) {
+            props.tesselation = 16;
+        }
+        if (isNaN(props.radius)) {
+            props.radius = 1;
+        }
+        if (isNaN(props.y)) {
+            props.y = 0;
+        }
+        if (isNaN(props.alphaMin)) {
+            props.alphaMin = 0;
+        }
+        if (isNaN(props.alphaMax)) {
+            props.alphaMax = 2 * Math.PI;
+        }
+
+        let points: BABYLON.Vector3[] = [];
+        let colors: BABYLON.Color4[];
+        if (props.colors instanceof BABYLON.Color4) {
+            colors = [];
+        }
+
+        for (let i = 0; i <= props.tesselation; i++) {
+            let f = i / props.tesselation;
+            let a = props.alphaMin * (1 - f) + props.alphaMax * f;
+            let cosa = Math.cos(a);
+            let sina = Math.sin(a);
+            let x = cosa * props.radius;
+            let z = sina * props.radius;
+
+            points.push(new BABYLON.Vector3(x, 0, z));
+            if (props.colors instanceof BABYLON.Color4) {
+                colors.push(props.colors);
+            }
+        }
+
+        return BABYLON.MeshBuilder.CreateLines(
+            name,
+            {
+                points: points,
+                colors: colors
+            },
+            scene
+        )
     }
 
     export interface IBoxProps {

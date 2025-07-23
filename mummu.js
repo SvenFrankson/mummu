@@ -1211,6 +1211,12 @@ var Mummu;
         if (isNaN(props.uvSize)) {
             props.uvSize = 1;
         }
+        if (isNaN(props.alphaMin)) {
+            props.alphaMin = 0;
+        }
+        if (isNaN(props.alphaMax)) {
+            props.alphaMax = 2 * Math.PI;
+        }
         let data = new BABYLON.VertexData();
         let positions = [];
         let normals = [];
@@ -1303,6 +1309,12 @@ var Mummu;
         if (isNaN(props.uvSize)) {
             props.uvSize = 1;
         }
+        if (isNaN(props.alphaMin)) {
+            props.alphaMin = 0;
+        }
+        if (isNaN(props.alphaMax)) {
+            props.alphaMax = 2 * Math.PI;
+        }
         let data = new BABYLON.VertexData();
         let positions = [];
         let normals = [];
@@ -1373,6 +1385,45 @@ var Mummu;
         return mesh;
     }
     Mummu.CreateDisc = CreateDisc;
+    function CreateDiscLine(name, props, scene) {
+        if (isNaN(props.tesselation)) {
+            props.tesselation = 16;
+        }
+        if (isNaN(props.radius)) {
+            props.radius = 1;
+        }
+        if (isNaN(props.y)) {
+            props.y = 0;
+        }
+        if (isNaN(props.alphaMin)) {
+            props.alphaMin = 0;
+        }
+        if (isNaN(props.alphaMax)) {
+            props.alphaMax = 2 * Math.PI;
+        }
+        let points = [];
+        let colors;
+        if (props.colors instanceof BABYLON.Color4) {
+            colors = [];
+        }
+        for (let i = 0; i <= props.tesselation; i++) {
+            let f = i / props.tesselation;
+            let a = props.alphaMin * (1 - f) + props.alphaMax * f;
+            let cosa = Math.cos(a);
+            let sina = Math.sin(a);
+            let x = cosa * props.radius;
+            let z = sina * props.radius;
+            points.push(new BABYLON.Vector3(x, 0, z));
+            if (props.colors instanceof BABYLON.Color4) {
+                colors.push(props.colors);
+            }
+        }
+        return BABYLON.MeshBuilder.CreateLines(name, {
+            points: points,
+            colors: colors
+        }, scene);
+    }
+    Mummu.CreateDiscLine = CreateDiscLine;
     function CreateLineBox(name, props, scene) {
         let w = isFinite(props.width) ? props.width : props.size;
         let h = isFinite(props.height) ? props.height : props.size;
