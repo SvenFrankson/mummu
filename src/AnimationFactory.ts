@@ -12,6 +12,7 @@ namespace Mummu {
         public static EmptyNumberCallback: (target: number, duration: number, overrideEasing?: (v: number) => number) => Promise<void> = async (target: number, duration: number, overrideEasing?: (v: number) => number) => {};
         public static EmptyNumbersCallback: (targets: number[], duration: number) => Promise<void> = async (targets: number[], duration: number) => {};
         public static EmptyVector3Callback: (target: BABYLON.Vector3, duration: number, overrideEasing?: (v: number) => number) => Promise<void> = async (target: BABYLON.Vector3, duration: number, overrideEasing?: (v: number) => number) => {};
+        public static EmptyColor3Callback: (target: BABYLON.Color3, duration: number, overrideEasing?: (v: number) => number) => Promise<void> = async (target: BABYLON.Color3, duration: number, overrideEasing?: (v: number) => number) => {};
         public static EmptyQuaternionCallback: (target: BABYLON.Quaternion, duration: number, overrideEasing?: (v: number) => number) => Promise<void> = async (target: BABYLON.Quaternion, duration: number, overrideEasing?: (v: number) => number) => {};
     
         public static CreateWait(
@@ -173,6 +174,52 @@ namespace Mummu {
                             }
                             tmpVector3.copyFrom(target).scaleInPlace(f);
                             obj[property].copyFrom(origin).scaleInPlace(1 - f).addInPlace(tmpVector3);
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                        }
+                        else {
+                            obj[property].copyFrom(target);
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                            owner.getScene().onBeforeRenderObservable.removeCallback(animationCB);
+                            owner[property + "_animation"] = undefined;
+                            resolve();
+                        }
+                    }
+                    owner.getScene().onBeforeRenderObservable.add(animationCB);
+                    owner[property + "_animation"] = animationCB;
+                })
+            }
+        }
+
+        public static CreateColor3(
+            owner: ISceneObject,
+            obj: any,
+            property: string,
+            onUpdateCallback?: () => void,
+            easing?: (v: number) => number
+        ): (target: BABYLON.Color3, duration: number, overrideEasing?: (v: number) => number) => Promise<void> {
+            return (target: BABYLON.Color3, duration: number, overrideEasing?: (v: number) => number) => {
+                return new Promise<void>(resolve => {
+                    let origin: BABYLON.Color3 = obj[property].clone();
+                    let tmpColor3 = BABYLON.Color3.Black();
+                    let t0 = performance.now();
+                    if (owner[property + "_animation"]) {
+                        owner.getScene().onBeforeRenderObservable.removeCallback(owner[property + "_animation"]);
+                    }
+                    let animationCB = () => {
+                        let f = (performance.now() - t0) / 1000 / duration;
+                        if (f < 1) {
+                            if (overrideEasing) {
+                                f = overrideEasing(f);
+                            }
+                            else if (easing) {
+                                f = easing(f);
+                            }
+                            tmpColor3.copyFrom(target).scaleInPlace(f);
+                            obj[property].copyFrom(origin).scaleInPlace(1 - f).addInPlace(tmpColor3);
                             if (onUpdateCallback) {
                                 onUpdateCallback();
                             }
