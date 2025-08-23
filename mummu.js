@@ -154,6 +154,45 @@ var Mummu;
                 });
             };
         }
+        static CreateColor3(owner, obj, property, onUpdateCallback, easing) {
+            return (target, duration, overrideEasing) => {
+                return new Promise(resolve => {
+                    let origin = obj[property].clone();
+                    let tmpColor3 = BABYLON.Color3.Black();
+                    let t0 = performance.now();
+                    if (owner[property + "_animation"]) {
+                        owner.getScene().onBeforeRenderObservable.removeCallback(owner[property + "_animation"]);
+                    }
+                    let animationCB = () => {
+                        let f = (performance.now() - t0) / 1000 / duration;
+                        if (f < 1) {
+                            if (overrideEasing) {
+                                f = overrideEasing(f);
+                            }
+                            else if (easing) {
+                                f = easing(f);
+                            }
+                            tmpColor3.copyFrom(target).scaleInPlace(f);
+                            obj[property].copyFrom(origin).scaleInPlace(1 - f).addInPlace(tmpColor3);
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                        }
+                        else {
+                            obj[property].copyFrom(target);
+                            if (onUpdateCallback) {
+                                onUpdateCallback();
+                            }
+                            owner.getScene().onBeforeRenderObservable.removeCallback(animationCB);
+                            owner[property + "_animation"] = undefined;
+                            resolve();
+                        }
+                    };
+                    owner.getScene().onBeforeRenderObservable.add(animationCB);
+                    owner[property + "_animation"] = animationCB;
+                });
+            };
+        }
         static CreateQuaternion(owner, obj, property, onUpdateCallback, easing) {
             return (target, duration, overrideEasing) => {
                 return new Promise(resolve => {
@@ -196,6 +235,7 @@ var Mummu;
     AnimationFactory.EmptyNumberCallback = async (target, duration, overrideEasing) => { };
     AnimationFactory.EmptyNumbersCallback = async (targets, duration) => { };
     AnimationFactory.EmptyVector3Callback = async (target, duration, overrideEasing) => { };
+    AnimationFactory.EmptyColor3Callback = async (target, duration, overrideEasing) => { };
     AnimationFactory.EmptyQuaternionCallback = async (target, duration, overrideEasing) => { };
     Mummu.AnimationFactory = AnimationFactory;
 })(Mummu || (Mummu = {}));
@@ -3287,7 +3327,9 @@ var Mummu;
         let clonedData = new BABYLON.VertexData();
         clonedData.positions = [...data.positions];
         clonedData.indices = [...data.indices];
-        clonedData.normals = [...data.normals];
+        if (data.normals) {
+            clonedData.normals = [...data.normals];
+        }
         if (data.uvs) {
             clonedData.uvs = [...data.uvs];
         }
@@ -3460,7 +3502,9 @@ var Mummu;
             indices[3 * i + 1] = i1;
         }
         data.indices = indices;
-        data.normals = data.normals.map((n) => { return -n; });
+        if (data.normals) {
+            data.normals = data.normals.map((n) => { return -n; });
+        }
         return data;
     }
     Mummu.TriFlipVertexDataInPlace = TriFlipVertexDataInPlace;

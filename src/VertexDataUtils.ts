@@ -5,7 +5,9 @@ namespace Mummu {
         
         clonedData.positions = [...data.positions];
         clonedData.indices = [...data.indices];
-        clonedData.normals = [...data.normals];
+        if (data.normals) {
+            clonedData.normals = [...data.normals];
+        }
         if (data.uvs) {
             clonedData.uvs = [...data.uvs];
         }
@@ -191,7 +193,9 @@ namespace Mummu {
             indices[3 * i + 1] = i1;
         }
         data.indices = indices;
-        data.normals = data.normals.map((n: number) => { return - n; });
+        if (data.normals) {
+            data.normals = data.normals.map((n: number) => { return - n; });
+        }
 
         return data;
     }
