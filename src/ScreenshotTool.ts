@@ -11,7 +11,7 @@ namespace Mummu {
         outlineWidth?: number;
     }
 
-    export async function MakeScreenshot(prop?: IMakeScreenshotProp): Promise<void> {
+    export async function MakeScreenshot(prop?: IMakeScreenshotProp): Promise<HTMLCanvasElement> {
         if (!prop) {
             prop = {};
         }
@@ -34,7 +34,7 @@ namespace Mummu {
             prop.outlineWidth = 0;
         }
         let s = prop.size;
-        return new Promise<void>(
+        return new Promise<HTMLCanvasElement>(
             resolve => {
                 requestAnimationFrame(
                     () => {
@@ -130,14 +130,7 @@ namespace Mummu {
                                                                         
                                     context.putImageData(data, 0, 0);
     
-                                    var tmpLink = document.createElement( 'a' );
-                                    tmpLink.download = prop.miniatureName + ".png";
-                                    tmpLink.href = canvas.toDataURL();  
-                                    
-                                    document.body.appendChild( tmpLink );
-                                    tmpLink.click(); 
-                                    document.body.removeChild( tmpLink );
-                                    resolve();
+                                    resolve(canvas);
                                 }
                             }
                         );
