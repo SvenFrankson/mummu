@@ -2497,11 +2497,21 @@ var Mummu;
             prop.outlineWidth = 0;
         }
         let s = prop.size;
+        let w;
+        let h;
+        if (prop.canvas.width / prop.canvas.height >= 1) {
+            w = s * prop.canvas.width / prop.canvas.height;
+            h = s;
+        }
+        else {
+            w = s;
+            h = s * prop.canvas.height / prop.canvas.width;
+        }
         return new Promise(resolve => {
             requestAnimationFrame(() => {
                 BABYLON.ScreenshotTools.CreateScreenshot(prop.engine, prop.camera, {
-                    width: s * prop.canvas.width / prop.canvas.height,
-                    height: s
+                    width: w,
+                    height: h
                 }, (data) => {
                     let img = document.createElement("img");
                     img.src = data;

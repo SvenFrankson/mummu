@@ -34,6 +34,16 @@ namespace Mummu {
             prop.outlineWidth = 0;
         }
         let s = prop.size;
+        let w: number;
+        let h: number;
+        if (prop.canvas.width / prop.canvas.height >= 1) {
+            w = s * prop.canvas.width / prop.canvas.height;
+            h = s;
+        }
+        else {
+            w = s;
+            h = s * prop.canvas.height / prop.canvas.width;
+        }
         return new Promise<HTMLCanvasElement>(
             resolve => {
                 requestAnimationFrame(
@@ -42,8 +52,8 @@ namespace Mummu {
                             prop.engine,
                             prop.camera,
                             {
-                                width: s * prop.canvas.width / prop.canvas.height,
-                                height: s
+                                width: w,
+                                height: h
                             },
                             (data) => {
                                 let img = document.createElement("img");
