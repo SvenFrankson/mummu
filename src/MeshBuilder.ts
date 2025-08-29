@@ -798,6 +798,10 @@ namespace Mummu {
         let w = isFinite(props.width) ? props.width : props.size;
         let h = isFinite(props.height) ? props.height : props.size;
         let d = isFinite(props.depth) ? props.depth : props.size;
+        let b = Math.min(w / 10, h / 10, d / 10);
+        if (isFinite(props.bevel)) {
+            b = props.bevel;
+        }
 
         let data = new BABYLON.VertexData();
         let positions: number[];
@@ -853,20 +857,27 @@ namespace Mummu {
             let y = positions[3 * i + 1];
             let z = positions[3 * i + 2];
 
-            if (x > 0) {
-                x += 0.5 * w - 0.5;
-            } else {
-                x -= 0.5 * w - 0.5;
+            let sX = Math.sign(x);
+            let sY = Math.sign(y);
+            let sZ = Math.sign(z);
+
+            if (Math.abs(x) < 0.4) {
+                x = sX * (w * 0.5 - b);
             }
-            if (y > 0) {
-                y += 0.5 * h - 0.5;
-            } else {
-                y -= 0.5 * h - 0.5;
+            else {
+                x = sX * w * 0.5;
             }
-            if (z > 0) {
-                z += 0.5 * d - 0.5;
-            } else {
-                z -= 0.5 * d - 0.5;
+            if (Math.abs(y) < 0.4) {
+                y = sY * (h * 0.5 - b);
+            }
+            else {
+                y = sY * h * 0.5;
+            }
+            if (Math.abs(z) < 0.4) {
+                z = sZ * (d * 0.5 - b);
+            }
+            else {
+                z = sZ * d * 0.5;
             }
 
             positions[3 * i] = x;
