@@ -187,10 +187,10 @@ namespace Mummu {
     export function TriFlipVertexDataInPlace(data: BABYLON.VertexData): BABYLON.VertexData {
         let indices = [...data.indices];
         for (let i = 0; i < indices.length / 3; i++) {
-            let i1 = indices[3 * i];
-            let i2 = indices[3 * i + 1];
-            indices[3 * i] = i2;
-            indices[3 * i + 1] = i1;
+            let i1 = indices[3 * i + 1];
+            let i2 = indices[3 * i + 2];
+            indices[3 * i + 1] = i2;
+            indices[3 * i + 2] = i1;
         }
         data.indices = indices;
         if (data.normals) {
