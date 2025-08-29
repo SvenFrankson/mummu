@@ -24,6 +24,13 @@ namespace Mummu {
         center: BABYLON.Vector3;
         radius: number;
     }
+    
+    export interface IBox {
+        worldMatrix: BABYLON.Matrix;
+        width: number;
+        height: number;
+        depth: number;
+    }
 
     export interface IIntersection {
         hit: boolean;
@@ -297,6 +304,37 @@ namespace Mummu {
             intersection.normal = nPlane.clone();
         }
 
+        return intersection;
+    }
+
+    var SphereBoxIntersectionTmpVec3_0 = BABYLON.Vector3.Zero();
+    var SphereBoxIntersectionTmpVec3_1 = BABYLON.Vector3.Zero();
+    var SphereBoxIntersectionTmpQuat_0 = BABYLON.Quaternion.Identity();
+    var SphereBoxIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
+    export function SphereBoxIntersection(cSphere: BABYLON.Vector3, rSphere: number, box: IBox): IIntersection {
+        let intersection: IIntersection = new Intersection();
+
+        let scale: BABYLON.Vector3 = SphereBoxIntersectionTmpVec3_0;
+        box.worldMatrix.decompose(scale, SphereBoxIntersectionTmpQuat_0, SphereBoxIntersectionTmpVec3_1);
+
+        let invMatrix = SphereBoxIntersectionTmpMatrix_0;
+        invMatrix.copyFrom(box.worldMatrix).invert();
+        let localCSphere = BABYLON.Vector3.TransformCoordinates(cSphere, invMatrix);
+        let localRadius = rSphere / scale.x;
+        if (SphereAABBCheck(localCSphere, localRadius, - box.width * 0.5, box.width * 0.5, - box.height * 0.5, box.height * 0.5, - box.depth * 0.5, box.depth * 0.5)) {
+            intersection.hit = true;
+
+            intersection.point = new BABYLON.Vector3(
+                Nabu.MinMax(localCSphere.x, - box.width * 0.5, box.width * 0.5),
+                Nabu.MinMax(localCSphere.y, - box.height * 0.5, box.height * 0.5),
+                Nabu.MinMax(localCSphere.z, - box.depth * 0.5, box.depth * 0.5)
+            )
+            
+            intersection.normal = localCSphere.clone().subtractInPlace(intersection.point).normalize();
+
+            BABYLON.Vector3.TransformCoordinatesToRef(intersection.point, box.worldMatrix, intersection.point);
+            BABYLON.Vector3.TransformNormalToRef(intersection.normal, box.worldMatrix, intersection.normal);
+        }
         return intersection;
     }
 

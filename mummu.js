@@ -259,6 +259,9 @@ var Mummu;
         else if (collider instanceof SphereCollider) {
             // todo
         }
+        else if (collider instanceof BoxCollider) {
+            return Mummu.SphereBoxIntersection(cSphere, rSphere, collider);
+        }
         else if (collider instanceof MeshCollider) {
             return Mummu.SphereMeshIntersection(cSphere, rSphere, collider.mesh);
         }
@@ -337,6 +340,16 @@ var Mummu;
         }
     }
     Mummu.SphereCollider = SphereCollider;
+    class BoxCollider extends Collider {
+        constructor(worldMatrix) {
+            super();
+            this.worldMatrix = worldMatrix;
+            this.width = 1;
+            this.height = 1;
+            this.depth = 1;
+        }
+    }
+    Mummu.BoxCollider = BoxCollider;
     class MeshCollider extends Collider {
         constructor(mesh) {
             super();
@@ -743,6 +756,28 @@ var Mummu;
         return intersection;
     }
     Mummu.SpherePlaneIntersection = SpherePlaneIntersection;
+    var SphereBoxIntersectionTmpVec3_0 = BABYLON.Vector3.Zero();
+    var SphereBoxIntersectionTmpVec3_1 = BABYLON.Vector3.Zero();
+    var SphereBoxIntersectionTmpQuat_0 = BABYLON.Quaternion.Identity();
+    var SphereBoxIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
+    function SphereBoxIntersection(cSphere, rSphere, box) {
+        let intersection = new Intersection();
+        let scale = SphereBoxIntersectionTmpVec3_0;
+        box.worldMatrix.decompose(scale, SphereBoxIntersectionTmpQuat_0, SphereBoxIntersectionTmpVec3_1);
+        let invMatrix = SphereBoxIntersectionTmpMatrix_0;
+        invMatrix.copyFrom(box.worldMatrix).invert();
+        let localCSphere = BABYLON.Vector3.TransformCoordinates(cSphere, invMatrix);
+        let localRadius = rSphere / scale.x;
+        if (SphereAABBCheck(localCSphere, localRadius, -box.width * 0.5, box.width * 0.5, -box.height * 0.5, box.height * 0.5, -box.depth * 0.5, box.depth * 0.5)) {
+            intersection.hit = true;
+            intersection.point = new BABYLON.Vector3(Nabu.MinMax(localCSphere.x, -box.width * 0.5, box.width * 0.5), Nabu.MinMax(localCSphere.y, -box.height * 0.5, box.height * 0.5), Nabu.MinMax(localCSphere.z, -box.depth * 0.5, box.depth * 0.5));
+            intersection.normal = localCSphere.clone().subtractInPlace(intersection.point).normalize();
+            BABYLON.Vector3.TransformCoordinatesToRef(intersection.point, box.worldMatrix, intersection.point);
+            BABYLON.Vector3.TransformNormalToRef(intersection.normal, box.worldMatrix, intersection.normal);
+        }
+        return intersection;
+    }
+    Mummu.SphereBoxIntersection = SphereBoxIntersection;
     function SphereCapsuleIntersection(cSphere, rSphere, c1Capsule, c2Capsule, rCapsule) {
         let intersection = new Intersection();
         if (SphereAABBCheck(cSphere, rSphere, Math.min(c1Capsule.x, c2Capsule.x) - rCapsule, Math.max(c1Capsule.x, c2Capsule.x) + rCapsule, Math.min(c1Capsule.y, c2Capsule.y) - rCapsule, Math.max(c1Capsule.y, c2Capsule.y) + rCapsule, Math.min(c1Capsule.z, c2Capsule.z) - rCapsule, Math.max(c1Capsule.z, c2Capsule.z) + rCapsule)) {
@@ -1556,6 +1591,10 @@ var Mummu;
         let w = isFinite(props.width) ? props.width : props.size;
         let h = isFinite(props.height) ? props.height : props.size;
         let d = isFinite(props.depth) ? props.depth : props.size;
+        let b = Math.min(w / 10, h / 10, d / 10);
+        if (isFinite(props.bevel)) {
+            b = props.bevel;
+        }
         let data = new BABYLON.VertexData();
         let positions;
         let normals;
@@ -1607,23 +1646,26 @@ var Mummu;
             let x = positions[3 * i];
             let y = positions[3 * i + 1];
             let z = positions[3 * i + 2];
-            if (x > 0) {
-                x += 0.5 * w - 0.5;
+            let sX = Math.sign(x);
+            let sY = Math.sign(y);
+            let sZ = Math.sign(z);
+            if (Math.abs(x) < 0.4) {
+                x = sX * (w * 0.5 - b);
             }
             else {
-                x -= 0.5 * w - 0.5;
+                x = sX * w * 0.5;
             }
-            if (y > 0) {
-                y += 0.5 * h - 0.5;
-            }
-            else {
-                y -= 0.5 * h - 0.5;
-            }
-            if (z > 0) {
-                z += 0.5 * d - 0.5;
+            if (Math.abs(y) < 0.4) {
+                y = sY * (h * 0.5 - b);
             }
             else {
-                z -= 0.5 * d - 0.5;
+                y = sY * h * 0.5;
+            }
+            if (Math.abs(z) < 0.4) {
+                z = sZ * (d * 0.5 - b);
+            }
+            else {
+                z = sZ * d * 0.5;
             }
             positions[3 * i] = x;
             positions[3 * i + 1] = y;
@@ -2540,13 +2582,7 @@ var Mummu;
                             }
                         }
                         context.putImageData(data, 0, 0);
-                        var tmpLink = document.createElement('a');
-                        tmpLink.download = prop.miniatureName + ".png";
-                        tmpLink.href = canvas.toDataURL();
-                        document.body.appendChild(tmpLink);
-                        tmpLink.click();
-                        document.body.removeChild(tmpLink);
-                        resolve();
+                        resolve(canvas);
                     };
                 });
             });
@@ -3496,10 +3532,10 @@ var Mummu;
     function TriFlipVertexDataInPlace(data) {
         let indices = [...data.indices];
         for (let i = 0; i < indices.length / 3; i++) {
-            let i1 = indices[3 * i];
-            let i2 = indices[3 * i + 1];
-            indices[3 * i] = i2;
-            indices[3 * i + 1] = i1;
+            let i1 = indices[3 * i + 1];
+            let i2 = indices[3 * i + 2];
+            indices[3 * i + 1] = i2;
+            indices[3 * i + 2] = i1;
         }
         data.indices = indices;
         if (data.normals) {

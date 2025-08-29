@@ -20,6 +20,9 @@ namespace Mummu {
         else if (collider instanceof SphereCollider) {
             // todo
         }
+        else if (collider instanceof BoxCollider) {
+            return SphereBoxIntersection(cSphere, rSphere, collider);
+        }
         else if (collider instanceof MeshCollider) {
             return SphereMeshIntersection(cSphere, rSphere, collider.mesh);
         }
@@ -106,6 +109,17 @@ namespace Mummu {
             else {
                 this.center.copyFrom(this.localCenter);
             }
+        }
+    }
+
+    export class BoxCollider extends Collider implements IBox {
+
+        public width: number = 1;
+        public height: number = 1;
+        public depth: number = 1;
+
+        constructor(public worldMatrix: BABYLON.Matrix) {
+            super();
         }
     }
 

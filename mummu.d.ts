@@ -41,6 +41,13 @@ declare namespace Mummu {
         constructor(localCenter: BABYLON.Vector3, radius: number, parent?: BABYLON.TransformNode);
         recomputeWorldCenter(): void;
     }
+    class BoxCollider extends Collider implements IBox {
+        worldMatrix: BABYLON.Matrix;
+        width: number;
+        height: number;
+        depth: number;
+        constructor(worldMatrix: BABYLON.Matrix);
+    }
     class MeshCollider extends Collider {
         mesh: BABYLON.Mesh;
         constructor(mesh: BABYLON.Mesh);
@@ -60,6 +67,12 @@ declare namespace Mummu {
     interface ISphere {
         center: BABYLON.Vector3;
         radius: number;
+    }
+    interface IBox {
+        worldMatrix: BABYLON.Matrix;
+        width: number;
+        height: number;
+        depth: number;
     }
     interface IIntersection {
         hit: boolean;
@@ -92,6 +105,7 @@ declare namespace Mummu {
     function SpherePlaneIntersection(sphere: ISphere, plane: IPlane): IIntersection;
     function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, plane: IPlane): IIntersection;
     function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
+    function SphereBoxIntersection(cSphere: BABYLON.Vector3, rSphere: number, box: IBox): IIntersection;
     function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection;
     function SphereLatheIntersection(cSphere: BABYLON.Vector3, rSphere: number, cLathe: BABYLON.Vector3, path: BABYLON.Vector3[], rWire?: number): IIntersection;
     function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection;
@@ -270,7 +284,7 @@ declare namespace Mummu {
         camera?: BABYLON.Camera;
         outlineWidth?: number;
     }
-    export function MakeScreenshot(prop?: IMakeScreenshotProp): Promise<void>;
+    export function MakeScreenshot(prop?: IMakeScreenshotProp): Promise<HTMLCanvasElement>;
     export {};
 }
 declare namespace Mummu {
