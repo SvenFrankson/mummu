@@ -455,9 +455,9 @@ namespace Mummu {
     var SphereTriangleIntersectionTmpVec3_4 = BABYLON.Vector3.Zero();
     var SphereTriangleIntersectionTmpQuat_0 = BABYLON.Quaternion.Identity();
     var SphereTriangleIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
-    export function SphereTriangleIntersection(sphere: ISphere, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
-    export function SphereTriangleIntersection(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
-    export function SphereTriangleIntersection(arg1: any, arg2: any, arg3: any, arg4: any, arg5?: any): IIntersection {
+    export function SphereTriangleIntersection(sphere: ISphere, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3, smooth?: boolean): IIntersection;
+    export function SphereTriangleIntersection(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3, smooth?: boolean): IIntersection;
+    export function SphereTriangleIntersection(arg1: any, arg2: any, arg3: any, arg4: any, arg5?: any, arg6?: any): IIntersection {
         let intersection = new Intersection();
         
         let cSphere: BABYLON.Vector3;
@@ -465,6 +465,7 @@ namespace Mummu {
         let p1: BABYLON.Vector3;
         let p2: BABYLON.Vector3;
         let p3: BABYLON.Vector3;
+        let smooth: boolean;
 
         if (arg1 instanceof BABYLON.Vector3) {
             cSphere = arg1;
@@ -472,6 +473,7 @@ namespace Mummu {
             p1 = arg3;
             p2 = arg4;
             p3 = arg5;
+            smooth = arg6;
         }
         else {
             cSphere = (arg1 as ISphere).center;
@@ -479,6 +481,7 @@ namespace Mummu {
             p1 = arg2;
             p2 = arg3;
             p3 = arg4;
+            smooth = arg5;
         }
 
         if (SphereTriangleCheck(cSphere, rSphere, p1, p2, p3)) {
@@ -517,8 +520,13 @@ namespace Mummu {
                     if (BABYLON.Vector3.Dot(triangleNormal, normal) > 0) {
                         let dist = Math.sqrt(sqrDist);
                         intersection.hit = true;
-                        intersection.point = proj;
-                        intersection.normal = triangleNormal.normalize();
+                        intersection.point = proj.clone();
+                        if (smooth) {
+                            intersection.normal = normal.clone().normalize();
+                        }
+                        else {
+                            intersection.normal = triangleNormal.clone().normalize();
+                        }
                         intersection.depth = rSphere - dist;
                     }
                 }
@@ -536,7 +544,7 @@ namespace Mummu {
     var SphereMeshIntersectionTmpQuat_0 = BABYLON.Quaternion.Identity();
     var SphereMeshIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
 
-    export function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.AbstractMesh): IIntersection {
+    export function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.AbstractMesh, smooth?: boolean): IIntersection {
         let intersection: IIntersection = new Intersection();
 
         let bbox = mesh.getBoundingInfo();
@@ -568,7 +576,7 @@ namespace Mummu {
                 p3.y = positions[3 * i3 + 1];
                 p3.z = positions[3 * i3 + 2];
 
-                let triIntersection = SphereTriangleIntersection(localCSphere, localRadius, p1, p2, p3);
+                let triIntersection = SphereTriangleIntersection(localCSphere, localRadius, p1, p2, p3, smooth);
                 if (triIntersection.hit) {
                     if (!intersection || triIntersection.depth > intersection.depth) {
                         intersection = triIntersection;

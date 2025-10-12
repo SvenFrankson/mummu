@@ -871,19 +871,21 @@ var Mummu;
     var SphereTriangleIntersectionTmpVec3_4 = BABYLON.Vector3.Zero();
     var SphereTriangleIntersectionTmpQuat_0 = BABYLON.Quaternion.Identity();
     var SphereTriangleIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
-    function SphereTriangleIntersection(arg1, arg2, arg3, arg4, arg5) {
+    function SphereTriangleIntersection(arg1, arg2, arg3, arg4, arg5, arg6) {
         let intersection = new Intersection();
         let cSphere;
         let rSphere;
         let p1;
         let p2;
         let p3;
+        let smooth;
         if (arg1 instanceof BABYLON.Vector3) {
             cSphere = arg1;
             rSphere = arg2;
             p1 = arg3;
             p2 = arg4;
             p3 = arg5;
+            smooth = arg6;
         }
         else {
             cSphere = arg1.center;
@@ -891,6 +893,7 @@ var Mummu;
             p1 = arg2;
             p2 = arg3;
             p3 = arg4;
+            smooth = arg5;
         }
         if (SphereTriangleCheck(cSphere, rSphere, p1, p2, p3)) {
             let plane = Mummu.PlaneCollider.CreateFromPoints(p1, p2, p3);
@@ -922,8 +925,13 @@ var Mummu;
                     if (BABYLON.Vector3.Dot(triangleNormal, normal) > 0) {
                         let dist = Math.sqrt(sqrDist);
                         intersection.hit = true;
-                        intersection.point = proj;
-                        intersection.normal = triangleNormal.normalize();
+                        intersection.point = proj.clone();
+                        if (smooth) {
+                            intersection.normal = normal.clone().normalize();
+                        }
+                        else {
+                            intersection.normal = triangleNormal.clone().normalize();
+                        }
                         intersection.depth = rSphere - dist;
                     }
                 }
@@ -939,7 +947,7 @@ var Mummu;
     var SphereMeshIntersectionTmpVec3_4 = BABYLON.Vector3.Zero();
     var SphereMeshIntersectionTmpQuat_0 = BABYLON.Quaternion.Identity();
     var SphereMeshIntersectionTmpMatrix_0 = BABYLON.Matrix.Identity();
-    function SphereMeshIntersection(cSphere, rSphere, mesh) {
+    function SphereMeshIntersection(cSphere, rSphere, mesh, smooth) {
         let intersection = new Intersection();
         let bbox = mesh.getBoundingInfo();
         let scale = SphereMeshIntersectionTmpVec3_0;
@@ -967,7 +975,7 @@ var Mummu;
                 p3.x = positions[3 * i3];
                 p3.y = positions[3 * i3 + 1];
                 p3.z = positions[3 * i3 + 2];
-                let triIntersection = SphereTriangleIntersection(localCSphere, localRadius, p1, p2, p3);
+                let triIntersection = SphereTriangleIntersection(localCSphere, localRadius, p1, p2, p3, smooth);
                 if (triIntersection.hit) {
                     if (!intersection || triIntersection.depth > intersection.depth) {
                         intersection = triIntersection;

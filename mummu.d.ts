@@ -110,9 +110,9 @@ declare namespace Mummu {
     function SphereLatheIntersection(cSphere: BABYLON.Vector3, rSphere: number, cLathe: BABYLON.Vector3, path: BABYLON.Vector3[], rWire?: number): IIntersection;
     function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection;
     function SphereInTubeIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rTube: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection;
-    function SphereTriangleIntersection(sphere: ISphere, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
-    function SphereTriangleIntersection(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3): IIntersection;
-    function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.AbstractMesh): IIntersection;
+    function SphereTriangleIntersection(sphere: ISphere, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3, smooth?: boolean): IIntersection;
+    function SphereTriangleIntersection(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3, smooth?: boolean): IIntersection;
+    function SphereMeshIntersection(cSphere: BABYLON.Vector3, rSphere: number, mesh: BABYLON.AbstractMesh, smooth?: boolean): IIntersection;
 }
 declare namespace Mummu {
     interface IQuadProps {
