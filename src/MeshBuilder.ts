@@ -1215,6 +1215,7 @@ namespace Mummu {
         let cumulLength = 0;
         let t = props.tesselation;
         let angle = 2 * Math.PI / t;
+        let lastRayon: BABYLON.Vector3;
         for (let i = 0; i < n; i++) {
             let p = path[i];
             if (i > 0) {
@@ -1224,6 +1225,9 @@ namespace Mummu {
             let rayon: BABYLON.Vector3;
             if (ups) {
                 rayon = ups[i].clone();
+            }
+            else if (lastRayon) {
+                rayon = lastRayon.clone();
             }
             else {
                 rayon = p.subtract(center);
@@ -1237,6 +1241,7 @@ namespace Mummu {
             if (props.bissectFirstRayon) {
                 Mummu.RotateInPlace(rayon, dir, - angle * 0.5);
             }
+            lastRayon = rayon.clone();
 
             let idx0 = positions.length / 3;
             positions.push(rayon.x + p.x, rayon.y + p.y, rayon.z + p.z);
