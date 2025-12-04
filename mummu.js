@@ -262,6 +262,12 @@ var Mummu;
         else if (collider instanceof BoxCollider) {
             return Mummu.SphereBoxIntersection(cSphere, rSphere, collider);
         }
+        else if (collider instanceof CylinderCollider) {
+            // todo
+        }
+        else if (collider instanceof CapsuleCollider) {
+            return Mummu.SphereCapsuleIntersection(cSphere, rSphere, collider.c1, collider.c2, collider.radius, collider.worldMatrix);
+        }
         else if (collider instanceof MeshCollider) {
             return Mummu.SphereMeshIntersection(cSphere, rSphere, collider.mesh);
         }
@@ -350,6 +356,25 @@ var Mummu;
         }
     }
     Mummu.BoxCollider = BoxCollider;
+    class CylinderCollider extends Collider {
+        constructor(worldMatrix) {
+            super();
+            this.worldMatrix = worldMatrix;
+            this.radius = 1;
+            this.height = 1;
+        }
+    }
+    Mummu.CylinderCollider = CylinderCollider;
+    class CapsuleCollider extends Collider {
+        constructor(c1, c2, radius, worldMatrix) {
+            super();
+            this.c1 = c1;
+            this.c2 = c2;
+            this.radius = radius;
+            this.worldMatrix = worldMatrix;
+        }
+    }
+    Mummu.CapsuleCollider = CapsuleCollider;
     class MeshCollider extends Collider {
         constructor(mesh) {
             super();
@@ -769,25 +794,36 @@ var Mummu;
         let localCSphere = BABYLON.Vector3.TransformCoordinates(cSphere, invMatrix);
         let localRadius = rSphere / scale.x;
         if (SphereAABBCheck(localCSphere, localRadius, -box.width * 0.5, box.width * 0.5, -box.height * 0.5, box.height * 0.5, -box.depth * 0.5, box.depth * 0.5)) {
-            intersection.hit = true;
-            intersection.point = new BABYLON.Vector3(Nabu.MinMax(localCSphere.x, -box.width * 0.5, box.width * 0.5), Nabu.MinMax(localCSphere.y, -box.height * 0.5, box.height * 0.5), Nabu.MinMax(localCSphere.z, -box.depth * 0.5, box.depth * 0.5));
-            intersection.normal = localCSphere.clone().subtractInPlace(intersection.point).normalize();
-            BABYLON.Vector3.TransformCoordinatesToRef(intersection.point, box.worldMatrix, intersection.point);
-            BABYLON.Vector3.TransformNormalToRef(intersection.normal, box.worldMatrix, intersection.normal);
+            let point = new BABYLON.Vector3(Nabu.MinMax(localCSphere.x, -box.width * 0.5, box.width * 0.5), Nabu.MinMax(localCSphere.y, -box.height * 0.5, box.height * 0.5), Nabu.MinMax(localCSphere.z, -box.depth * 0.5, box.depth * 0.5));
+            let depth = rSphere - BABYLON.Vector3.Distance(point, localCSphere);
+            if (depth > 0) {
+                intersection.hit = true;
+                intersection.depth = depth;
+                intersection.point = point;
+                intersection.normal = localCSphere.clone().subtractInPlace(intersection.point).normalize();
+                BABYLON.Vector3.TransformCoordinatesToRef(intersection.point, box.worldMatrix, intersection.point);
+                BABYLON.Vector3.TransformNormalToRef(intersection.normal, box.worldMatrix, intersection.normal);
+            }
         }
         return intersection;
     }
     Mummu.SphereBoxIntersection = SphereBoxIntersection;
-    function SphereCapsuleIntersection(cSphere, rSphere, c1Capsule, c2Capsule, rCapsule) {
+    function SphereCapsuleIntersection(cSphere, rSphere, c1Capsule, c2Capsule, rCapsule, worldMatrix) {
         let intersection = new Intersection();
-        if (SphereAABBCheck(cSphere, rSphere, Math.min(c1Capsule.x, c2Capsule.x) - rCapsule, Math.max(c1Capsule.x, c2Capsule.x) + rCapsule, Math.min(c1Capsule.y, c2Capsule.y) - rCapsule, Math.max(c1Capsule.y, c2Capsule.y) + rCapsule, Math.min(c1Capsule.z, c2Capsule.z) - rCapsule, Math.max(c1Capsule.z, c2Capsule.z) + rCapsule)) {
-            let dist = Mummu.DistancePointSegment(cSphere, c1Capsule, c2Capsule);
+        let c1 = c1Capsule;
+        let c2 = c2Capsule;
+        if (worldMatrix) {
+            BABYLON.Vector3.TransformCoordinatesToRef(c1, worldMatrix, c1);
+            BABYLON.Vector3.TransformCoordinatesToRef(c2, worldMatrix, c2);
+        }
+        if (SphereAABBCheck(cSphere, rSphere, Math.min(c1.x, c2.x) - rCapsule, Math.max(c1.x, c2.x) + rCapsule, Math.min(c1.y, c2.y) - rCapsule, Math.max(c1.y, c2.y) + rCapsule, Math.min(c1.z, c2.z) - rCapsule, Math.max(c1.z, c2.z) + rCapsule)) {
+            let dist = Mummu.DistancePointSegment(cSphere, c1, c2);
             let depth = (rSphere + rCapsule) - dist;
             if (depth > 0) {
                 intersection.hit = true;
                 intersection.depth = depth;
                 let proj = BABYLON.Vector3.Zero();
-                Mummu.ProjectPointOnSegmentToRef(cSphere, c1Capsule, c2Capsule, proj);
+                Mummu.ProjectPointOnSegmentToRef(cSphere, c1, c2, proj);
                 let dir = cSphere.subtract(proj).normalize();
                 intersection.point = dir.scale(rCapsule);
                 intersection.point.addInPlace(proj);
@@ -813,10 +849,10 @@ var Mummu;
     }
     Mummu.SphereLatheIntersection = SphereLatheIntersection;
     var SphereWireIntersectionTmpWireProj_0 = { point: BABYLON.Vector3.Zero(), index: -1 };
-    function SphereWireIntersection(cSphere, rSphere, path, rWire, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange) {
+    function SphereWireIntersection(cSphere, rSphere, path, rWire, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange, excludePos, excludeRange_m) {
         let intersection = new Intersection();
         let proj = SphereWireIntersectionTmpWireProj_0;
-        Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange);
+        Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange, excludePos, excludeRange_m);
         let sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj.point);
         let sqrDepth = (rSphere + rWire) * (rSphere + rWire) - sqrDist;
         if (sqrDepth > 0) {
@@ -1935,6 +1971,7 @@ var Mummu;
         let cumulLength = 0;
         let t = props.tesselation;
         let angle = 2 * Math.PI / t;
+        let lastRayon;
         for (let i = 0; i < n; i++) {
             let p = path[i];
             if (i > 0) {
@@ -1944,6 +1981,9 @@ var Mummu;
             let rayon;
             if (ups) {
                 rayon = ups[i].clone();
+            }
+            else if (lastRayon) {
+                rayon = lastRayon.clone();
             }
             else {
                 rayon = p.subtract(center);
@@ -1957,6 +1997,7 @@ var Mummu;
             if (props.bissectFirstRayon) {
                 Mummu.RotateInPlace(rayon, dir, -angle * 0.5);
             }
+            lastRayon = rayon.clone();
             let idx0 = positions.length / 3;
             positions.push(rayon.x + p.x, rayon.y + p.y, rayon.z + p.z);
             if (props.color) {
@@ -2791,7 +2832,7 @@ var Mummu;
         return PprojP.length();
     }
     Mummu.DistancePointSegment = DistancePointSegment;
-    function ProjectPointOnPathToRef(point, path, ref, pathIsEvenlyDistributed, nearBestIndex = -1, nearBestSearchRange = 32) {
+    function ProjectPointOnPathToRef(point, path, ref, pathIsEvenlyDistributed, nearBestIndex = -1, nearBestSearchRange = 32, excludePos, excludeRange_m) {
         let proj = TmpVec3[3];
         if (pathIsEvenlyDistributed && path.length >= 4) {
             let bestIndex = -1;
@@ -2808,6 +2849,11 @@ var Mummu;
             }
             for (let i = start; i < end; i++) {
                 let sqrDist = BABYLON.Vector3.DistanceSquared(point, path[i]);
+                if (excludePos) {
+                    if (BABYLON.Vector3.DistanceSquared(path[i], excludePos) < excludeRange_m * excludeRange_m) {
+                        sqrDist = Infinity;
+                    }
+                }
                 if (sqrDist < bestSqrDist) {
                     bestIndex = i;
                     bestSqrDist = sqrDist;
@@ -2831,6 +2877,11 @@ var Mummu;
             for (let i = 0; i < path.length - 1; i++) {
                 ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
                 let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
+                if (excludePos) {
+                    if (BABYLON.Vector3.DistanceSquared(proj, excludePos) < excludeRange_m * excludeRange_m) {
+                        sqrDist = Infinity;
+                    }
+                }
                 if (sqrDist < bestSqrDist) {
                     ref.point.copyFrom(proj);
                     ref.index = i;

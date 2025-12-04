@@ -23,6 +23,12 @@ namespace Mummu {
         else if (collider instanceof BoxCollider) {
             return SphereBoxIntersection(cSphere, rSphere, collider);
         }
+        else if (collider instanceof CylinderCollider) {
+            // todo
+        }
+        else if (collider instanceof CapsuleCollider) {
+            return SphereCapsuleIntersection(cSphere, rSphere, collider.c1, collider.c2, collider.radius, collider.worldMatrix);
+        }
         else if (collider instanceof MeshCollider) {
             return SphereMeshIntersection(cSphere, rSphere, collider.mesh);
         }
@@ -119,6 +125,23 @@ namespace Mummu {
         public depth: number = 1;
 
         constructor(public worldMatrix: BABYLON.Matrix) {
+            super();
+        }
+    }
+
+    export class CylinderCollider extends Collider implements ICylinder {
+
+        public radius: number = 1;
+        public height: number = 1;
+
+        constructor(public worldMatrix: BABYLON.Matrix) {
+            super();
+        }
+    }
+
+    export class CapsuleCollider extends Collider implements ICapsule {
+
+        constructor(public c1: BABYLON.Vector3, public c2: BABYLON.Vector3, public radius: number, public worldMatrix?: BABYLON.Matrix) {
             super();
         }
     }

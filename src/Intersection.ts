@@ -31,6 +31,19 @@ namespace Mummu {
         height: number;
         depth: number;
     }
+    
+    export interface ICylinder {
+        worldMatrix: BABYLON.Matrix;
+        radius: number;
+        height: number;
+    }
+    
+    export interface ICapsule {
+        c1: BABYLON.Vector3;
+        c2: BABYLON.Vector3;
+        radius: number;
+        worldMatrix?: BABYLON.Matrix;
+    }
 
     export interface IIntersection {
         hit: boolean;
@@ -322,36 +335,48 @@ namespace Mummu {
         let localCSphere = BABYLON.Vector3.TransformCoordinates(cSphere, invMatrix);
         let localRadius = rSphere / scale.x;
         if (SphereAABBCheck(localCSphere, localRadius, - box.width * 0.5, box.width * 0.5, - box.height * 0.5, box.height * 0.5, - box.depth * 0.5, box.depth * 0.5)) {
-            intersection.hit = true;
-
-            intersection.point = new BABYLON.Vector3(
+            let point = new BABYLON.Vector3(
                 Nabu.MinMax(localCSphere.x, - box.width * 0.5, box.width * 0.5),
                 Nabu.MinMax(localCSphere.y, - box.height * 0.5, box.height * 0.5),
                 Nabu.MinMax(localCSphere.z, - box.depth * 0.5, box.depth * 0.5)
             )
-            
-            intersection.normal = localCSphere.clone().subtractInPlace(intersection.point).normalize();
+            let depth = rSphere - BABYLON.Vector3.Distance(point, localCSphere);
 
-            BABYLON.Vector3.TransformCoordinatesToRef(intersection.point, box.worldMatrix, intersection.point);
-            BABYLON.Vector3.TransformNormalToRef(intersection.normal, box.worldMatrix, intersection.normal);
+            if (depth > 0) {
+                intersection.hit = true;
+                intersection.depth = depth;
+                intersection.point = point;
+                intersection.normal = localCSphere.clone().subtractInPlace(intersection.point).normalize();
+
+                BABYLON.Vector3.TransformCoordinatesToRef(intersection.point, box.worldMatrix, intersection.point);
+                BABYLON.Vector3.TransformNormalToRef(intersection.normal, box.worldMatrix, intersection.normal);
+            }
         }
         return intersection;
     }
 
-    export function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection {
+    export function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number, worldMatrix?: BABYLON.Matrix): IIntersection {
         let intersection = new Intersection();
+
+        let c1 = c1Capsule;
+        let c2 = c2Capsule;
+
+        if (worldMatrix) {
+            BABYLON.Vector3.TransformCoordinatesToRef(c1, worldMatrix, c1);
+            BABYLON.Vector3.TransformCoordinatesToRef(c2, worldMatrix, c2);
+        }
 
         if (SphereAABBCheck(
             cSphere, rSphere,
-            Math.min(c1Capsule.x, c2Capsule.x) - rCapsule,
-            Math.max(c1Capsule.x, c2Capsule.x) + rCapsule,
-            Math.min(c1Capsule.y, c2Capsule.y) - rCapsule,
-            Math.max(c1Capsule.y, c2Capsule.y) + rCapsule,
-            Math.min(c1Capsule.z, c2Capsule.z) - rCapsule,
-            Math.max(c1Capsule.z, c2Capsule.z) + rCapsule
+            Math.min(c1.x, c2.x) - rCapsule,
+            Math.max(c1.x, c2.x) + rCapsule,
+            Math.min(c1.y, c2.y) - rCapsule,
+            Math.max(c1.y, c2.y) + rCapsule,
+            Math.min(c1.z, c2.z) - rCapsule,
+            Math.max(c1.z, c2.z) + rCapsule
         )) {
 
-            let dist = Mummu.DistancePointSegment(cSphere, c1Capsule, c2Capsule);
+            let dist = Mummu.DistancePointSegment(cSphere, c1, c2);
     
             let depth = (rSphere + rCapsule) - dist;
     
@@ -359,7 +384,7 @@ namespace Mummu {
                 intersection.hit = true;
                 intersection.depth = depth;
                 let proj = BABYLON.Vector3.Zero();
-                Mummu.ProjectPointOnSegmentToRef(cSphere, c1Capsule, c2Capsule, proj);
+                Mummu.ProjectPointOnSegmentToRef(cSphere, c1, c2, proj);
                 let dir = cSphere.subtract(proj).normalize();
                 intersection.point = dir.scale(rCapsule);
                 intersection.point.addInPlace(proj);
@@ -389,11 +414,21 @@ namespace Mummu {
     }
 
     var SphereWireIntersectionTmpWireProj_0 = { point: BABYLON.Vector3.Zero(), index: - 1 };
-    export function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection {
+    export function SphereWireIntersection(
+        cSphere: BABYLON.Vector3,
+        rSphere: number,
+        path: BABYLON.Vector3[],
+        rWire: number,
+        pathIsEvenlyDistributed?: boolean,
+        nearBestIndex?: number,
+        nearBestSearchRange?: number,
+        excludePos?: BABYLON.Vector3,
+        excludeRange_m?: number
+    ): IIntersection {
         let intersection = new Intersection();
 
         let proj = SphereWireIntersectionTmpWireProj_0;
-        Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange);
+        Mummu.ProjectPointOnPathToRef(cSphere, path, proj, pathIsEvenlyDistributed, nearBestIndex, nearBestSearchRange, excludePos, excludeRange_m);
         let sqrDist = BABYLON.Vector3.DistanceSquared(cSphere, proj.point);
 
         let sqrDepth = (rSphere + rWire) * (rSphere + rWire) - sqrDist;

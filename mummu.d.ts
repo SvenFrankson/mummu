@@ -48,6 +48,19 @@ declare namespace Mummu {
         depth: number;
         constructor(worldMatrix: BABYLON.Matrix);
     }
+    class CylinderCollider extends Collider implements ICylinder {
+        worldMatrix: BABYLON.Matrix;
+        radius: number;
+        height: number;
+        constructor(worldMatrix: BABYLON.Matrix);
+    }
+    class CapsuleCollider extends Collider implements ICapsule {
+        c1: BABYLON.Vector3;
+        c2: BABYLON.Vector3;
+        radius: number;
+        worldMatrix?: BABYLON.Matrix;
+        constructor(c1: BABYLON.Vector3, c2: BABYLON.Vector3, radius: number, worldMatrix?: BABYLON.Matrix);
+    }
     class MeshCollider extends Collider {
         mesh: BABYLON.Mesh;
         constructor(mesh: BABYLON.Mesh);
@@ -73,6 +86,17 @@ declare namespace Mummu {
         width: number;
         height: number;
         depth: number;
+    }
+    interface ICylinder {
+        worldMatrix: BABYLON.Matrix;
+        radius: number;
+        height: number;
+    }
+    interface ICapsule {
+        c1: BABYLON.Vector3;
+        c2: BABYLON.Vector3;
+        radius: number;
+        worldMatrix?: BABYLON.Matrix;
     }
     interface IIntersection {
         hit: boolean;
@@ -106,9 +130,9 @@ declare namespace Mummu {
     function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, plane: IPlane): IIntersection;
     function SpherePlaneIntersection(cSphere: BABYLON.Vector3, rSphere: number, pPlane: BABYLON.Vector3, nPlane: BABYLON.Vector3): IIntersection;
     function SphereBoxIntersection(cSphere: BABYLON.Vector3, rSphere: number, box: IBox): IIntersection;
-    function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number): IIntersection;
+    function SphereCapsuleIntersection(cSphere: BABYLON.Vector3, rSphere: number, c1Capsule: BABYLON.Vector3, c2Capsule: BABYLON.Vector3, rCapsule: number, worldMatrix?: BABYLON.Matrix): IIntersection;
     function SphereLatheIntersection(cSphere: BABYLON.Vector3, rSphere: number, cLathe: BABYLON.Vector3, path: BABYLON.Vector3[], rWire?: number): IIntersection;
-    function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection;
+    function SphereWireIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rWire: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number, excludePos?: BABYLON.Vector3, excludeRange_m?: number): IIntersection;
     function SphereInTubeIntersection(cSphere: BABYLON.Vector3, rSphere: number, path: BABYLON.Vector3[], rTube: number, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IIntersection;
     function SphereTriangleIntersection(sphere: ISphere, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3, smooth?: boolean): IIntersection;
     function SphereTriangleIntersection(cSphere: BABYLON.Vector3, rSphere: number, p1: BABYLON.Vector3, p2: BABYLON.Vector3, p3: BABYLON.Vector3, smooth?: boolean): IIntersection;
@@ -311,7 +335,7 @@ declare namespace Mummu {
         point: BABYLON.Vector3;
         index: number;
     }
-    function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: IPathProjection, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number): IPathProjection;
+    function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: IPathProjection, pathIsEvenlyDistributed?: boolean, nearBestIndex?: number, nearBestSearchRange?: number, excludePos?: BABYLON.Vector3, excludeRange_m?: number): IPathProjection;
     function StepToRef(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number, ref: BABYLON.Vector3): BABYLON.Vector3;
     function Step(from: BABYLON.Vector3, to: BABYLON.Vector3, step: number): BABYLON.Vector3;
     function ForceDistanceFromOriginInPlace(point: BABYLON.Vector3, origin: BABYLON.Vector3, distance: number): BABYLON.Vector3;

@@ -194,7 +194,16 @@ namespace Mummu {
         point: BABYLON.Vector3,
         index: number;
     }
-    export function ProjectPointOnPathToRef(point: BABYLON.Vector3, path: BABYLON.Vector3[], ref: IPathProjection, pathIsEvenlyDistributed?: boolean, nearBestIndex: number = - 1, nearBestSearchRange: number = 32): IPathProjection {
+    export function ProjectPointOnPathToRef(
+        point: BABYLON.Vector3,
+        path: BABYLON.Vector3[],
+        ref: IPathProjection,
+        pathIsEvenlyDistributed?: boolean,
+        nearBestIndex: number = - 1,
+        nearBestSearchRange: number = 32,
+        excludePos?: BABYLON.Vector3,
+        excludeRange_m?: number
+    ): IPathProjection {
         let proj = TmpVec3[3];
 
         if (pathIsEvenlyDistributed && path.length >= 4) {
@@ -212,6 +221,11 @@ namespace Mummu {
             }
             for (let i = start; i < end; i++) {
                 let sqrDist = BABYLON.Vector3.DistanceSquared(point, path[i]);
+                if (excludePos) {
+                    if (BABYLON.Vector3.DistanceSquared(path[i], excludePos) < excludeRange_m * excludeRange_m) {
+                        sqrDist = Infinity;
+                    }
+                }
                 if (sqrDist < bestSqrDist) {
                     bestIndex = i;
                     bestSqrDist = sqrDist;
@@ -236,6 +250,11 @@ namespace Mummu {
             for (let i = 0; i < path.length - 1; i++) {
                 ProjectPointOnSegmentToRef(point, path[i], path[i + 1], proj);
                 let sqrDist = BABYLON.Vector3.DistanceSquared(point, proj);
+                if (excludePos) {
+                    if (BABYLON.Vector3.DistanceSquared(proj, excludePos) < excludeRange_m * excludeRange_m) {
+                        sqrDist = Infinity;
+                    }
+                }
                 if (sqrDist < bestSqrDist) {
                     ref.point.copyFrom(proj);
                     ref.index = i;
