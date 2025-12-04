@@ -284,6 +284,15 @@ declare namespace Mummu {
     function CreateWireVertexData(props: IWireProps): BABYLON.VertexData;
     function CreateCubeSphereVertexData(diameter: number, color: BABYLON.Color3, alpha?: number): BABYLON.VertexData;
     function CreateCubeDiscVertexData(diameter: number, color: BABYLON.Color3, alpha?: number): BABYLON.VertexData;
+    interface ITrailProps {
+        path: BABYLON.Vector3[];
+        up?: BABYLON.Vector3;
+        color?: BABYLON.Color4;
+        colors?: BABYLON.Color4[];
+        radius?: number;
+        radiusFunc?: (f: number) => number;
+    }
+    function CreateTrailVertexData(props: ITrailProps): BABYLON.VertexData;
 }
 declare namespace Mummu {
     function QuaternionFromXYAxis(x: BABYLON.Vector3, y: BABYLON.Vector3): BABYLON.Quaternion;

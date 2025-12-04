@@ -2426,6 +2426,78 @@ var Mummu;
         return datas;
     }
     Mummu.CreateCubeDiscVertexData = CreateCubeDiscVertexData;
+    function CreateTrailVertexData(props) {
+        let data = new BABYLON.VertexData();
+        let positions = [];
+        let normals = [];
+        let indices = [];
+        let uvs = [];
+        let colors = [];
+        let path = [...props.path];
+        let up = BABYLON.Vector3.Up();
+        if (props.up) {
+            up.copyFrom(props.up);
+        }
+        let n = path.length;
+        let directions = [];
+        let prev = path[0];
+        let next = path[1];
+        directions[0] = next.subtract(prev).normalize();
+        for (let i = 1; i < n - 1; i++) {
+            let prev = path[i - 1];
+            let next = path[i + 1];
+            directions[i] = next.subtract(prev).normalize();
+        }
+        prev = path[n - 2];
+        next = path[n - 1];
+        directions[n - 1] = next.subtract(prev).normalize();
+        let cumulLength = 0;
+        for (let i = 0; i < n; i++) {
+            let p = path[i];
+            if (i > 0) {
+                cumulLength += BABYLON.Vector3.Distance(p, path[i - 1]);
+            }
+            let dir = directions[i];
+            let xDir = BABYLON.Vector3.Cross(up, dir).normalize();
+            let normal = BABYLON.Vector3.Cross(dir, xDir).normalize();
+            let r = props.radius;
+            if (props.radiusFunc) {
+                r = props.radiusFunc(i / (n - 1));
+            }
+            let l = positions.length / 3;
+            positions.push(p.x + xDir.x * r, p.y + xDir.y * r, p.z + xDir.z * r);
+            positions.push(p.x - xDir.x * r, p.y - xDir.y * r, p.z - xDir.z * r);
+            if (props.colors) {
+                let col = props.colors[i];
+                colors.push(col.r, col.g, col.b, col.a);
+                colors.push(col.r, col.g, col.b, col.a);
+            }
+            else if (props.color) {
+                let col = props.color;
+                colors.push(col.r, col.g, col.b, col.a);
+                colors.push(col.r, col.g, col.b, col.a);
+            }
+            else {
+                colors.push(1, 1, 1, 1);
+                colors.push(1, 1, 1, 1);
+            }
+            if (i < n - 1) {
+                indices.push(l, l + 2, l + 1);
+                indices.push(l + 1, l + 2, l + 3);
+            }
+            normals.push(normal.x, normal.y, normal.z);
+            normals.push(normal.x, normal.y, normal.z);
+            uvs.push(1, i / (n - 1));
+            uvs.push(0, i / (n - 1));
+        }
+        data.positions = positions;
+        data.colors = colors;
+        data.indices = indices;
+        data.normals = normals;
+        data.uvs = uvs;
+        return data;
+    }
+    Mummu.CreateTrailVertexData = CreateTrailVertexData;
 })(Mummu || (Mummu = {}));
 /// <reference path="../lib/babylon.d.ts"/>
 var Mummu;
