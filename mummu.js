@@ -1736,6 +1736,43 @@ var Mummu;
         return mesh;
     }
     Mummu.CreateBeveledBox = CreateBeveledBox;
+    function CreateBeveledCylinderVertexData(props) {
+        let r = 0.5;
+        if (isFinite(props.radius)) {
+            r = props.radius;
+        }
+        let h = 1;
+        if (isFinite(props.height)) {
+            h = props.height;
+        }
+        let b = Math.min(r / 5, h / 10);
+        if (isFinite(props.bevel)) {
+            b = props.bevel;
+        }
+        let tessellation = 32;
+        if (isFinite(props.tessellation)) {
+            tessellation = props.tessellation;
+        }
+        let shape = [
+            new BABYLON.Vector3(0, 0.5 * h, 0),
+            new BABYLON.Vector3(r - b, 0.5 * h, 0),
+            new BABYLON.Vector3(r, 0.5 * h - b, 0),
+            new BABYLON.Vector3(r, -0.5 * h + b, 0),
+            new BABYLON.Vector3(r - b, -0.5 * h, 0),
+            new BABYLON.Vector3(0, -0.5 * h, 0)
+        ];
+        let lathe = BABYLON.MeshBuilder.CreateLathe("lathe-mesh-tmp", { shape: shape, tessellation: tessellation, sideOrientation: BABYLON.Mesh.DOUBLESIDE });
+        let data = BABYLON.VertexData.ExtractFromMesh(lathe);
+        lathe.dispose();
+        return data;
+    }
+    Mummu.CreateBeveledCylinderVertexData = CreateBeveledCylinderVertexData;
+    function CreateBeveledCylinder(name, props, scene) {
+        let mesh = new BABYLON.Mesh(name, scene);
+        CreateBeveledCylinderVertexData(props).applyToMesh(mesh);
+        return mesh;
+    }
+    Mummu.CreateBeveledCylinder = CreateBeveledCylinder;
     function CreateSphereCutData(props) {
         let data = new BABYLON.VertexData();
         let positions = [];

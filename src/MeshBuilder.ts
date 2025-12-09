@@ -908,6 +908,54 @@ namespace Mummu {
         return mesh;
     }
 
+    export interface IBeveledCylinderProps {
+        radius?: number;
+        height?: number;
+        bevel?: number;
+        color?: BABYLON.Color4;
+        flat?: boolean;
+        tessellation?: number;
+    }
+
+    export function CreateBeveledCylinderVertexData(props: IBeveledCylinderProps): BABYLON.VertexData {
+        let r = 0.5;
+        if (isFinite(props.radius)) {
+            r = props.radius;
+        }
+        let h = 1;
+        if (isFinite(props.height)) {
+            h = props.height;
+        }
+        let b = Math.min(r / 5, h / 10);
+        if (isFinite(props.bevel)) {
+            b = props.bevel;
+        }
+        let tessellation = 32;
+        if (isFinite(props.tessellation)) {
+            tessellation = props.tessellation;
+        }
+
+        let shape: BABYLON.Vector3[] = [
+            new BABYLON.Vector3(0, 0.5 * h, 0),
+            new BABYLON.Vector3(r - b, 0.5 * h, 0),
+            new BABYLON.Vector3(r, 0.5 * h - b, 0),
+            new BABYLON.Vector3(r, - 0.5 * h + b, 0),
+            new BABYLON.Vector3(r - b, - 0.5 * h, 0),
+            new BABYLON.Vector3(0, - 0.5 * h, 0)
+        ];
+
+        let lathe = BABYLON.MeshBuilder.CreateLathe("lathe-mesh-tmp", { shape: shape, tessellation: tessellation, sideOrientation: BABYLON.Mesh.DOUBLESIDE });
+        let data = BABYLON.VertexData.ExtractFromMesh(lathe);
+        lathe.dispose();
+        return data;
+    }
+
+    export function CreateBeveledCylinder(name: string, props: IBeveledCylinderProps, scene?: BABYLON.Scene): BABYLON.Mesh {
+        let mesh = new BABYLON.Mesh(name, scene);
+        CreateBeveledCylinderVertexData(props).applyToMesh(mesh);
+        return mesh;
+    }
+
     export interface ISphereCutProps {
         dir: BABYLON.Vector3;
         up?: BABYLON.Vector3;

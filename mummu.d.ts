@@ -252,6 +252,16 @@ declare namespace Mummu {
     }
     function CreateBeveledBoxVertexData(props: IBeveledBoxProps): BABYLON.VertexData;
     function CreateBeveledBox(name: string, props: IBeveledBoxProps, scene?: BABYLON.Scene): BABYLON.Mesh;
+    interface IBeveledCylinderProps {
+        radius?: number;
+        height?: number;
+        bevel?: number;
+        color?: BABYLON.Color4;
+        flat?: boolean;
+        tessellation?: number;
+    }
+    function CreateBeveledCylinderVertexData(props: IBeveledCylinderProps): BABYLON.VertexData;
+    function CreateBeveledCylinder(name: string, props: IBeveledCylinderProps, scene?: BABYLON.Scene): BABYLON.Mesh;
     interface ISphereCutProps {
         dir: BABYLON.Vector3;
         up?: BABYLON.Vector3;
