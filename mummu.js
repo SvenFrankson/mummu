@@ -795,12 +795,44 @@ var Mummu;
         let localRadius = rSphere / scale.x;
         if (SphereAABBCheck(localCSphere, localRadius, -box.width * 0.5, box.width * 0.5, -box.height * 0.5, box.height * 0.5, -box.depth * 0.5, box.depth * 0.5)) {
             let point = new BABYLON.Vector3(Nabu.MinMax(localCSphere.x, -box.width * 0.5, box.width * 0.5), Nabu.MinMax(localCSphere.y, -box.height * 0.5, box.height * 0.5), Nabu.MinMax(localCSphere.z, -box.depth * 0.5, box.depth * 0.5));
-            let depth = rSphere - BABYLON.Vector3.Distance(point, localCSphere);
+            let depthSign = 1;
+            if (BABYLON.Vector3.DistanceSquared(localCSphere, point) === 0) {
+                console.log("hey !");
+                depthSign = -1;
+                let dx = Math.min(Math.abs(point.x - box.width * 0.5), Math.abs(point.x + box.width * 0.5));
+                let dy = Math.min(Math.abs(point.y - box.height * 0.5), Math.abs(point.y + box.height * 0.5));
+                let dz = Math.min(Math.abs(point.z - box.depth * 0.5), Math.abs(point.z + box.depth * 0.5));
+                if (dx <= dy && dx <= dz) {
+                    if (point.x > 0) {
+                        point.x = box.width * 0.5;
+                    }
+                    else {
+                        point.x = -box.width * 0.5;
+                    }
+                }
+                else if (dy <= dz) {
+                    if (point.y > 0) {
+                        point.y = box.height * 0.5;
+                    }
+                    else {
+                        point.y = -box.height * 0.5;
+                    }
+                }
+                else {
+                    if (point.z > 0) {
+                        point.z = box.depth * 0.5;
+                    }
+                    else {
+                        point.z = -box.depth * 0.5;
+                    }
+                }
+            }
+            let depth = rSphere - depthSign * BABYLON.Vector3.Distance(point, localCSphere);
             if (depth > 0) {
                 intersection.hit = true;
                 intersection.depth = depth;
                 intersection.point = point;
-                intersection.normal = localCSphere.clone().subtractInPlace(intersection.point).normalize();
+                intersection.normal = localCSphere.clone().subtractInPlace(intersection.point).scaleInPlace(depthSign).normalize();
                 BABYLON.Vector3.TransformCoordinatesToRef(intersection.point, box.worldMatrix, intersection.point);
                 BABYLON.Vector3.TransformNormalToRef(intersection.normal, box.worldMatrix, intersection.normal);
             }
