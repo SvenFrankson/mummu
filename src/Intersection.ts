@@ -342,7 +342,6 @@ namespace Mummu {
             )
             let depthSign = 1;
             if (BABYLON.Vector3.DistanceSquared(localCSphere, point) === 0) {
-                console.log("hey !");
                 depthSign = - 1;
                 let dx = Math.min(Math.abs(point.x - box.width * 0.5), Math.abs(point.x + box.width * 0.5));
                 let dy = Math.min(Math.abs(point.y - box.height * 0.5), Math.abs(point.y + box.height * 0.5));

@@ -396,6 +396,29 @@ namespace Mummu {
         return path;
     }
 
+    export function DecimatePathInPlaceFast(path: BABYLON.Vector3[], minAngle: number = 1 / 180 * Math.PI, collateral?: BABYLON.Vector3[]): BABYLON.Vector3[] {
+        let done = false;
+        while (!done) {
+            done = true;
+            let dirPrev = BABYLON.Vector3.Forward();
+            let dirNext = path[1].subtract(path[0]).normalize();
+            for (let i = 1; i < path.length - 1; i++) {
+                dirPrev.copyFrom(dirNext);
+                dirNext.copyFrom(path[i + 1]).subtractInPlace(path[i]).normalize();
+                let angle = Angle(dirPrev, dirNext);
+                if (angle < minAngle) {
+                    path.splice(i, 1);
+                    if (collateral) {
+                        collateral.splice(i, 1);
+                    }
+                    i += 2;
+                    done = false;
+                }
+            }
+        }
+        return path;
+    }
+
     export function DecimatePathInPlace(path: BABYLON.Vector3[], minAngle: number = 1 / 180 * Math.PI, collateral?: BABYLON.Vector3[]): BABYLON.Vector3[] {
         let done = false;
         while (!done) {
